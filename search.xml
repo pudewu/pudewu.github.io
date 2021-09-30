@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Java基础</title>
+    <url>/2021/09/16/Java%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="JDK"><a href="#JDK" class="headerlink" title="JDK"></a>JDK</h1><h1 id="JRE"><a href="#JRE" class="headerlink" title="JRE"></a>JRE</h1><figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">--adcess </span><br></code></pre></td></tr></table></figure>
+
+ <span id="more"></span>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Java技术</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis事务</title>
+    <url>/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><blockquote>
+<p>事务</p>
+</blockquote>
+<p> redis单条命令是原子性的，但是事务不保证原子性 </p>
+<p>redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行</p>
+<p> <strong>一次性、顺序性、排他性</strong>！执行一系列命令！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">------ 队列 set set set 执行------<br></code></pre></td></tr></table></figure>
+
+
+
+<p> <strong>事务没有隔离级别的概念</strong> </p>
+<p>所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec</p>
+<p><strong>Redis单条命令式保存原子性的，但是事务不保证原子性！</strong></p>
+<p>redis事务:</p>
+<ul>
+<li>开始事务(multi)</li>
+<li>命令入队(。。）</li>
+<li>执行事务(exec)</li>
+</ul>
+ <span id="more"></span>
+
+<blockquote>
+<p>正常执行事务</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi # 开启事务<br>OK<br><span class="hljs-meta">#</span><span class="bash"> 命令入队</span><br>127.0.0.1:6379&gt; set k1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; get k2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行事务<br>1) OK<br>2) OK<br>3) &quot;v2&quot;<br>4) OK<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>放弃事务</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; set key1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; DISCARD  # 取消事务<br>OK<br>127.0.0.1:6379&gt; GET k4  # 事务队列中命令都不会被执行<br>(nil)<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 编译型异常(代码有问题，命令有错误)，事务中所有的命令都不会被执行 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; MULTI <br>OK<br>127.0.0.1:6379&gt; set k1 v1 <br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3 <br>QUEUED<br>127.0.0.1:6379&gt; getset k3  # 错误的命令<br>(error) ERR wrong number of arguments for &#x27;getset&#x27; command<br>127.0.0.1:6379&gt; et k4 v4  # 错误的命令<br>(error) ERR unknown command `et`, with args beginning with: `k4`, `v4`, <br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>(error) EXECABORT Transaction discarded because of previous errors.<br>127.0.0.1:6379&gt; get k4 # 所有的命令都不会被执行！<br>(nil)<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 运行时异常（1/0）， 如果事务队列中存在语法性，那么执行命令的时候，其他命令是可以正常执行 的，错误命令抛出异常！  </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 &quot;v1&quot;<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; incr k1 # 会执行的时候失败！<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; get k3<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (error) ERR value is not an integer or out of range # 虽然第一条命令报错了，但是<br>依旧正常执行成功了！<br>2) OK<br>3) OK<br>4) &quot;v3&quot;<br>127.0.0.1:6379&gt; get k2<br>&quot;v2&quot;<br>127.0.0.1:6379&gt; get k3<br>&quot;v3&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 监控！ Watch （面试常问！）  </p>
+</blockquote>
+<p> <strong>悲观锁</strong>：</p>
+<ul>
+<li>很悲观，认为什么时候都会出问题，无论做什么都会加锁！ </li>
+</ul>
+<p> 乐观锁： </p>
+<ul>
+<li> 很乐观，认为什么时候都不会出问题，所以不会上锁！ 更新数据的时候去判断一下，在此期间是否 有人修改过这个数据， 获取version </li>
+<li> 更新的时候比较 version</li>
+</ul>
+<blockquote>
+<p> Redis测监视测试 </p>
+</blockquote>
+<p> 正常执行成功！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set money 100<br>OK<br>127.0.0.1:6379&gt; set out 0<br>OK<br>127.0.0.1:6379&gt; watch money # 监视 money 对象<br>OK<br>127.0.0.1:6379&gt; multi # 事务正常结束，数据期间没有发生变动，这个时候就正常执行成功！<br>OK<br>127.0.0.1:6379&gt; DECRBY money 20<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 20<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (integer) 80<br>2) (integer) 20<br></code></pre></td></tr></table></figure>
+
+<p> 测试多线程修改值 , 使用watch 可以当做redis的乐观锁操作！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; watch money # 监视 money<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; DECRBY money 10<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 10<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行之前，另外一个线程，修改了我们的值，这个时候，就会导致事务执行失<br>败！<br>(nil)<br></code></pre></td></tr></table></figure>
+
+<p> 如果修改失败，获取最新的值就好  </p>
+<p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis的三种特殊类型</title>
+    <url>/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="三种特殊数据类型"><a href="#三种特殊数据类型" class="headerlink" title="三种特殊数据类型"></a>三种特殊数据类型</h2><h3 id="Geospatial-地理位置"><a href="#Geospatial-地理位置" class="headerlink" title="Geospatial 地理位置"></a>Geospatial 地理位置</h3><p><strong>朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！</strong> </p>
+ <span id="more"></span>
+
+<p>官方文档：<a href="https://www.redis.net.cn/order/3685.html">https://www.redis.net.cn/order/3685.html</a></p>
+<p>从官网中我们可以看到此数据类型只有<strong>六个命令</strong></p>
+<p><img src="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632661034050.png"></p>
+<p>下面就分别举例来做介绍</p>
+<blockquote>
+<h4 id="GEOADD"><a href="#GEOADD" class="headerlink" title="GEOADD"></a><strong>GEOADD</strong></h4></blockquote>
+<p>官方说明：将指定的地理空间位置（纬度、经度、名称）添加到指定的key中</p>
+<p> 该命令以采用标准格式的参数x,y,所以经度必须在纬度之前 ， 规定有如下</p>
+<ol>
+<li> 有效的经度从-180度到180度 </li>
+<li>有效的纬度从-85.05112878度到85.05112878度。</li>
+<li> 当坐标位置超出上述指定范围时，该命令将会返回一个错误。 </li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">geo使用举例</span><br><span class="hljs-meta">#</span><span class="bash">通过百度坐标拾取可以获取指定城市坐标 106.680848,26.642216 当前我获取的是自己所在城市的坐标</span><br>127.0.0.1:6379&gt; GEOADD china:city 106.680848 26.642216 guiyang<br>(integer) 1<br><br>127.0.0.1:6379&gt; GEOADD china:city 121.466742 31.231236 shanghai<br>(integer) 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">可以同时添加多个坐标</span><br>127.0.0.1:6379&gt; GEOADD china:city 114.100924 22.675499 shengzhen  106.561887 29.564724 chongqing<br>(integer) 2<br><br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><strong>GEOPOS</strong>  </p>
+</blockquote>
+<p> 从<code>key</code>里返回所有给定位置元素的位置（经度和纬度） </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">需要先指定</span><br>127.0.0.1:6379&gt; GEOPOS china:city shanghai shengzhen<br>1) 1) &quot;121.46674007177352905&quot;<br>   2) &quot;31.23123598368359666&quot;<br>2) 1) &quot;114.10092204809188843&quot;<br>   2) &quot;22.6755001616335008&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> <strong>GEODIST</strong> </p>
+</blockquote>
+<p>获取两个给定位置之间的距离, 如果两个位置之间的其中一个不存在， 那么命令返回空值 </p>
+<p>指定单位的参数 unit 必须是以下单位的其中一个：</p>
+<ul>
+<li><strong>m</strong> 表示单位为米。</li>
+<li><strong>km</strong> 表示单位为千米。</li>
+<li><strong>mi</strong> 表示单位为英里。</li>
+<li><strong>ft</strong> 表示单位为英尺。</li>
+</ul>
+<p>如果用户没有显式地指定单位参数， 那么 <code>GEODIST</code> 默认使用米作为单位。</p>
+<p><code>GEODIST</code> 命令在计算距离时会假设地球为完美的球形， 在极限情况下， 这一假设最大会造成 0.5% 的误差。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">输入两个城市  并指定计量单位 这里指定的km</span><br>127.0.0.1:6379&gt; GEODIST china:city shanghai chongqing km<br>&quot;1440.7483&quot;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><strong>GEORADIUS</strong></p>
+</blockquote>
+<p>给定的经纬度为中心， 找出某一半径内的元素</p>
+<p>范围可以使用以下其中一个单位：</p>
+<ul>
+<li><strong>m</strong> 表示单位为米。</li>
+<li><strong>km</strong> 表示单位为千米。</li>
+<li><strong>mi</strong> 表示单位为英里。</li>
+<li><strong>ft</strong> 表示单位为英尺。</li>
+</ul>
+<p>在给定以下可选项时， 命令会返回额外的信息：</p>
+<ul>
+<li><code>WITHDIST</code>: 在返回位置元素的同时， 将位置元素与中心之间的距离也一并返回。 距离的单位和用户给定的范围单位保持一致。</li>
+<li><code>WITHCOORD</code>: 将位置元素的经度和维度也一并返回。</li>
+<li><code>WITHHASH</code>: 以 52 位有符号整数的形式， 返回位置元素经过原始 geohash 编码的有序集合分值。 这个选项主要用于底层应用或者调试， 实际中的作用并不大。</li>
+</ul>
+<p>命令默认返回未排序的位置元素。 通过以下两个参数， 用户可以指定被返回位置元素的排序方式：</p>
+<ul>
+<li><code>ASC</code>: 根据中心的位置， 按照从近到远的方式返回位置元素。</li>
+<li><code>DESC</code>: 根据中心的位置， 按照从远到近的方式返回位置元素。</li>
+</ul>
+<p>例如：</p>
+<p> 我附近的人？ （获得所有附近的人的地址，定位！）通过半径来查询！ 获得指定数量的人</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">以110，30 这个经度为中心寻找方圆一千公里以内的城市</span><br>127.0.0.1:6379&gt; GEORADIUS china:city  110 30 1000 km<br>1) &quot;guiyang&quot;<br>2) &quot;chongqing&quot;<br>3) &quot;shengzhen&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 将具体距离、经纬度信息也一并返回</span><br>127.0.0.1:6379&gt; GEORADIUS china:city  110 30 1000 km WITHCOORD WITHDIST<br>1) 1) &quot;guiyang&quot;<br>   2) &quot;495.0114&quot;<br>   3) 1) &quot;106.68084830045700073&quot;<br>      2) &quot;26.64221710938331711&quot;<br>2) 1) &quot;chongqing&quot;<br>   2) &quot;335.3982&quot;<br>   3) 1) &quot;106.56188696622848511&quot;<br>      2) &quot;29.56472525888953129&quot;<br>3) 1) &quot;shengzhen&quot;<br>   2) &quot;911.2583&quot;<br>   3) 1) &quot;114.10092204809188843&quot;<br>      2) &quot;22.6755001616335008&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>GEORADIUSBYMEMBER</p>
+</blockquote>
+<p>找出位于指定范围内的元素，中心点是由给定的位置元素决定</p>
+<p>这个命令和 <a href="https://www.redis.net.cn/order/3689.html">GEORADIUS</a> 命令一样， 都可以找出位于指定范围内的元素， 但是 <code>GEORADIUSBYMEMBER</code> 的中心点是由给定的位置元素决定的， 而不是像 <a href="https://www.redis.net.cn/order/3689.html">GEORADIUS</a> 那样， 使用输入的经度和纬度来决定中心点 </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 找出位于指定元素周围的其他元素！</span><br>127.0.0.1:6379&gt; GEORADIUSBYMEMBER china:city chongqing 500 km<br>1) &quot;guiyang&quot;<br>2) &quot;chongqing&quot;<br></code></pre></td></tr></table></figure>
+
+<p> GEO 底层的实现原理其实就是 Zset！我们可以使用Zset命令来操作geo </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; ZRANGE china:city 0 -1 # 查看地图中全部的元素<br>1) &quot;chongqi&quot;<br>2) &quot;xian&quot;<br>3) &quot;shengzhen&quot;<br>4) &quot;hangzhou&quot;<br>5) &quot;shanghai&quot;<br>6) &quot;beijing&quot;<br>127.0.0.1:6379&gt; zrem china:city beijing # 移除指定元素！<br>(integer) 1<br>127.0.0.1:6379&gt; ZRANGE china:city 0 -1<br>1) &quot;chongqi&quot;<br>2) &quot;xian&quot;<br>3) &quot;shengzhen&quot;<br>4) &quot;hangzhou&quot;<br>5) &quot;shanghai&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="Hyperloglog"><a href="#Hyperloglog" class="headerlink" title="Hyperloglog"></a>Hyperloglog</h3><blockquote>
+<p>什么是基数？</p>
+</blockquote>
+<p> 比如数据集 {1, 3, 5, 7, 5, 7, 8}， 那么这个数据集的基数集为 {1, 3, 5 ,7, 8}, 基数(不重复元素)为5。 基数估计就是在误差可接受的范围内，快速计算基数。 </p>
+<blockquote>
+<p>简介</p>
+</blockquote>
+<p>Redis 2.8.9 版本就更新了 Hyperloglog 数据结构！ Redis Hyperloglog 基数统计的算法！</p>
+<p>优点：占用的内存是固定，2^64 不同的元素的技术，只需要废 12KB内存！如果要从内存角度来比较的话 Hyperloglog 首选！</p>
+<p>网页的 UV （一个人访问一个网站多次，但是还是算作一个人！）</p>
+<p>传统的方式， set 保存用户的id，然后就可以统计 set 中的元素数量作为标准判断 ! 这个方式如果保存大量的用户id，就会比较麻烦！我们的目的是为了计数，而不是保存用户id；</p>
+<p>0.81% 错误率！ 统计UV任务，可以忽略不计的！</p>
+<blockquote>
+<p>实例</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql">redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFADD w3ckey &quot;redis&quot;<br> <br><span class="hljs-number">1</span>) (<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br> <br>redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFADD w3ckey &quot;mongodb&quot;<br> <br><span class="hljs-number">1</span>) (<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br> <br>redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFADD w3ckey &quot;mysql&quot;<br> <br><span class="hljs-number">1</span>) (<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br> <br>redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFCOUNT w3ckey<br> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>如果允许容错，那么一定可以使用 Hyperloglog</p>
+<p>如果不允许容错，就使用 set 或者自己的数据类型即可</p>
+<h3 id="Bitmap"><a href="#Bitmap" class="headerlink" title="Bitmap"></a>Bitmap</h3><blockquote>
+<p>位存储</p>
+</blockquote>
+<p>统计用户信息，活跃，不活跃！ 登录 、 未登录！ 打卡，365打卡！ 两个状态的，都可以使用Bitmaps！ Bitmap 位图，数据结构！ 都是操作二进制位来进行记录，就只有0 和 1 两个状态！ 365 天 = 365 bit 1字节 = 8bit 46 个字节左右！</p>
+<blockquote>
+<p>测试</p>
+</blockquote>
+<p>使用bitmap 来记录 周一到周日的打卡！</p>
+<p>周一：1 周二：0 周三：0 周四：1 ……</p>
+<p><img src="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632664931110.png"></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">0</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">1</span> <span class="hljs-number">0</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">2</span> <span class="hljs-number">0</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">3</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">4</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">5</span> <span class="hljs-number">1</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">6</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>查看某一天是否有打卡！</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> getbit sign <span class="hljs-number">3</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> getbit sign <span class="hljs-number">6</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>统计操作，统计 打卡的天数！</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> bitcount sign # 统计这周的打卡记录，就可以看到是否有全勤！<br>(<span class="hljs-type">integer</span>) <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>参考：</p>
+<p>​       Redis官网：<a href="https://www.redis.net.cn/">https://www.redis.net.cn/</a></p>
+<p>​       B站狂神说Java:<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
+<p>​      </p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot整合Flowable工作流(1)</title>
+    <url>/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="Flowable流程图"><a href="#Flowable流程图" class="headerlink" title="Flowable流程图"></a>Flowable流程图</h1><h3 id="Flowable是什么？"><a href="#Flowable是什么？" class="headerlink" title="Flowable是什么？"></a>Flowable是什么？</h3><p> Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。</p>
+<p> Flowable可以十分灵活地加入你的应用/服务/构架。可以将JAR形式发布的Flowable库加入应用或服务，来<em>嵌入</em>引擎。 以JAR形式发布使Flowable可以轻易加入任何Java环境：Java SE；Tomcat、Jetty或Spring之类的servlet容器；JBoss或WebSphere之类的Java EE服务器，等等。 另外，也可以使用Flowable REST API进行HTTP调用。也有许多Flowable应用（Flowable Modeler, Flowable Admin, Flowable IDM 与 Flowable Task），提供了直接可用的UI示例，可以使用流程与任务。 </p>
+ <span id="more"></span>
+
+<p>Flowable流程需要先画流程图，然后再根据流程图引用自项目中，所以以下先画好流程图，然后再进行集成Spring boot生成</p>
+<blockquote>
+<p>部署FlowableUi</p>
+</blockquote>
+<ol>
+<li><p>官方网址下载FlowableUI：<a href="https://flowable.com/open-source/downloads/">https://flowable.com/open-source/downloads/</a></p>
+</li>
+<li><p>将下载好之后的压缩包进行解压进入文件夹之后会看到一个war包文件下，打开文件夹将会有一个（flowable-ui.war）文件</p>
+</li>
+<li><p>安装部署Tomcat，安装部署就略过了百度都有，将上面的war包放入tomcat的webapps目录下，并在当前目录下执行以下命令</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">java </span>-<span class="hljs-keyword">jar </span>flowable-ui.war<br></code></pre></td></tr></table></figure></li>
+<li><p>启动之后，有一行日志：Tomcat started on port(s): 8080 (http) with context path ‘/flowable-ui’，从以上可以看出端口默认为8080，路径为：/flowable-ui 。即访问：<a href="http://localhost:8080/flowable-ui%EF%BC%8C">http://localhost:8080/flowable-ui，</a></p>
+<p>  账号：admin 密码：test </p>
+</li>
+</ol>
+<blockquote>
+<p>画流程图</p>
+</blockquote>
+<p><strong>登录之后</strong> </p>
+<p><img src="https://res.cloudinary.com/dlzf16hlo/image/upload/v1632027508/blog/1632027486_1_qqpru0.png"></p>
+<p><strong>选择建模器应用程序</strong></p>
+]]></content>
+      <categories>
+        <category>SpringBoot</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis.conf详解</title>
+    <url>/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><strong>以下将从配置文件中顺序往下讲解</strong>,<strong>涉及主从复制，持久化将会另起讲解</strong></p>
+<h4 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png"></p>
+<p>1.配置文件unit单位大小写不敏感</p>
+<h4 id="包含"><a href="#包含" class="headerlink" title="包含"></a>包含</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924269484.png"></p>
+<p>类似我们nginx中的include中的包含文件</p>
+ <span id="more"></span>
+
+<h4 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">bind 127.0.0.1 # 绑定的ip<br>protected-mode yes # 保护模式<br>port 6379 #端口设置<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="通用-GENERAL"><a href="#通用-GENERAL" class="headerlink" title="通用 GENERAL"></a>通用 GENERAL</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"> daemonize yes #以守护进程的方式运行，默认是no，当我们需要后台启动时需要我们手动设置为yes<br> <br> pidfile /var/run/redis_6379.pid  #如果我们以后台方式运行，我们就需要指定一个pid文件<br> <br><span class="hljs-meta"> </span><br><span class="hljs-meta">#</span><span class="bash">日志</span> <br><span class="hljs-meta">#</span><span class="bash"> Specify the server verbosity level.</span><br><span class="hljs-meta">#</span><span class="bash">ze yes This can be one of:</span><br><span class="hljs-meta">#</span><span class="bash"> debug (a lot of information, useful <span class="hljs-keyword">for</span> development/testing)</span><br><span class="hljs-meta">#</span><span class="bash"> verbose (many rarely useful info, but not a mess like the debug level)</span><br><span class="hljs-meta">#</span><span class="bash"> notice (moderately verbose, what you want <span class="hljs-keyword">in</span> production probably) 生产环境</span><br><span class="hljs-meta">#</span><span class="bash"> warning (only very important / critical messages are logged)</span><br>loglevel notice<br><br>logfile &quot;&quot; #日志的文件位置名<br><br>databases 16  #数据库的数量，默认是16个数据库<br><br>always-show-logo no #是否总是显示日志<br><br> <br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h4><p><strong>持久化，在规定的时间内，执行了多少次操作，则会持久化到文件.rdb.aof</strong>, <strong>redis是内存数据库,如果没有持久化，那么数据断电即丢失</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">如果3600s内，如果至少有一个key进行了修改，即进行持久化操作</span><br>save 3600 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">如果300S内，如果至少300S内，至少有10个可以进行了修改，即进行持久化操作</span><br>save 300 10<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">如果60S内，如果至少10000个进行了修改，即进行持久化操作</span><br>save 60 10000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">后续持久化配置需要用到这里</span><br><br>stop-writes-on-bgsave-error yes #持久化如果出错，是否继续持久化<br><br>rdbcompression yes #是否压缩rdb文件,会消耗一些CPU资源<br><br>rdbchecksum yes  #保存rdb文件的时候，进行错误的核查校验！<br><br>dbfilename dump.rdb # 指定本地数据库文件名，一般采用默认的 dump.rdb<br><br>dir ./  #指定本地数据库存放目录，一般也用默认配置<br><br><br><br><br><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="SECURITY-安全"><a href="#SECURITY-安全" class="headerlink" title="SECURITY 安全"></a>SECURITY 安全</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632927510924.png"></p>
+<p> <strong>可以在这里设置redis的密码，默认是没有密码！</strong> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">               <br>requirepass 123456  #设置密码，设置后需要重启服务才有效,这里设置的是123456<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">当我们登录之后，执行命令将会出现以下提示需要认证</span><br>(error) NOAUTH Authentication required.<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">认证即可正常操作</span><br>127.0.0.1:6379&gt; auth 123456<br>OK<br><br>127.0.0.1:6379&gt; set k1 v1<br>OK<br>127.0.0.1:6379&gt; get k1<br>&quot;v1&quot;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="限制-CLIENTS"><a href="#限制-CLIENTS" class="headerlink" title="限制 CLIENTS"></a>限制 CLIENTS</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><br>maxclients 10000  #设置能连接上redis的最大客户端的数量<br><br>maxmemory &lt;bytes&gt; #redis配置最大的内存容量<br><br><br><br>maxmemory-policy noeviction # 内存达到上限后的处理策略<br><span class="hljs-meta">#</span><span class="bash"> volatile-lru -&gt; Evict using approximated LRU, only keys with an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-lru -&gt; Evict any key using approximated LRU.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-lfu -&gt; Evict using approximated LFU, only keys with an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-lfu -&gt; Evict any key using approximated LFU.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-random -&gt; Remove a random key having an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-random -&gt; Remove a random key, any key.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-ttl -&gt; Remove the key with the nearest expire time (minor TTL)</span><br><span class="hljs-meta">#</span><span class="bash"> noeviction -&gt; Don<span class="hljs-string">&#x27;t evict anything, just return an error on write operations.</span></span><br>        1. volatile-lru: 只对设置了过期时间的key进行LRU(默认值)<br>        2. allkeys-lru： 删除lru算法的key<br>        3. volatile-random：随机删除即将过期key<br>        4. allkeys-random：随机删除<br>        5. volatile-ttl： 删除即将过期的<br>        6. noeviction ： 永不过期，返回错误<br>        7. volatile-lfu：使用近似 LFU 驱逐，只有设置过期的键<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="APPEND-ONLY-模式-aof配置"><a href="#APPEND-ONLY-模式-aof配置" class="headerlink" title="APPEND ONLY 模式 aof配置"></a>APPEND ONLY 模式 aof配置</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">appendonly no #默认是不开启aof模式的，默认是使用rdb方式持久化的，在大部分所有的情况下，rdb完全够用！<br>appendfilename &quot;appendonly.aof&quot; #持久化名称<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> appendfsync always   <span class="hljs-comment">#每次修改都会sync。消耗性能</span></span><br>appendfsync everysec   #每秒执行一次sync，可能会丢失这1S的数据<br><span class="hljs-meta">#</span><span class="bash"> appendfsync no       <span class="hljs-comment">#不执行 sync，这个时候操作系统自己同步数据，速度最快！</span></span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>参考：</p>
+<p>​       B站狂神说Java:<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
+<p>​      Redis.Conf配置文件</p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis基础</title>
+    <url>/2021/09/25/redis%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p>Redis是什么？</p>
+</blockquote>
+<p> Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI <a href="https://baike.baidu.com/item/C%E8%AF%AD%E8%A8%80">C语言</a>编写、支持网络、可基于内存亦可持久化的日志型、Key-Value<a href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E5%BA%93/103728">数据库</a>，并提供多种语言的API。从2010年3月15日起，Redis的开发工作由VMware主持。从2013年5月开始，Redis的开发由<a href="https://baike.baidu.com/item/Pivotal">Pivotal</a>赞助。 </p>
+<p> 免费和开源！是当下最热门的 NoSQL 技术之一！也被人们称之为结构化数据库！ </p>
+ <span id="more"></span>
+
+<blockquote>
+<p>Redis作用于那些</p>
+</blockquote>
+<ol>
+<li> 内存存储、持久化，内存中是断电即失、所以说持久化很重要（rdb、aof） </li>
+<li> 效率高，可以用于高速缓存 </li>
+<li> 发布订阅系统 </li>
+<li> 地图信息分析  </li>
+<li> 计时器、计数器（浏览量！）  </li>
+<li>…</li>
+</ol>
+<blockquote>
+<p>主要特性</p>
+</blockquote>
+<ol>
+<li> 多样的数据类型 </li>
+</ol>
+<p>   2、持久化</p>
+<p>   3、集群 </p>
+<p>   4、事务 </p>
+<h2 id="Redis安装"><a href="#Redis安装" class="headerlink" title="Redis安装"></a>Redis安装</h2><blockquote>
+<p>Linux安装</p>
+</blockquote>
+<p>Redis官网地址: <a href="https://redis.io/">https://redis.io/</a></p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632572684797.png"></p>
+<p>1.下载后,可获得一个tar压缩，我这里放到了 /opt目录下</p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632573739375.png"></p>
+<p>2.解压Redis安装包 解压命令: tar zxvf redis-6.2.5.tar.gz</p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632574069385.png"></p>
+<p>3.解压之后可以看到一个redis目录,进入Redis目录可以看到redis.conf的一个文件</p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632574182949.png"></p>
+<p>4.在redis下我们首先进行基本安装及编译安装</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">基础环境安装</span><br>yum install gcc-c++<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">编译</span><br>make<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">安装 redis安装之后默认安装在 /usr/<span class="hljs-built_in">local</span>/bin 下</span><br>make install<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632575400027.png"></p>
+<p>5.在安装目录下复制redis.conf文件复制到安装目录下即：/usr/local/bin</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">cp redis.conf /usr/local/bin/<br></code></pre></td></tr></table></figure>
+
+
+
+<p>6.修改redis启动方式，因为redis默认启动方式不是后台启动，因此我们需要进入redis.conf中修改为yes</p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632575702117.png"></p>
+<p>7.启动redis服务</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">启动redis服务</span><br>redis-server etc/redis.conf   #在bin目录下创建了etc目录  redis启动需要将配置文件一同操作<br><br></code></pre></td></tr></table></figure>
+
+
+
+<p>8.连接测试</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">连接客户端命令 -p 指定端口</span><br>redis-cli -p 6379<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">可以看到连接并ping通</span><br>127.0.0.1:6379&gt; ping<br>PONG<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">连接之后如何正常退出？</span><br>127.0.0.1:6379&gt; shutdown #先关闭，防止有数据被中断<br>not connected&gt; exit  #退出<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">此时通过查看进程是否存在</span><br>ps -ef | grep redis<br><br></code></pre></td></tr></table></figure>
+
+<p>9.查看redis进程</p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632576417517.png"></p>
+<p>当客户端连接退出后，任务进程将会不存在</p>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="redis默认数据库"><a href="#redis默认数据库" class="headerlink" title="redis默认数据库"></a>redis默认数据库</h3><p>通过查看配置文件</p>
+<p><strong>redis默认有16个数据库，默认使用第0个数据库</strong> </p>
+<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632576644195.png"></p>
+<p>我们可以对数据库进行选择</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">数据使用选择，redis默认界面，我们可以使用table键进行命令补全</span><br>127.0.0.1:6379&gt; SELECT 2<br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看库大小</span><br>127.0.0.1:6379[2]&gt; DBSIZE<br>(integer) 0<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看所有key</span><br>127.0.0.1:6379[2]&gt; KEYS *<br></code></pre></td></tr></table></figure>
+
+<p><strong>清除当前数据库 flushdb</strong></p>
+<p><strong>清除全部数据库的内容 FLUSHALL</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; KEYS * <br>1) &quot;name&quot;<br>127.0.0.1:6379&gt; FLUSHDB<br>OK<br>127.0.0.1:6379&gt; KEYS * <br>(empty array)<br>127.0.0.1:6379&gt; <br><br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>Redis是单线程</p>
+</blockquote>
+<p> 大家应该知道Redis是很快的，官方表示，Redis是基于内存操作，CPU不是Redis性能瓶颈，Redis的瓶颈是根据 机器的内存和网络带宽，既然可以使用单线程来实现，就使用单线程了！所有就使用了单线程了！</p>
+<p> Redis 是C 语言写的，官方提供的数据为 100000+ 的QPS，完全不比同样是使用 key-vale的 Memecache差！ </p>
+<h3 id="Redis单线程为什么还这么快？"><a href="#Redis单线程为什么还这么快？" class="headerlink" title="Redis单线程为什么还这么快？"></a>Redis单线程为什么还这么快？</h3><p>了解计算机原理的应该知道   CPU &gt;  内存 &gt; 磁盘</p>
+<p><strong>核心：redis 是将所有的数据全部放在内存中的，所以说使用单线程去操作效率就是最高的，多线程 （CPU上下文会切换：耗时的操作！！！），对于内存系统来说，如果没有上下文切换效率就是最高 的！多次读写都是在一个CPU上的，在内存情况下，这个就是最佳的方案！</strong></p>
+<h2 id="五大类型"><a href="#五大类型" class="headerlink" title="五大类型"></a>五大类型</h2><blockquote>
+<p>官方文档说明</p>
+</blockquote>
+<p> Redis 是一个开源（BSD许可）的，内存中的数据结构存储系统，它可以用作数据库、缓存和消息中间件。 它支持多种类型的数据结构，如 <a href="http://www.redis.cn/topics/data-types-intro.html#strings">字符串（strings）</a>， <a href="http://www.redis.cn/topics/data-types-intro.html#hashes">散列（hashes）</a>， <a href="http://www.redis.cn/topics/data-types-intro.html#lists">列表（lists）</a>， <a href="http://www.redis.cn/topics/data-types-intro.html#sets">集合（sets）</a>， <a href="http://www.redis.cn/topics/data-types-intro.html#sorted-sets">有序集合（sorted sets）</a> 与范围查询， <a href="http://www.redis.cn/topics/data-types-intro.html#bitmaps">bitmaps</a>， <a href="http://www.redis.cn/topics/data-types-intro.html#hyperloglogs">hyperloglogs</a> 和 <a href="http://www.redis.cn/commands/geoadd.html">地理空间（geospatial）</a> 索引半径查询。 Redis 内置了 <a href="http://www.redis.cn/topics/replication.html">复制（replication）</a>，<a href="http://www.redis.cn/commands/eval.html">LUA脚本（Lua scripting）</a>， <a href="http://www.redis.cn/topics/lru-cache.html">LRU驱动事件（LRU eviction）</a>，<a href="http://www.redis.cn/topics/transactions.html">事务（transactions）</a> 和不同级别的 <a href="http://www.redis.cn/topics/persistence.html">磁盘持久化（persistence）</a>， 并通过 <a href="http://www.redis.cn/topics/sentinel.html">Redis哨兵（Sentinel）</a>和自动 <a href="http://www.redis.cn/topics/cluster-tutorial.html">分区（Cluster）</a>提供高可用性（high availability）。 </p>
+<blockquote>
+<p>下面命令需要我们记住，现在我们一般使用的spring boot，Jedis方法基本都是这些命令</p>
+</blockquote>
+<h3 id="Redis基本操作"><a href="#Redis基本操作" class="headerlink" title="Redis基本操作"></a>Redis基本操作</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">查询所有key</span><br>127.0.0.1:6379&gt; KEYS * <br>(empty array)<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-built_in">set</span> key</span><br>127.0.0.1:6379&gt; SET name pudewu<br>OK<br><br><br>127.0.0.1:6379&gt; KEYS * <br>1) &quot;name&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">判断key值是不是存在</span><br>127.0.0.1:6379&gt; EXISTS name<br>(integer) 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 移除当前的key</span><br>127.0.0.1:6379&gt; MOVE name 1<br>(integer) 1<br><br><br>127.0.0.1:6379&gt; KEYS *<br>(empty array)<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">获取key</span><br>127.0.0.1:6379&gt; get name<br>&quot;pudewu&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 设置key的过期时间，单位是秒</span><br>127.0.0.1:6379&gt; EXPIRE name 20<br>(integer) 1<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 查看当前key的剩余时间</span><br>127.0.0.1:6379&gt; TTL name<br>(integer) 17<br>127.0.0.1:6379&gt; TTL name<br>(integer) 13<br>127.0.0.1:6379&gt; TTL name<br>(integer) 12<br>127.0.0.1:6379&gt; TTL name<br>(integer) 11<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看key的类型</span><br>127.0.0.1:6379&gt; type name<br>string<br></code></pre></td></tr></table></figure>
+
+<p><strong>如果对有些命令不会的可以在官网查看帮助命令</strong></p>
+<h3 id="String（字符串）"><a href="#String（字符串）" class="headerlink" title="String（字符串）"></a>String（字符串）</h3><p>相信这个命令是我们经常使用到的</p>
+<blockquote>
+<p>添加Key，获取Key</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; SET k2 v2<br>OK<br>127.0.0.1:6379&gt; GET k2<br>&quot;v2&quot;<br>127.0.0.1:6379&gt; EXISTS k2<br>(integer) 1<br>127.0.0.1:6379&gt; APPEND k2 &quot;hello&quot;<br>(integer) 7<br>127.0.0.1:6379&gt; get k2<br>&quot;v2hello&quot;<br>127.0.0.1:6379&gt; STRLEN k2<br>(integer) 7<br>127.0.0.1:6379&gt; APPEND k2 &quot;redis学习&quot;<br>(integer) 18<br>127.0.0.1:6379&gt; STRLEN k2<br>(integer) 18<br>127.0.0.1:6379&gt; GET k2<br>&quot;v2helloredis\xe5\xad\xa6\xe4\xb9\xa0&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>String自增自减</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">设置默认值为0</span><br>127.0.0.1:6379&gt; set number 0<br>OK<br>127.0.0.1:6379&gt; get number<br>&quot;0&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">自增1</span><br>127.0.0.1:6379&gt; INCR number <br>(integer) 1<br>127.0.0.1:6379&gt; INCR number <br>(integer) 2<br>127.0.0.1:6379&gt; INCR number <br>(integer) 3<br>127.0.0.1:6379&gt; INCR number <br>(integer) 4<br>127.0.0.1:6379&gt; get number<br>&quot;4&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">自减1</span><br>127.0.0.1:6379&gt; DECR number <br>(integer) 3<br>127.0.0.1:6379&gt; DECR number <br>(integer) 2<br>127.0.0.1:6379&gt; DECR number <br>(integer) 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">自定义 增加值</span><br>127.0.0.1:6379&gt; INCRBY number 10<br>(integer) 11<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">自定义 减值</span><br>127.0.0.1:6379&gt; DECRBY number 5<br>(integer) 6<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>字符串范围</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 设置 key的值</span><br>127.0.0.1:6379&gt; set key &quot;hello redis&quot;<br>OK<br>127.0.0.1:6379&gt; get key1<br>(nil)<br>127.0.0.1:6379&gt; get key<br>&quot;hello redis&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 截取字符串 [0,3]</span><br>127.0.0.1:6379&gt; GETRANGE key 0 3<br>&quot;hell&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 获取全部的字符串 和 get key是一样的</span><br>127.0.0.1:6379&gt; GETRANGE key 0 -1<br>&quot;hello redis&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 替换！</span><br>127.0.0.1:6379&gt; set key2 &quot;redis fast&quot;<br>OK<br>127.0.0.1:6379&gt; get key2<br>&quot;redis fast&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 替换指定位置开始的字符串！</span><br>127.0.0.1:6379&gt; SETRANGE key2 1 realy<br>(integer) 10<br>127.0.0.1:6379&gt; get key2<br>&quot;rrealyfast&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 设置过期时间 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> setex (<span class="hljs-built_in">set</span> with expire) <span class="hljs-comment"># 设置过期时间</span></span><br><span class="hljs-meta">#</span><span class="bash"> setnx (<span class="hljs-built_in">set</span> <span class="hljs-keyword">if</span> not exist) <span class="hljs-comment"># 不存在在设置 （在分布式锁中会常常使用！）</span></span><br>127.0.0.1:6379&gt; setex key3 30 &quot;hello&quot; # 设置key3 的值为 hello,30秒后过期<br>OK<br>127.0.0.1:6379&gt; ttl key3<br>(integer) 26<br>127.0.0.1:6379&gt; get key3<br>&quot;hello&quot;<br>127.0.0.1:6379&gt; setnx mykey &quot;redis&quot; # 如果mykey 不存在，创建mykey<br>(integer) 1<br>127.0.0.1:6379&gt; keys *<br>1) &quot;key2&quot;<br>2) &quot;mykey&quot;<br>3) &quot;key1&quot;<br>127.0.0.1:6379&gt; ttl key3<br>(integer) -2<br>127.0.0.1:6379&gt; setnx mykey &quot;MongoDB&quot; # 如果mykey存在，创建失败！<br>(integer) 0<br>127.0.0.1:6379&gt; get mykey<br>&quot;redis&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>mset mget</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; mset k1 v1 k2 v2 k3 v3 # 同时设置多个值<br>OK<br>127.0.0.1:6379&gt; keys *<br>1) &quot;k1&quot;<br>2) &quot;k2&quot;<br>3) &quot;k3&quot;<br>127.0.0.1:6379&gt; mget k1 k2 k3 # 同时获取多个值<br>1) &quot;v1&quot;<br>2) &quot;v2&quot;<br>3) &quot;v3&quot;<br>127.0.0.1:6379&gt; msetnx k1 v1 k4 v4 # msetnx 是一个原子性的操作，要么一起成功，要么一起<br>失败！<br>(integer) 0<br>127.0.0.1:6379&gt; get k4<br>(nil)<br><span class="hljs-meta">#</span><span class="bash"> 对象</span><br>set user:1 &#123;name:zhangsan,age:3&#125; # 设置一个user:1 对象 值为 json字符来保存一个对象！<br><span class="hljs-meta">#</span><span class="bash"> 这里的key是一个巧妙的设计： user:&#123;id&#125;:&#123;filed&#125; , 如此设计在Redis中是完全OK了！</span><br>127.0.0.1:6379&gt; mset user:1:name zhangsan user:1:age 2<br>OK<br>127.0.0.1:6379&gt; mget user:1:name user:1:age<br>1) &quot;zhangsan&quot;<br>2) &quot;2&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><strong>getset</strong> </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; getset db redis # 如果不存在值，则返回 nil<br>(nil)<br>127.0.0.1:6379&gt; get db<br>&quot;redis<br>127.0.0.1:6379&gt; getset db mongodb # 如果存在值，获取原来的值，并设置新的值<br>&quot;redis&quot;<br>127.0.0.1:6379&gt; get db<br>&quot;mongodb&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="List-列表"><a href="#List-列表" class="headerlink" title="List(列表)"></a>List(列表)</h3><p> 在redis里面，我们可以把list玩成 ，栈、队列、阻塞队列！ 所有的list命令都是用l开头的，Redis不区分大小命令  </p>
+<blockquote>
+<p>lrange list 0 -1 查询list中所有 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 将一个值或者多个值，插入到列表头部 （左）</span><br>127.0.0.1:6379&gt; lpush list one<br><br>127.0.0.1:6379&gt; lpush list two<br><br>127.0.0.1:6379&gt; lpush list three<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 0 -1 表示查询当前key下所有值</span><br>127.0.0.1:6379&gt; lrange list 0 -1<br><br>1) &quot;three&quot;<br>2) &quot;two&quot;<br>3) &quot;one&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> RPush将一个值或多个值，插入到列表位部(右) </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; Rpush list righr<br>127.0.0.1:6379&gt; LRANGE list 0 -1<br>1) &quot;three&quot;<br>2) &quot;two&quot;<br>3) &quot;one&quot;<br>4) &quot;righr&quot;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>Lpop左移除列表</strong>  <strong>Rpop右移除列表</strong></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 移除第一个元素</span><br>127.0.0.1:6379&gt; Lpop list<br>&quot;three&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">移除最后一个元素</span><br>127.0.0.1:6379&gt; Rpop list<br>&quot;righr&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查询list中所有数据</span><br>127.0.0.1:6379&gt; LRANGE list 0 -1<br>1) &quot;two&quot;<br>2) &quot;one&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<h3 id="Lindex"><a href="#Lindex" class="headerlink" title="Lindex"></a>Lindex</h3></blockquote>
+<p>通过下表获得list中的某一个值</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; lindex list 1<br>&quot;one&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> Llen获取列表长度 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; llen list<br>(integer) 4<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">指定移除列</span>   <br>127.0.0.1:6379&gt; lrem list 1 one<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<blockquote>
+<p>小结</p>
+</blockquote>
+<ul>
+<li>他实际上是一个链表，before Node after ， left，right 都可以插入值</li>
+<li>如果key 不存在，创建新的链表</li>
+<li>如果key存在，新增内容</li>
+<li>如果移除了所有值，空链表，也代表不存在！</li>
+<li>在两边插入或者改动值，效率最高！ 中间元素，相对来说效率会低一点~</li>
+</ul>
+<p><strong>在两边插入或者改动值，效率最高！ 中间元素，相对来说效率会低一点~</strong></p>
+<h3 id="Set-集合"><a href="#Set-集合" class="headerlink" title="Set(集合)"></a>Set(集合)</h3><p> set中的值不能重复,无序 </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># set集合中添加元素  SADD</span></span><br>127.0.0.1:6379&gt; sadd myset &quot;hello set&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查询<span class="hljs-built_in">set</span>中所有元素 SMEMBERS</span> <br>127.0.0.1:6379&gt; Smembers myset<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> SISMEMBER 查询<span class="hljs-built_in">set</span>中某个值是否存在</span><br>127.0.0.1:6379&gt; SISMEMBER myset hello<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">获取Set中集合元素个数</span><br>127.0.0.1:6379&gt; scard myset<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">rem 移除<span class="hljs-built_in">set</span>中元素</span><br>127.0.0.1:6379&gt; srem myset yes<br>(integer) 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> SRANDMEMBER 随机抽取<span class="hljs-built_in">set</span>集合中数据</span><br>127.0.0.1:6379&gt; SRANDMEMBER myset<br><br><br>==============================================================================<br>删除指定Set数据、随机删除Set数据<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">SMOVE  将一个指定的值，移动到另一个<span class="hljs-built_in">set</span>值中</span><br>127.0.0.1:6379&gt; smove myset myset2 &quot;dewu1&quot;    <br><br><br>==============================================================================<br>数字集合类：<br>- 差集 SDIFF<br>- 交集<br>- 并集<br><br>127.0.0.1:6379&gt; SDIFF key1 key2  # 差集<br><br>127.0.0.1:6379&gt; SINTER key1 key2 # 交集 共同好友就可以这样实现<br><br>127.0.0.1:6379&gt; SUNION key1 key2 # 并集<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="Hash-哈希"><a href="#Hash-哈希" class="headerlink" title="Hash(哈希)"></a>Hash(哈希)</h3><p> <strong>Map集合，key-map! 时候这个值是一个map集合！ 本质和String类型没有太大区别，还是一个简单的 key-vlaue！</strong> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 添加hash值  hset</span></span><br>127.0.0.1:6379&gt; hset myhash field kuangshen<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 获取<span class="hljs-built_in">hash</span>值  hget</span><br>127.0.0.1:6379&gt; hget myhash field<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">set</span>多个 key-vlaue</span><br>127.0.0.1:6379&gt; hmset myhash field1 hello field2 world<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">获取多个<span class="hljs-built_in">hash</span>值</span><br>127.0.0.1:6379&gt; hmget myhash field1 field2<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">获取所有<span class="hljs-built_in">hash</span>中的值</span><br>127.0.0.1:6379&gt;  hgetall myhash<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">删除<span class="hljs-built_in">hash</span>操作  hdel</span><br>127.0.0.1:6379&gt; hdel myhash field1<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 只获得所有field</span><br><span class="hljs-meta">#</span><span class="bash"> 只获得所有value</span><br>127.0.0.1:6379&gt; hkeys myhash # 只获得所有field<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">只获得所有value</span><br>127.0.0.1:6379&gt; hvals myhash<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">incr decr</span><br>127.0.0.1:6379&gt; hset myhash field3 5 #指定增量！<br>127.0.0.1:6379&gt; HINCRby myhash field3 1<br>127.0.0.1:6379&gt; hincrby myhash field3 -1<br><br>127.0.0.1:6379&gt; hsetnx myhash field4 hello # 如果不存在则可以设置<br>127.0.0.1:6379&gt; hsetnx myhash field4 world # 如果存在则不能设置<br></code></pre></td></tr></table></figure>
+
+
+
+<p> <strong>hash变更的数据 user name age,尤其是是用户信息之类的，经常变动的信息！ hash 更适合于对象的 存储，String更加适合字符串存储！</strong> </p>
+<h3 id="Zset-有序集合"><a href="#Zset-有序集合" class="headerlink" title="Zset(有序集合)"></a>Zset(有序集合)</h3><p> <strong>在set基础上增加了一个值，set k1 v1   zset k1 score1  v1</strong> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">添加有序集合</span><br>127.0.0.1:6379&gt; zadd dewu 1 redis<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">多个添加</span><br>127.0.0.1:6379&gt; zadd dewu 2 two 3 three<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查询集合元素</span><br>127.0.0.1:6379&gt; zrange dewu 0 -1<br><br><br>=====================================================<br>排序如何实现<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">添加三个用户</span><br>127.0.0.1:6379&gt; zadd salary 2500 xiaoming <br>(integer) 1<br>127.0.0.1:6379&gt; zadd salary 3000 xiaohong <br>(integer) 1<br>127.0.0.1:6379&gt; zadd salary 3500 zhangsan<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> ZRANGEBYSCORE key min max</span><br>127.0.0.1:6379&gt;  ZRANGEBYSCORE salary -inf +inf<br>1) &quot;xiaoming&quot;<br>2) &quot;xiaohong&quot;<br>3) &quot;zhangsan&quot;  # 显示全部的用户 从小到大！<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">从大到小排序</span><br>127.0.0.1:6379&gt; zrevrange salary 0 -1<br>1) &quot;zhangsan&quot;<br>2) &quot;xiaohong&quot;<br>3) &quot;xiaoming&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">显示全部用户并且附带成绩</span><br>127.0.0.1:6379&gt; ZRANGEBYSCORE salary -inf +inf withscores<br>1) &quot;xiaoming&quot;<br>2) &quot;2500&quot;<br>3) &quot;xiaohong&quot;<br>4) &quot;3000&quot;<br>5) &quot;zhangsan&quot;<br>6) &quot;3500&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">显示工资小于2500的员工升序排序</span><br>127.0.0.1:6379&gt; ZRANGEBYSCORE salary -inf 2500 withscores<br>1) &quot;xiaoming&quot;<br>2) &quot;2500&quot;<br><br><br>=================================================================<br><span class="hljs-meta">#</span><span class="bash"> 移除rem中的元素</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">移除集合中指定元素</span><br>127.0.0.1:6379&gt; zrem salary xiaoming<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">获取有序集合中的个数</span><br>127.0.0.1:6379&gt; zcard salary<br><br>==================================================================<br><br>127.0.0.1:6379&gt; zadd xiaolong 1 hello<br>127.0.0.1:6379&gt; zadd xiaolong 2 world 3 kuangsheng<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">获取指定区间的成员数量！</span><br>127.0.0.1:6379&gt; zcount xiaolong 1 3<br> <br></code></pre></td></tr></table></figure>
+
+
+
+<p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+</search>

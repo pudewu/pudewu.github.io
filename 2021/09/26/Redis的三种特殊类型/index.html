@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="三种特殊数据类型Geospatial 地理位置朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！ ">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="三种特殊数据类型Geospatial 地理位置朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis的三种特殊类型">
+<meta property="og:url" content="https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="三种特殊数据类型Geospatial 地理位置朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632661034050.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632664931110.png">
+<meta property="article:published_time" content="2021-09-26T12:50:39.000Z">
+<meta property="article:modified_time" content="2021-09-30T01:27:22.932Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632661034050.png">
+  
+  <title>Redis的三种特殊类型 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Redis的三种特殊类型">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-09-26 20:50" pubdate>
+        2021年9月26日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      14 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis的三种特殊类型</h1>
+            
+            <div class="markdown-body">
+              <h2 id="三种特殊数据类型"><a href="#三种特殊数据类型" class="headerlink" title="三种特殊数据类型"></a>三种特殊数据类型</h2><h3 id="Geospatial-地理位置"><a href="#Geospatial-地理位置" class="headerlink" title="Geospatial 地理位置"></a>Geospatial 地理位置</h3><p><strong>朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！</strong> </p>
+ <span id="more"></span>
+
+<p>官方文档：<a target="_blank" rel="noopener" href="https://www.redis.net.cn/order/3685.html">https://www.redis.net.cn/order/3685.html</a></p>
+<p>从官网中我们可以看到此数据类型只有<strong>六个命令</strong></p>
+<p><img src="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632661034050.png" srcset="/img/loading.gif" lazyload></p>
+<p>下面就分别举例来做介绍</p>
+<blockquote>
+<h4 id="GEOADD"><a href="#GEOADD" class="headerlink" title="GEOADD"></a><strong>GEOADD</strong></h4></blockquote>
+<p>官方说明：将指定的地理空间位置（纬度、经度、名称）添加到指定的key中</p>
+<p> 该命令以采用标准格式的参数x,y,所以经度必须在纬度之前 ， 规定有如下</p>
+<ol>
+<li> 有效的经度从-180度到180度 </li>
+<li>有效的纬度从-85.05112878度到85.05112878度。</li>
+<li> 当坐标位置超出上述指定范围时，该命令将会返回一个错误。 </li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">geo使用举例</span><br><span class="hljs-meta">#</span><span class="bash">通过百度坐标拾取可以获取指定城市坐标 106.680848,26.642216 当前我获取的是自己所在城市的坐标</span><br>127.0.0.1:6379&gt; GEOADD china:city 106.680848 26.642216 guiyang<br>(integer) 1<br><br>127.0.0.1:6379&gt; GEOADD china:city 121.466742 31.231236 shanghai<br>(integer) 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">可以同时添加多个坐标</span><br>127.0.0.1:6379&gt; GEOADD china:city 114.100924 22.675499 shengzhen  106.561887 29.564724 chongqing<br>(integer) 2<br><br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><strong>GEOPOS</strong>  </p>
+</blockquote>
+<p> 从<code>key</code>里返回所有给定位置元素的位置（经度和纬度） </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">需要先指定</span><br>127.0.0.1:6379&gt; GEOPOS china:city shanghai shengzhen<br>1) 1) &quot;121.46674007177352905&quot;<br>   2) &quot;31.23123598368359666&quot;<br>2) 1) &quot;114.10092204809188843&quot;<br>   2) &quot;22.6755001616335008&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> <strong>GEODIST</strong> </p>
+</blockquote>
+<p>获取两个给定位置之间的距离, 如果两个位置之间的其中一个不存在， 那么命令返回空值 </p>
+<p>指定单位的参数 unit 必须是以下单位的其中一个：</p>
+<ul>
+<li><strong>m</strong> 表示单位为米。</li>
+<li><strong>km</strong> 表示单位为千米。</li>
+<li><strong>mi</strong> 表示单位为英里。</li>
+<li><strong>ft</strong> 表示单位为英尺。</li>
+</ul>
+<p>如果用户没有显式地指定单位参数， 那么 <code>GEODIST</code> 默认使用米作为单位。</p>
+<p><code>GEODIST</code> 命令在计算距离时会假设地球为完美的球形， 在极限情况下， 这一假设最大会造成 0.5% 的误差。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">输入两个城市  并指定计量单位 这里指定的km</span><br>127.0.0.1:6379&gt; GEODIST china:city shanghai chongqing km<br>&quot;1440.7483&quot;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p><strong>GEORADIUS</strong></p>
+</blockquote>
+<p>给定的经纬度为中心， 找出某一半径内的元素</p>
+<p>范围可以使用以下其中一个单位：</p>
+<ul>
+<li><strong>m</strong> 表示单位为米。</li>
+<li><strong>km</strong> 表示单位为千米。</li>
+<li><strong>mi</strong> 表示单位为英里。</li>
+<li><strong>ft</strong> 表示单位为英尺。</li>
+</ul>
+<p>在给定以下可选项时， 命令会返回额外的信息：</p>
+<ul>
+<li><code>WITHDIST</code>: 在返回位置元素的同时， 将位置元素与中心之间的距离也一并返回。 距离的单位和用户给定的范围单位保持一致。</li>
+<li><code>WITHCOORD</code>: 将位置元素的经度和维度也一并返回。</li>
+<li><code>WITHHASH</code>: 以 52 位有符号整数的形式， 返回位置元素经过原始 geohash 编码的有序集合分值。 这个选项主要用于底层应用或者调试， 实际中的作用并不大。</li>
+</ul>
+<p>命令默认返回未排序的位置元素。 通过以下两个参数， 用户可以指定被返回位置元素的排序方式：</p>
+<ul>
+<li><code>ASC</code>: 根据中心的位置， 按照从近到远的方式返回位置元素。</li>
+<li><code>DESC</code>: 根据中心的位置， 按照从远到近的方式返回位置元素。</li>
+</ul>
+<p>例如：</p>
+<p> 我附近的人？ （获得所有附近的人的地址，定位！）通过半径来查询！ 获得指定数量的人</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">以110，30 这个经度为中心寻找方圆一千公里以内的城市</span><br>127.0.0.1:6379&gt; GEORADIUS china:city  110 30 1000 km<br>1) &quot;guiyang&quot;<br>2) &quot;chongqing&quot;<br>3) &quot;shengzhen&quot;<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 将具体距离、经纬度信息也一并返回</span><br>127.0.0.1:6379&gt; GEORADIUS china:city  110 30 1000 km WITHCOORD WITHDIST<br>1) 1) &quot;guiyang&quot;<br>   2) &quot;495.0114&quot;<br>   3) 1) &quot;106.68084830045700073&quot;<br>      2) &quot;26.64221710938331711&quot;<br>2) 1) &quot;chongqing&quot;<br>   2) &quot;335.3982&quot;<br>   3) 1) &quot;106.56188696622848511&quot;<br>      2) &quot;29.56472525888953129&quot;<br>3) 1) &quot;shengzhen&quot;<br>   2) &quot;911.2583&quot;<br>   3) 1) &quot;114.10092204809188843&quot;<br>      2) &quot;22.6755001616335008&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>GEORADIUSBYMEMBER</p>
+</blockquote>
+<p>找出位于指定范围内的元素，中心点是由给定的位置元素决定</p>
+<p>这个命令和 <a target="_blank" rel="noopener" href="https://www.redis.net.cn/order/3689.html">GEORADIUS</a> 命令一样， 都可以找出位于指定范围内的元素， 但是 <code>GEORADIUSBYMEMBER</code> 的中心点是由给定的位置元素决定的， 而不是像 <a target="_blank" rel="noopener" href="https://www.redis.net.cn/order/3689.html">GEORADIUS</a> 那样， 使用输入的经度和纬度来决定中心点 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 找出位于指定元素周围的其他元素！</span><br>127.0.0.1:6379&gt; GEORADIUSBYMEMBER china:city chongqing 500 km<br>1) &quot;guiyang&quot;<br>2) &quot;chongqing&quot;<br></code></pre></td></tr></table></figure>
+
+<p> GEO 底层的实现原理其实就是 Zset！我们可以使用Zset命令来操作geo </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; ZRANGE china:city 0 -1 # 查看地图中全部的元素<br>1) &quot;chongqi&quot;<br>2) &quot;xian&quot;<br>3) &quot;shengzhen&quot;<br>4) &quot;hangzhou&quot;<br>5) &quot;shanghai&quot;<br>6) &quot;beijing&quot;<br>127.0.0.1:6379&gt; zrem china:city beijing # 移除指定元素！<br>(integer) 1<br>127.0.0.1:6379&gt; ZRANGE china:city 0 -1<br>1) &quot;chongqi&quot;<br>2) &quot;xian&quot;<br>3) &quot;shengzhen&quot;<br>4) &quot;hangzhou&quot;<br>5) &quot;shanghai&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="Hyperloglog"><a href="#Hyperloglog" class="headerlink" title="Hyperloglog"></a>Hyperloglog</h3><blockquote>
+<p>什么是基数？</p>
+</blockquote>
+<p> 比如数据集 {1, 3, 5, 7, 5, 7, 8}， 那么这个数据集的基数集为 {1, 3, 5 ,7, 8}, 基数(不重复元素)为5。 基数估计就是在误差可接受的范围内，快速计算基数。 </p>
+<blockquote>
+<p>简介</p>
+</blockquote>
+<p>Redis 2.8.9 版本就更新了 Hyperloglog 数据结构！ Redis Hyperloglog 基数统计的算法！</p>
+<p>优点：占用的内存是固定，2^64 不同的元素的技术，只需要废 12KB内存！如果要从内存角度来比较的话 Hyperloglog 首选！</p>
+<p>网页的 UV （一个人访问一个网站多次，但是还是算作一个人！）</p>
+<p>传统的方式， set 保存用户的id，然后就可以统计 set 中的元素数量作为标准判断 ! 这个方式如果保存大量的用户id，就会比较麻烦！我们的目的是为了计数，而不是保存用户id；</p>
+<p>0.81% 错误率！ 统计UV任务，可以忽略不计的！</p>
+<blockquote>
+<p>实例</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs sql">redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFADD w3ckey &quot;redis&quot;<br> <br><span class="hljs-number">1</span>) (<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br> <br>redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFADD w3ckey &quot;mongodb&quot;<br> <br><span class="hljs-number">1</span>) (<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br> <br>redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFADD w3ckey &quot;mysql&quot;<br> <br><span class="hljs-number">1</span>) (<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br> <br>redis <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> PFCOUNT w3ckey<br> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+<p>如果允许容错，那么一定可以使用 Hyperloglog</p>
+<p>如果不允许容错，就使用 set 或者自己的数据类型即可</p>
+<h3 id="Bitmap"><a href="#Bitmap" class="headerlink" title="Bitmap"></a>Bitmap</h3><blockquote>
+<p>位存储</p>
+</blockquote>
+<p>统计用户信息，活跃，不活跃！ 登录 、 未登录！ 打卡，365打卡！ 两个状态的，都可以使用Bitmaps！ Bitmap 位图，数据结构！ 都是操作二进制位来进行记录，就只有0 和 1 两个状态！ 365 天 = 365 bit 1字节 = 8bit 46 个字节左右！</p>
+<blockquote>
+<p>测试</p>
+</blockquote>
+<p>使用bitmap 来记录 周一到周日的打卡！</p>
+<p>周一：1 周二：0 周三：0 周四：1 ……</p>
+<p><img src="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632664931110.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">0</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">1</span> <span class="hljs-number">0</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">2</span> <span class="hljs-number">0</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">3</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">4</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">5</span> <span class="hljs-number">1</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">6</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>查看某一天是否有打卡！</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> getbit sign <span class="hljs-number">3</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">1</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> getbit sign <span class="hljs-number">6</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>统计操作，统计 打卡的天数！</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> bitcount sign # 统计这周的打卡记录，就可以看到是否有全勤！<br>(<span class="hljs-type">integer</span>) <span class="hljs-number">3</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>参考：</p>
+<p>​       Redis官网：<a target="_blank" rel="noopener" href="https://www.redis.net.cn/">https://www.redis.net.cn/</a></p>
+<p>​       B站狂神说Java:<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
+<p>​      </p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Redis/">Redis</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis事务</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/09/25/redis%E5%9F%BA%E7%A1%80/">
+                        <span class="hidden-mobile">redis基础</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
