@@ -1,0 +1,656 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="Redis有两种持久化的方式：快照（RDB文件）和追加式文件（AOF文件）：  RDB持久化方式会在一个特定的间隔保存那个时间点的一个数据快照。 AOF持久化方式则会记录每一个服务器收到的写操作。在服务启动时，这些记录的操作会逐条执行从而重建出原来的数据。写操作命令记录的格式跟Redis协议一致，以追加的方式进行保存。 Redis的持久化是可以禁用的，就是说你可以让数据的生命周期只存在于服务器的运">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis持久化">
+<meta property="og:url" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="Redis有两种持久化的方式：快照（RDB文件）和追加式文件（AOF文件）：  RDB持久化方式会在一个特定的间隔保存那个时间点的一个数据快照。 AOF持久化方式则会记录每一个服务器收到的写操作。在服务启动时，这些记录的操作会逐条执行从而重建出原来的数据。写操作命令记录的格式跟Redis协议一致，以追加的方式进行保存。 Redis的持久化是可以禁用的，就是说你可以让数据的生命周期只存在于服务器的运">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930180234429.png">
+<meta property="article:published_time" content="2021-09-30T08:47:08.000Z">
+<meta property="article:modified_time" content="2021-10-08T01:31:04.124Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png">
+  
+  <title>Redis持久化 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Redis持久化">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-09-30 16:47" pubdate>
+        2021年9月30日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis持久化</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="http://redis.io/">Redis</a>有两种持久化的方式：快照（<code>RDB</code>文件）和追加式文件（<code>AOF</code>文件）：</p>
+<ul>
+<li>RDB持久化方式会在一个特定的间隔保存那个时间点的一个数据快照。</li>
+<li>AOF持久化方式则会记录每一个服务器收到的写操作。在服务启动时，这些记录的操作会逐条执行从而重建出原来的数据。写操作命令记录的格式跟Redis协议一致，以追加的方式进行保存。</li>
+<li>Redis的持久化是可以禁用的，就是说你可以让数据的生命周期只存在于服务器的运行时间里。</li>
+<li>两种方式的持久化是可以同时存在的，但是当Redis重启时，AOF文件会被优先用于重建数据。</li>
+</ul>
+<h2 id="RDB（Redis-DataBase）"><a href="#RDB（Redis-DataBase）" class="headerlink" title="RDB（Redis DataBase）"></a>RDB（Redis DataBase）</h2><blockquote>
+<p>工作原理</p>
+</blockquote>
+<ul>
+<li>Redis调用fork()，产生一个子进程</li>
+<li>子进程把数据写到一个临时的RDB文件</li>
+<li>当子进程写完新的RDB文件后，把旧的RDB文件替换掉</li>
+</ul>
+<p><img src="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png" srcset="/img/loading.gif" lazyload></p>
+<p>一般在主从复制中,rdb做备用在从机上</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
+<li>RDB文件是一个很简洁的单文件，它保存了某个时间点的Redis数据，很适合用于做备份。你可以设定一个时间点对RDB文件进行归档，这样就能在需要的时候很轻易的把数据恢复到不同的版本</li>
+<li>基于上面所描述的特性，RDB很适合用于灾备。单文件很方便就能传输到远程的服务器上</li>
+<li>RDB的性能很好，需要进行持久化时，主进程会fork一个子进程出来，然后把持久化的工作交给子进程，自己不会有相关的I/O操作</li>
+<li>比起AOF，在数据量比较大的情况下，RDB的启动速度更快</li>
+</ol>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>RDB容易造成数据的丢失。假设每5分钟保存一次快照，如果Redis因为某些原因不能正常工作，那么从上次产生快照到Redis出现问题这段时间的数据就会丢失了</li>
+<li>RDB使用<code>fork()</code>产生子进程进行数据的持久化，如果数据比较大的话可能就会花费点时间，造成Redis停止服务几毫秒。如果数据量很大且CPU性能不是很好的时候，停止服务的时间甚至会到1秒</li>
+</ol>
+<h3 id="文件路径和名称"><a href="#文件路径和名称" class="headerlink" title="文件路径和名称"></a>文件路径和名称</h3><p>默认Redis会把快照文件存储为当前目录下一个名为<code>dump.rdb</code>的文件。要修改文件的存储路径和名称，可以通过修改配置文件<code>redis.conf</code>实现：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> RDB文件名，默认为dump.rdb。</span><br>dbfilename dump.rdb<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 文件存放的目录，AOF文件同样存放在此目录下。默认为当前工作目录。</span><br>dir ./<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="保存点（RDB的启用和禁用）"><a href="#保存点（RDB的启用和禁用）" class="headerlink" title="保存点（RDB的启用和禁用）"></a>保存点（RDB的启用和禁用）</h3><p>可以配置保存点，使Redis如果在每N秒后数据发生了M次改变就保存快照文件。例如下面这个保存点配置表示每60秒，如果数据发生了1000次以上的变动，Redis就会自动保存快照文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">save &lt;seconds&gt; &lt;changes&gt; 格式</span><br>save 60 1000   #60S内如果1000个key发生了修改，Redis就会自动保存快照文件<br></code></pre></td></tr></table></figure>
+
+
+
+<p>保存点可以设置多个，Redis的配置文件就默认设置了3个保存点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 可以设置多个</span><br>save 900 1 #900秒后至少1个key有变动<br>save 300 10 #300秒后至少10个key有变动<br>save 60 10000 #60秒后至少10000个key有变动<br></code></pre></td></tr></table></figure>
+
+
+
+<p>如果想禁用快照保存的功能，可以通过注释掉所有”save”配置达到，或者在最后一条”save”配置后添加如下的配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">save &quot;&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>触发机制说明</p>
+</blockquote>
+<ol>
+<li>save的规则满足的情况下，会自动触发rdb规则</li>
+<li>执行 flushall 命令，也会触发rdb规则！</li>
+<li>退出redis，也会产生 rdb 文件</li>
+</ol>
+<blockquote>
+<p>如何恢复rdb文件</p>
+</blockquote>
+<ol>
+<li>只需要将rdb文件放在redis启动目录即可，redis启动的时候会自动检查dump.rdb 恢复其中 的数据</li>
+<li>查看存放目录</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; config get dir<br>1) &quot;dir&quot;<br>2) &quot;/usr/local/bin&quot; # 如果在这个目录下存在 dump.rdb 文件，启动就会自动恢复其中的数据<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="AOF（Append-Only-File）"><a href="#AOF（Append-Only-File）" class="headerlink" title="AOF（Append Only File）"></a>AOF（Append Only File）</h2><p>快照并不是很可靠。如果你的电脑突然宕机了，或者电源断了，又或者不小心杀掉了进程，那么最新的数据就会丢失。而AOF文件则提供了一种更为可靠的持久化方式。每当Redis接受到会修改数据集的命令时，就会把命令追加到AOF文件里，当你重启Redis时，AOF里的命令会被重新执行一次，重建数据。</p>
+<blockquote>
+<p>工作原理</p>
+</blockquote>
+<p><img src="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930180234429.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ol>
+<li>比RDB可靠。你可以制定不同的fsync策略：不进行fsync、每秒fsync一次和每次查询进行fsync。默认是每秒fsync一次。这意味着你最多丢失一秒钟的数据。</li>
+<li>AOF日志文件是一个纯追加的文件。就算是遇到突然停电的情况，也不会出现日志的定位或者损坏问题。甚至如果因为某些原因（例如磁盘满了）命令只写了一半到日志文件里，我们也可以用<code>redis-check-aof</code>这个工具很简单的进行修复</li>
+<li> 当AOF文件太大时，Redis会自动在后台进行重写。重写很安全，因为重写是在一个新的文件上进行，同时Redis会继续往旧的文件追加数据。新文件上会写入能重建当前数据集的最小操作命令的集合。当新文件重写完，Redis会把新旧文件进行切换，然后开始把数据写到新文件上 </li>
+<li> AOF把操作命令以简单易懂的格式一条接一条的保存在文件里，很容易导出来用于恢复数据。例如我们不小心用<code>FLUSHALL</code>命令把所有数据刷掉了，只要文件没有被重写，我们可以把服务停掉，把最后那条命令删掉，然后重启服务，这样就能把被刷掉的数据恢复回来 </li>
+</ol>
+<h3 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li> 在相同的数据集下，AOF文件的大小一般会比RDB文件大 </li>
+<li> 在某些fsync策略下，AOF的速度会比RDB慢。通常fsync设置为每秒一次就能获得比较高的性能，而在禁止fsync的情况下速度可以达到RDB的水平 </li>
+<li> 在过去曾经发现一些很罕见的BUG导致使用AOF重建的数据跟原数据不一致的问题 </li>
+</ol>
+<h3 id="启用AOF"><a href="#启用AOF" class="headerlink" title="启用AOF"></a>启用AOF</h3><p> 把配置项<code>appendonly</code>设为<code>yes</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">设置开启aof</span><br>appendonly yes<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="文件路径和名称-1"><a href="#文件路径和名称-1" class="headerlink" title="文件路径和名称"></a>文件路径和名称</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 文件存放目录，与RDB共用。默认为当前工作目录。</span><br>dir ./<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 默认文件名为appendonly.aof</span><br>appendfilename &quot;appendonly.aof&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><p> 你可以配置Redis调用fsync的频率，有三个选项： </p>
+<ol>
+<li>每当有新命令追加到AOF的时候调用fsync。速度最慢，但是最安全</li>
+<li> 每秒fsync一次。速度快（2.4版本跟快照方式速度差不多），安全性不错（最多丢失1秒的数据） </li>
+<li> 从不fsync，交由系统去处理。这个方式速度最快，但是安全性一般 </li>
+</ol>
+<p> 推荐使用每秒fsync一次的方式（默认的方式），因为它速度快，安全性也不错。相关配置如下： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> appendfsync always</span><br>appendfsync everysec<br><span class="hljs-meta">#</span><span class="bash"> appendfsync no</span><br></code></pre></td></tr></table></figure>
+
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="日志重写"><a href="#日志重写" class="headerlink" title="日志重写"></a>日志重写</h3><p>​       随着写操作的不断增加，AOF文件会越来越大。例如你递增一个计数器100次，那么最终结果就是数据集里的计数器的值为最终的递增结果，但是AOF文件里却会把这100次操作完整的记录下来。而事实上要恢复这个记录，只需要1个命令就行了，也就是说AOF文件里那100条命令其实可以精简为1条。所以Redis支持这样一个功能：在不中断服务的情况下在后台重建AOF文件 </p>
+<p> <strong>工作原理如下 :</strong></p>
+<ol>
+<li> Redis调用fork()，产生一个子进程 </li>
+<li> 子进程把新的AOF写到一个临时文件里 </li>
+<li> 主进程持续把新的变动写到内存里的buffer，同时也会把这些新的变动写到旧的AOF里，这样即使重写失败也能保证数据的安全 </li>
+<li> 当子进程完成文件的重写后，主进程会获得一个信号，然后把内存里的buffer追加到子进程生成的那个新AOF里 </li>
+</ol>
+<p><strong>我们可以通过配置设置日志重写的条件：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> Redis会记住自从上一次重写后AOF文件的大小（如果自Redis启动后还没重写过，则记住启动时使用的AOF文件的大小）。</span><br><span class="hljs-meta">#</span><span class="bash"> 如果当前的文件大小比起记住的那个大小超过指定的百分比，则会触发重写。</span><br><span class="hljs-meta">#</span><span class="bash"> 同时需要设置一个文件大小最小值，只有大于这个值文件才会重写，以防文件很小，但是已经达到百分比的情况。</span><br><br>auto-aof-rewrite-percentage 100<br>auto-aof-rewrite-min-size 64mb<br></code></pre></td></tr></table></figure>
+
+
+
+<p> 要禁用自动的日志重写功能，我们可以把百分比设置为0： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">auto-aof-rewrite-percentage 0<br></code></pre></td></tr></table></figure>
+
+<p><strong>Redis 2.4以上才可以自动进行日志重写，之前的版本需要手动运行<a target="_blank" rel="noopener" href="http://redis.io/commands/bgrewriteaof">BGREWRITEAOF</a>这个命令。</strong> </p>
+<h3 id="数据损坏修复"><a href="#数据损坏修复" class="headerlink" title="数据损坏修复"></a>数据损坏修复</h3><p> 如果因为某些原因（例如服务器崩溃）AOF文件损坏了，导致Redis加载不了，可以通过以下方式进行修复： </p>
+<ul>
+<li> 备份AOF文件 </li>
+<li> 使用<code>redis-check-aof</code>命令修复原始的AOF文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-check-aof --fix   aof文件<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li> 可以使用<code>diff -u</code>命令看下两个文件的差异 </li>
+<li> 使用修复过的文件重启Redis服务 </li>
+</ul>
+<h3 id="从RDB切换到AOF"><a href="#从RDB切换到AOF" class="headerlink" title="从RDB切换到AOF"></a>从RDB切换到AOF</h3><p> 这里只说Redis &gt;= 2.2版本的方式： </p>
+<ul>
+<li><p>备份一个最新的<code>dump.rdb</code>的文件，并把备份文件放在一个安全的地方。</p>
+</li>
+<li><p>运行以下两条命令：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ redis-cli<span class="hljs-built_in"> config </span><span class="hljs-builtin-name">set</span> appendonly <span class="hljs-literal">yes</span><br>$ redis-cli<span class="hljs-built_in"> config </span><span class="hljs-builtin-name">set</span> save <span class="hljs-string">&quot;&quot;</span><br></code></pre></td></tr></table></figure></li>
+<li><p>确保数据跟切换前一致。</p>
+</li>
+<li><p>确保数据正确的写到AOF文件里。</p>
+</li>
+</ul>
+<p><strong>第二条命令是用来禁用RDB的持久化方式，但是这不是必须的，因为你可以同时启用两种持久化方式。</strong></p>
+<p><strong>记得对配置文件<code>redis.conf</code>进行编辑启用AOF，因为命令行方式修改配置在重启Redis后就会失效。</strong></p>
+<h2 id="备份"><a href="#备份" class="headerlink" title="备份"></a>备份</h2><h3 id="建议的备份方法："><a href="#建议的备份方法：" class="headerlink" title="建议的备份方法："></a>建议的备份方法：</h3><ul>
+<li>创建一个定时任务，每小时和每天创建一个快照，保存在不同的文件夹里。</li>
+<li>定时任务运行时，把太旧的文件进行删除。例如只保留48小时的按小时创建的快照和一到两个月的按天创建的快照。</li>
+<li>每天确保一次把快照文件传输到数据中心外的地方进行保存，至少不能保存在Redis服务所在的服务器。</li>
+</ul>
+<p>参考：</p>
+<hr>
+<p>​      <a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000002906345">https://segmentfault.com/a/1190000002906345</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Redis/">Redis</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis三种集群模式之主从复制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/">
+                        <span class="hidden-mobile">redis.conf详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
