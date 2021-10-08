@@ -397,6 +397,42 @@
       </tags>
   </entry>
   <entry>
+    <title>SpringBoot整合Flowable工作流(1)</title>
+    <url>/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="Flowable流程图"><a href="#Flowable流程图" class="headerlink" title="Flowable流程图"></a>Flowable流程图</h1><h3 id="Flowable是什么？"><a href="#Flowable是什么？" class="headerlink" title="Flowable是什么？"></a>Flowable是什么？</h3><p> Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。</p>
+<p> Flowable可以十分灵活地加入你的应用/服务/构架。可以将JAR形式发布的Flowable库加入应用或服务，来<em>嵌入</em>引擎。 以JAR形式发布使Flowable可以轻易加入任何Java环境：Java SE；Tomcat、Jetty或Spring之类的servlet容器；JBoss或WebSphere之类的Java EE服务器，等等。 另外，也可以使用Flowable REST API进行HTTP调用。也有许多Flowable应用（Flowable Modeler, Flowable Admin, Flowable IDM 与 Flowable Task），提供了直接可用的UI示例，可以使用流程与任务。 </p>
+ <span id="more"></span>
+
+<p>Flowable流程需要先画流程图，然后再根据流程图引用自项目中，所以以下先画好流程图，然后再进行集成Spring boot生成</p>
+<blockquote>
+<p>部署FlowableUi</p>
+</blockquote>
+<ol>
+<li><p>官方网址下载FlowableUI：<a href="https://flowable.com/open-source/downloads/">https://flowable.com/open-source/downloads/</a></p>
+</li>
+<li><p>将下载好之后的压缩包进行解压进入文件夹之后会看到一个war包文件下，打开文件夹将会有一个（flowable-ui.war）文件</p>
+</li>
+<li><p>安装部署Tomcat，安装部署就略过了百度都有，将上面的war包放入tomcat的webapps目录下，并在当前目录下执行以下命令</p>
+<figure class="highlight mipsasm"><table><tr><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">java </span>-<span class="hljs-keyword">jar </span>flowable-ui.war<br></code></pre></td></tr></table></figure></li>
+<li><p>启动之后，有一行日志：Tomcat started on port(s): 8080 (http) with context path ‘/flowable-ui’，从以上可以看出端口默认为8080，路径为：/flowable-ui 。即访问：<a href="http://localhost:8080/flowable-ui%EF%BC%8C">http://localhost:8080/flowable-ui，</a></p>
+<p>  账号：admin 密码：test </p>
+</li>
+</ol>
+<blockquote>
+<p>画流程图</p>
+</blockquote>
+<p><strong>登录之后</strong> </p>
+<p><img src="https://res.cloudinary.com/dlzf16hlo/image/upload/v1632027508/blog/1632027486_1_qqpru0.png"></p>
+<p><strong>选择建模器应用程序</strong></p>
+]]></content>
+      <categories>
+        <category>SpringBoot</category>
+      </categories>
+      <tags>
+        <tag>SpringBoot</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>redis.conf详解</title>
     <url>/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><strong>以下将从配置文件中顺序往下讲解</strong>,<strong>涉及主从复制，持久化将会另起讲解</strong></p>
@@ -442,42 +478,6 @@
       </categories>
       <tags>
         <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot整合Flowable工作流(1)</title>
-    <url>/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="Flowable流程图"><a href="#Flowable流程图" class="headerlink" title="Flowable流程图"></a>Flowable流程图</h1><h3 id="Flowable是什么？"><a href="#Flowable是什么？" class="headerlink" title="Flowable是什么？"></a>Flowable是什么？</h3><p> Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。</p>
-<p> Flowable可以十分灵活地加入你的应用/服务/构架。可以将JAR形式发布的Flowable库加入应用或服务，来<em>嵌入</em>引擎。 以JAR形式发布使Flowable可以轻易加入任何Java环境：Java SE；Tomcat、Jetty或Spring之类的servlet容器；JBoss或WebSphere之类的Java EE服务器，等等。 另外，也可以使用Flowable REST API进行HTTP调用。也有许多Flowable应用（Flowable Modeler, Flowable Admin, Flowable IDM 与 Flowable Task），提供了直接可用的UI示例，可以使用流程与任务。 </p>
- <span id="more"></span>
-
-<p>Flowable流程需要先画流程图，然后再根据流程图引用自项目中，所以以下先画好流程图，然后再进行集成Spring boot生成</p>
-<blockquote>
-<p>部署FlowableUi</p>
-</blockquote>
-<ol>
-<li><p>官方网址下载FlowableUI：<a href="https://flowable.com/open-source/downloads/">https://flowable.com/open-source/downloads/</a></p>
-</li>
-<li><p>将下载好之后的压缩包进行解压进入文件夹之后会看到一个war包文件下，打开文件夹将会有一个（flowable-ui.war）文件</p>
-</li>
-<li><p>安装部署Tomcat，安装部署就略过了百度都有，将上面的war包放入tomcat的webapps目录下，并在当前目录下执行以下命令</p>
-<figure class="highlight mipsasm"><table><tr><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">java </span>-<span class="hljs-keyword">jar </span>flowable-ui.war<br></code></pre></td></tr></table></figure></li>
-<li><p>启动之后，有一行日志：Tomcat started on port(s): 8080 (http) with context path ‘/flowable-ui’，从以上可以看出端口默认为8080，路径为：/flowable-ui 。即访问：<a href="http://localhost:8080/flowable-ui%EF%BC%8C">http://localhost:8080/flowable-ui，</a></p>
-<p>  账号：admin 密码：test </p>
-</li>
-</ol>
-<blockquote>
-<p>画流程图</p>
-</blockquote>
-<p><strong>登录之后</strong> </p>
-<p><img src="https://res.cloudinary.com/dlzf16hlo/image/upload/v1632027508/blog/1632027486_1_qqpru0.png"></p>
-<p><strong>选择建模器应用程序</strong></p>
-]]></content>
-      <categories>
-        <category>SpringBoot</category>
-      </categories>
-      <tags>
-        <tag>SpringBoot</tag>
       </tags>
   </entry>
   <entry>
