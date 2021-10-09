@@ -15,89 +15,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Redis事务</title>
-    <url>/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><blockquote>
-<p>事务</p>
-</blockquote>
-<p> redis单条命令是原子性的，但是事务不保证原子性 </p>
-<p>redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行</p>
-<p> <strong>一次性、顺序性、排他性</strong>！执行一系列命令！ </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">------ 队列 set set set 执行------<br></code></pre></td></tr></table></figure>
-
-
-
-<p> <strong>事务没有隔离级别的概念</strong> </p>
-<p>所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec</p>
-<p><strong>Redis单条命令式保存原子性的，但是事务不保证原子性！</strong></p>
-<p>redis事务:</p>
-<ul>
-<li>开始事务(multi)</li>
-<li>命令入队(。。）</li>
-<li>执行事务(exec)</li>
-</ul>
- <span id="more"></span>
-
-<blockquote>
-<p>正常执行事务</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi # 开启事务<br>OK<br><span class="hljs-meta">#</span><span class="bash"> 命令入队</span><br>127.0.0.1:6379&gt; set k1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; get k2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行事务<br>1) OK<br>2) OK<br>3) &quot;v2&quot;<br>4) OK<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p>放弃事务</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; set key1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; DISCARD  # 取消事务<br>OK<br>127.0.0.1:6379&gt; GET k4  # 事务队列中命令都不会被执行<br>(nil)<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p> 编译型异常(代码有问题，命令有错误)，事务中所有的命令都不会被执行 </p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; MULTI <br>OK<br>127.0.0.1:6379&gt; set k1 v1 <br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3 <br>QUEUED<br>127.0.0.1:6379&gt; getset k3  # 错误的命令<br>(error) ERR wrong number of arguments for &#x27;getset&#x27; command<br>127.0.0.1:6379&gt; et k4 v4  # 错误的命令<br>(error) ERR unknown command `et`, with args beginning with: `k4`, `v4`, <br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>(error) EXECABORT Transaction discarded because of previous errors.<br>127.0.0.1:6379&gt; get k4 # 所有的命令都不会被执行！<br>(nil)<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p> 运行时异常（1/0）， 如果事务队列中存在语法性，那么执行命令的时候，其他命令是可以正常执行 的，错误命令抛出异常！  </p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 &quot;v1&quot;<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; incr k1 # 会执行的时候失败！<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; get k3<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (error) ERR value is not an integer or out of range # 虽然第一条命令报错了，但是<br>依旧正常执行成功了！<br>2) OK<br>3) OK<br>4) &quot;v3&quot;<br>127.0.0.1:6379&gt; get k2<br>&quot;v2&quot;<br>127.0.0.1:6379&gt; get k3<br>&quot;v3&quot;<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p> 监控！ Watch （面试常问！）  </p>
-</blockquote>
-<p> <strong>悲观锁</strong>：</p>
-<ul>
-<li>很悲观，认为什么时候都会出问题，无论做什么都会加锁！ </li>
-</ul>
-<p> 乐观锁： </p>
-<ul>
-<li> 很乐观，认为什么时候都不会出问题，所以不会上锁！ 更新数据的时候去判断一下，在此期间是否 有人修改过这个数据， 获取version </li>
-<li> 更新的时候比较 version</li>
-</ul>
-<blockquote>
-<p> Redis测监视测试 </p>
-</blockquote>
-<p> 正常执行成功！ </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set money 100<br>OK<br>127.0.0.1:6379&gt; set out 0<br>OK<br>127.0.0.1:6379&gt; watch money # 监视 money 对象<br>OK<br>127.0.0.1:6379&gt; multi # 事务正常结束，数据期间没有发生变动，这个时候就正常执行成功！<br>OK<br>127.0.0.1:6379&gt; DECRBY money 20<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 20<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (integer) 80<br>2) (integer) 20<br></code></pre></td></tr></table></figure>
-
-<p> 测试多线程修改值 , 使用watch 可以当做redis的乐观锁操作！ </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; watch money # 监视 money<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; DECRBY money 10<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 10<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行之前，另外一个线程，修改了我们的值，这个时候，就会导致事务执行失<br>败！<br>(nil)<br></code></pre></td></tr></table></figure>
-
-<p> 如果修改失败，获取最新的值就好  </p>
-<p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
-]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redis持久化</title>
     <url>/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><a href="http://redis.io/">Redis</a>有两种持久化的方式：快照（<code>RDB</code>文件）和追加式文件（<code>AOF</code>文件）：</p>
@@ -249,6 +166,89 @@
 <p>参考：</p>
 <hr>
 <p>​      <a href="https://segmentfault.com/a/1190000002906345">https://segmentfault.com/a/1190000002906345</a></p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis事务</title>
+    <url>/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><blockquote>
+<p>事务</p>
+</blockquote>
+<p> redis单条命令是原子性的，但是事务不保证原子性 </p>
+<p>redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行</p>
+<p> <strong>一次性、顺序性、排他性</strong>！执行一系列命令！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">------ 队列 set set set 执行------<br></code></pre></td></tr></table></figure>
+
+
+
+<p> <strong>事务没有隔离级别的概念</strong> </p>
+<p>所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec</p>
+<p><strong>Redis单条命令式保存原子性的，但是事务不保证原子性！</strong></p>
+<p>redis事务:</p>
+<ul>
+<li>开始事务(multi)</li>
+<li>命令入队(。。）</li>
+<li>执行事务(exec)</li>
+</ul>
+ <span id="more"></span>
+
+<blockquote>
+<p>正常执行事务</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi # 开启事务<br>OK<br><span class="hljs-meta">#</span><span class="bash"> 命令入队</span><br>127.0.0.1:6379&gt; set k1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; get k2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行事务<br>1) OK<br>2) OK<br>3) &quot;v2&quot;<br>4) OK<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>放弃事务</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; set key1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; DISCARD  # 取消事务<br>OK<br>127.0.0.1:6379&gt; GET k4  # 事务队列中命令都不会被执行<br>(nil)<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 编译型异常(代码有问题，命令有错误)，事务中所有的命令都不会被执行 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; MULTI <br>OK<br>127.0.0.1:6379&gt; set k1 v1 <br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3 <br>QUEUED<br>127.0.0.1:6379&gt; getset k3  # 错误的命令<br>(error) ERR wrong number of arguments for &#x27;getset&#x27; command<br>127.0.0.1:6379&gt; et k4 v4  # 错误的命令<br>(error) ERR unknown command `et`, with args beginning with: `k4`, `v4`, <br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>(error) EXECABORT Transaction discarded because of previous errors.<br>127.0.0.1:6379&gt; get k4 # 所有的命令都不会被执行！<br>(nil)<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 运行时异常（1/0）， 如果事务队列中存在语法性，那么执行命令的时候，其他命令是可以正常执行 的，错误命令抛出异常！  </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 &quot;v1&quot;<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; incr k1 # 会执行的时候失败！<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; get k3<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (error) ERR value is not an integer or out of range # 虽然第一条命令报错了，但是<br>依旧正常执行成功了！<br>2) OK<br>3) OK<br>4) &quot;v3&quot;<br>127.0.0.1:6379&gt; get k2<br>&quot;v2&quot;<br>127.0.0.1:6379&gt; get k3<br>&quot;v3&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 监控！ Watch （面试常问！）  </p>
+</blockquote>
+<p> <strong>悲观锁</strong>：</p>
+<ul>
+<li>很悲观，认为什么时候都会出问题，无论做什么都会加锁！ </li>
+</ul>
+<p> 乐观锁： </p>
+<ul>
+<li> 很乐观，认为什么时候都不会出问题，所以不会上锁！ 更新数据的时候去判断一下，在此期间是否 有人修改过这个数据， 获取version </li>
+<li> 更新的时候比较 version</li>
+</ul>
+<blockquote>
+<p> Redis测监视测试 </p>
+</blockquote>
+<p> 正常执行成功！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set money 100<br>OK<br>127.0.0.1:6379&gt; set out 0<br>OK<br>127.0.0.1:6379&gt; watch money # 监视 money 对象<br>OK<br>127.0.0.1:6379&gt; multi # 事务正常结束，数据期间没有发生变动，这个时候就正常执行成功！<br>OK<br>127.0.0.1:6379&gt; DECRBY money 20<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 20<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (integer) 80<br>2) (integer) 20<br></code></pre></td></tr></table></figure>
+
+<p> 测试多线程修改值 , 使用watch 可以当做redis的乐观锁操作！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; watch money # 监视 money<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; DECRBY money 10<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 10<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行之前，另外一个线程，修改了我们的值，这个时候，就会导致事务执行失<br>败！<br>(nil)<br></code></pre></td></tr></table></figure>
+
+<p> 如果修改失败，获取最新的值就好  </p>
+<p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
 ]]></content>
       <categories>
         <category>Redis</category>
