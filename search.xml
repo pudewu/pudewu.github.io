@@ -15,6 +15,89 @@
       </tags>
   </entry>
   <entry>
+    <title>Redis事务</title>
+    <url>/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><blockquote>
+<p>事务</p>
+</blockquote>
+<p> redis单条命令是原子性的，但是事务不保证原子性 </p>
+<p>redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行</p>
+<p> <strong>一次性、顺序性、排他性</strong>！执行一系列命令！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">------ 队列 set set set 执行------<br></code></pre></td></tr></table></figure>
+
+
+
+<p> <strong>事务没有隔离级别的概念</strong> </p>
+<p>所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec</p>
+<p><strong>Redis单条命令式保存原子性的，但是事务不保证原子性！</strong></p>
+<p>redis事务:</p>
+<ul>
+<li>开始事务(multi)</li>
+<li>命令入队(。。）</li>
+<li>执行事务(exec)</li>
+</ul>
+ <span id="more"></span>
+
+<blockquote>
+<p>正常执行事务</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi # 开启事务<br>OK<br><span class="hljs-meta">#</span><span class="bash"> 命令入队</span><br>127.0.0.1:6379&gt; set k1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; get k2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行事务<br>1) OK<br>2) OK<br>3) &quot;v2&quot;<br>4) OK<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>放弃事务</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; set key1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; DISCARD  # 取消事务<br>OK<br>127.0.0.1:6379&gt; GET k4  # 事务队列中命令都不会被执行<br>(nil)<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 编译型异常(代码有问题，命令有错误)，事务中所有的命令都不会被执行 </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; MULTI <br>OK<br>127.0.0.1:6379&gt; set k1 v1 <br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3 <br>QUEUED<br>127.0.0.1:6379&gt; getset k3  # 错误的命令<br>(error) ERR wrong number of arguments for &#x27;getset&#x27; command<br>127.0.0.1:6379&gt; et k4 v4  # 错误的命令<br>(error) ERR unknown command `et`, with args beginning with: `k4`, `v4`, <br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>(error) EXECABORT Transaction discarded because of previous errors.<br>127.0.0.1:6379&gt; get k4 # 所有的命令都不会被执行！<br>(nil)<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 运行时异常（1/0）， 如果事务队列中存在语法性，那么执行命令的时候，其他命令是可以正常执行 的，错误命令抛出异常！  </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 &quot;v1&quot;<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; incr k1 # 会执行的时候失败！<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; get k3<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (error) ERR value is not an integer or out of range # 虽然第一条命令报错了，但是<br>依旧正常执行成功了！<br>2) OK<br>3) OK<br>4) &quot;v3&quot;<br>127.0.0.1:6379&gt; get k2<br>&quot;v2&quot;<br>127.0.0.1:6379&gt; get k3<br>&quot;v3&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p> 监控！ Watch （面试常问！）  </p>
+</blockquote>
+<p> <strong>悲观锁</strong>：</p>
+<ul>
+<li>很悲观，认为什么时候都会出问题，无论做什么都会加锁！ </li>
+</ul>
+<p> 乐观锁： </p>
+<ul>
+<li> 很乐观，认为什么时候都不会出问题，所以不会上锁！ 更新数据的时候去判断一下，在此期间是否 有人修改过这个数据， 获取version </li>
+<li> 更新的时候比较 version</li>
+</ul>
+<blockquote>
+<p> Redis测监视测试 </p>
+</blockquote>
+<p> 正常执行成功！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set money 100<br>OK<br>127.0.0.1:6379&gt; set out 0<br>OK<br>127.0.0.1:6379&gt; watch money # 监视 money 对象<br>OK<br>127.0.0.1:6379&gt; multi # 事务正常结束，数据期间没有发生变动，这个时候就正常执行成功！<br>OK<br>127.0.0.1:6379&gt; DECRBY money 20<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 20<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (integer) 80<br>2) (integer) 20<br></code></pre></td></tr></table></figure>
+
+<p> 测试多线程修改值 , 使用watch 可以当做redis的乐观锁操作！ </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; watch money # 监视 money<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; DECRBY money 10<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 10<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行之前，另外一个线程，修改了我们的值，这个时候，就会导致事务执行失<br>败！<br>(nil)<br></code></pre></td></tr></table></figure>
+
+<p> 如果修改失败，获取最新的值就好  </p>
+<p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
+]]></content>
+      <categories>
+        <category>中间件 - Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis持久化</title>
     <url>/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><a href="http://redis.io/">Redis</a>有两种持久化的方式：快照（<code>RDB</code>文件）和追加式文件（<code>AOF</code>文件）：</p>
@@ -175,89 +258,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Redis事务</title>
-    <url>/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><blockquote>
-<p>事务</p>
-</blockquote>
-<p> redis单条命令是原子性的，但是事务不保证原子性 </p>
-<p>redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行</p>
-<p> <strong>一次性、顺序性、排他性</strong>！执行一系列命令！ </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">------ 队列 set set set 执行------<br></code></pre></td></tr></table></figure>
-
-
-
-<p> <strong>事务没有隔离级别的概念</strong> </p>
-<p>所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec</p>
-<p><strong>Redis单条命令式保存原子性的，但是事务不保证原子性！</strong></p>
-<p>redis事务:</p>
-<ul>
-<li>开始事务(multi)</li>
-<li>命令入队(。。）</li>
-<li>执行事务(exec)</li>
-</ul>
- <span id="more"></span>
-
-<blockquote>
-<p>正常执行事务</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi # 开启事务<br>OK<br><span class="hljs-meta">#</span><span class="bash"> 命令入队</span><br>127.0.0.1:6379&gt; set k1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; get k2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行事务<br>1) OK<br>2) OK<br>3) &quot;v2&quot;<br>4) OK<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p>放弃事务</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; set key1 v1<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; DISCARD  # 取消事务<br>OK<br>127.0.0.1:6379&gt; GET k4  # 事务队列中命令都不会被执行<br>(nil)<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p> 编译型异常(代码有问题，命令有错误)，事务中所有的命令都不会被执行 </p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; MULTI <br>OK<br>127.0.0.1:6379&gt; set k1 v1 <br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2 <br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3 <br>QUEUED<br>127.0.0.1:6379&gt; getset k3  # 错误的命令<br>(error) ERR wrong number of arguments for &#x27;getset&#x27; command<br>127.0.0.1:6379&gt; et k4 v4  # 错误的命令<br>(error) ERR unknown command `et`, with args beginning with: `k4`, `v4`, <br>127.0.0.1:6379&gt; set k4 v4<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>(error) EXECABORT Transaction discarded because of previous errors.<br>127.0.0.1:6379&gt; get k4 # 所有的命令都不会被执行！<br>(nil)<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p> 运行时异常（1/0）， 如果事务队列中存在语法性，那么执行命令的时候，其他命令是可以正常执行 的，错误命令抛出异常！  </p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 &quot;v1&quot;<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; incr k1 # 会执行的时候失败！<br>QUEUED<br>127.0.0.1:6379&gt; set k2 v2<br>QUEUED<br>127.0.0.1:6379&gt; set k3 v3<br>QUEUED<br>127.0.0.1:6379&gt; get k3<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (error) ERR value is not an integer or out of range # 虽然第一条命令报错了，但是<br>依旧正常执行成功了！<br>2) OK<br>3) OK<br>4) &quot;v3&quot;<br>127.0.0.1:6379&gt; get k2<br>&quot;v2&quot;<br>127.0.0.1:6379&gt; get k3<br>&quot;v3&quot;<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p> 监控！ Watch （面试常问！）  </p>
-</blockquote>
-<p> <strong>悲观锁</strong>：</p>
-<ul>
-<li>很悲观，认为什么时候都会出问题，无论做什么都会加锁！ </li>
-</ul>
-<p> 乐观锁： </p>
-<ul>
-<li> 很乐观，认为什么时候都不会出问题，所以不会上锁！ 更新数据的时候去判断一下，在此期间是否 有人修改过这个数据， 获取version </li>
-<li> 更新的时候比较 version</li>
-</ul>
-<blockquote>
-<p> Redis测监视测试 </p>
-</blockquote>
-<p> 正常执行成功！ </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set money 100<br>OK<br>127.0.0.1:6379&gt; set out 0<br>OK<br>127.0.0.1:6379&gt; watch money # 监视 money 对象<br>OK<br>127.0.0.1:6379&gt; multi # 事务正常结束，数据期间没有发生变动，这个时候就正常执行成功！<br>OK<br>127.0.0.1:6379&gt; DECRBY money 20<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 20<br>QUEUED<br>127.0.0.1:6379&gt; exec<br>1) (integer) 80<br>2) (integer) 20<br></code></pre></td></tr></table></figure>
-
-<p> 测试多线程修改值 , 使用watch 可以当做redis的乐观锁操作！ </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; watch money # 监视 money<br>OK<br>127.0.0.1:6379&gt; multi<br>OK<br>127.0.0.1:6379&gt; DECRBY money 10<br>QUEUED<br>127.0.0.1:6379&gt; INCRBY out 10<br>QUEUED<br>127.0.0.1:6379&gt; exec # 执行之前，另外一个线程，修改了我们的值，这个时候，就会导致事务执行失<br>败！<br>(nil)<br></code></pre></td></tr></table></figure>
-
-<p> 如果修改失败，获取最新的值就好  </p>
-<p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
-]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redis的三种特殊类型</title>
     <url>/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="三种特殊数据类型"><a href="#三种特殊数据类型" class="headerlink" title="三种特殊数据类型"></a>三种特殊数据类型</h2><h3 id="Geospatial-地理位置"><a href="#Geospatial-地理位置" class="headerlink" title="Geospatial 地理位置"></a>Geospatial 地理位置</h3><p><strong>朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！</strong> </p>
@@ -397,6 +397,17 @@
       </tags>
   </entry>
   <entry>
+    <title>Redis缓存穿透和雪崩</title>
+    <url>/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>SpringBoot整合Flowable工作流(1)</title>
     <url>/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="Flowable流程图"><a href="#Flowable流程图" class="headerlink" title="Flowable流程图"></a>Flowable流程图</h1><h3 id="Flowable是什么？"><a href="#Flowable是什么？" class="headerlink" title="Flowable是什么？"></a>Flowable是什么？</h3><p> Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。</p>
@@ -433,7 +444,176 @@
       </tags>
   </entry>
   <entry>
-    <title>redis.conf详解</title>
+    <title>Redis三种集群模式之Cluster模式</title>
+    <url>/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1、redis-cluter设计"><a href="#1、redis-cluter设计" class="headerlink" title="1、redis-cluter设计"></a>1、redis-cluter设计</h2><p> Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)<strong>哨兵</strong>模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-cluster集群. </p>
+<p> Redis-Cluster采用无中心结构，每个节点保存数据和整个集群状态,每个节点都和其他所有节点连接。其redis-cluster架构图如下： </p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png"></p>
+<p> 其结构特点： </p>
+<ol>
+<li> 所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。 </li>
+<li> 节点的fail是通过集群中超过半数的节点检测失效时才生效。 </li>
+<li> 客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可。 </li>
+<li> redis-cluster把所有的物理节点映射到[0-16383]slot上（不一定是平均分配）,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value。 </li>
+<li> Redis集群预分好16384个桶，当需要在 Redis 集群中放置一个 key-value 时，根据 CRC16(key) mod 16384的值，决定将一个key放到哪个桶中。 </li>
+</ol>
+<h2 id="2、redis-cluster节点分配"><a href="#2、redis-cluster节点分配" class="headerlink" title="2、redis cluster节点分配"></a>2、redis cluster节点分配</h2><p>现在我们是三个节点分别是：A,B,C 三个节点，它们可以是一台机器上的三个端口，也可以是三台不同服务器。那么，采用哈希槽（hash solt）的方式来分配16384个solt的话，他们三个节点分别承担的solt区间是：</p>
+<ul>
+<li><p>节点A覆盖0－5460; </p>
+</li>
+<li><p>节点B覆盖5461－10922; </p>
+</li>
+<li><p>节点C覆盖10923－16383；</p>
+</li>
+</ul>
+<p> 获取数据： </p>
+<p>​     如果存入一个值，按照redis-cluster哈希槽的算法：CRC16(‘key’)%16384 = 6782。那么就会把这个key的存储分配到 B 上。同样，当我连接（A，B，C）任何一个节点，想获取’key’这个key时，也会这样的算法，然后内部跳转到B节点上获取数据新增一个主节点：</p>
+<p> 新增一个节点D，redis cluster的这种做法是从各个节点的前面各拿取一部分slot到D上，我会在接下来的实践中实验。大致就会变成这样： </p>
+<ul>
+<li>节点A覆盖1365-5460</li>
+<li> 节点B覆盖6827-10922</li>
+<li> 节点C覆盖12288-16383</li>
+<li> 节点D覆盖0-1364,5461-6826,10923-12287 </li>
+</ul>
+<h2 id="3、-Redis-Cluster主从模式"><a href="#3、-Redis-Cluster主从模式" class="headerlink" title="3、 Redis Cluster主从模式"></a>3、 <strong>Redis Cluster主从模式</strong></h2><p>​        redis cluster 为了保证数据的高可用性，加入了主从模式，一个主节点对应一个或多个从节点，主节点提供数据存取，从节点则是从主节点拉取数据备份，当这个主节点挂掉后，就会有这个从节点选取一个来充当主节点，从而保证集群不会挂掉。</p>
+<p>​       上面那个例子里, 集群有ABC三个主节点, 如果这3个节点都没有加入从节点，如果B挂掉了，我们就无法访问整个集群了。A和C的slot也无法访问。所以我们在集群建立的时候，一定要为每个主节点都添加了从节点, 比如像这样, 集群包含主节点A、B、C, 以及从节点A1、B1、C1, 那么即使B挂掉系统也可以继续正确工作。B1节点替代了B节点，所以Redis集群将会选择B1节点作为新的主节点，集群将会继续正确地提供服务。 当B重新开启后，它就会变成B1的从节点。不过需要注意，如果节点B和B1同时挂了，Redis集群就无法继续正确地提供服务了。</p>
+<h2 id="4、redis6-2-5-集群部署"><a href="#4、redis6-2-5-集群部署" class="headerlink" title="4、redis6.2.5 集群部署"></a><strong>4、redis6.2.5 集群部署</strong></h2><p><strong>集群中至少应该有奇数个节点，所以至少有三个节点，每个节点至少有一个备份节点，所以下面使用6节点（主节点、备份节点由redis-cluster集群确定）。</strong></p>
+<h3 id="4-1-准备工作"><a href="#4-1-准备工作" class="headerlink" title="4.1 准备工作"></a><strong>4.1 准备工作</strong></h3><p>   本文使用两台centOS7主机，一台机器3个节点，创建出3 master、3 salve 环境，master（192.168.1.8） salve(192.168.1.10) </p>
+<h3 id="4-2-创建Redis节点"><a href="#4-2-创建Redis节点" class="headerlink" title="4.2 创建Redis节点"></a>4.2 创建Redis节点</h3><p>首先在指定目录下创建  redis_cluster </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">mkdir /software01/redis_cluster<br></code></pre></td></tr></table></figure>
+
+<p> 在 redis_cluster 目录下，创建名为 6379、6380、6381的目录，并将 redis.conf 拷贝到这六个目录中</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir 6379 6380 6381、6382、6383、6384</span><br><span class="hljs-meta">#</span><span class="bash"> cp redis.conf redis_cluster/6379</span><br><span class="hljs-meta">#</span><span class="bash"> cp redis.conf redis_cluster/6380</span> <br><span class="hljs-meta">#</span><span class="bash"> cp redis.conf redis_cluster/6381</span><br></code></pre></td></tr></table></figure>
+
+<p> 分别修改这三个配置文件，修改如下内容 </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">port 6379　　　　　　#端口6379 6380 6381、6382、6383、6384 <br>bind 本机ip 　　　　 #默认ip为127.0.0.1 需要改为其他节点机器可访问的ip 否则创建集群时无法访问对应的端口，无法创建集群 <br>daemonize yes 　　  #redis后台运行 <br>pidfile /var/run/redis_6379.pid 　　#pidfile文件对应6379,6380,6381 <br>cluster-enabled yes 　　　　　　　　　#开启集群 <br>cluster-config-file nodes_6379.conf #集群的配置 配置文件首次启动自动生成 6379,6380,6381 <br>cluster-node-timeout 15000 　　　　　　#请求超时 默认15秒，可自行设置  <br>appendonly yes 　　　　　　　　　　　　#aof日志开启 有需要就开启，它会每次写操作都记录一条日志<br></code></pre></td></tr></table></figure>
+
+
+
+<p>接着在另外一台机器上（192.168.1.10），的操作重复以上三步，只是把目录改为6382、6383、6384，对应的配置文件也按照这个规则修改即可. </p>
+<h3 id="4-3-启动各节点"><a href="#4-3-启动各节点" class="headerlink" title="4.3 启动各节点"></a>4.3 启动各节点</h3><p> 第一台机器上执行: </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server /root/software01/redis_cluster/6379/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6380/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6381/redis.conf <br></code></pre></td></tr></table></figure>
+
+<p> 另外一台机器上执行: </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server /root/software01/redis_cluster/6382/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6383/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6384/redis.conf <br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-4-检查-redis-启动情况"><a href="#4-4-检查-redis-启动情况" class="headerlink" title="4.4 检查 redis 启动情况"></a>4.4 检查 redis 启动情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ps -ef | grep redis //查看redis启动情况</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850372740.png"></p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850438157.png"></p>
+<h3 id="4-5-创建集群"><a href="#4-5-创建集群" class="headerlink" title="4.5 创建集群"></a>4.5 创建集群</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# ./redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381 192.168.1.8:6382 192.168.1.8:6383 192.168.1.8:6384 --cluster-replicas 1<br></code></pre></td></tr></table></figure>
+
+<p> <strong>注意：Redis Cluster最低要求是3个主节点，如果需要集群需要认证，则在最后加入 -a xx 即可。</strong> </p>
+<p>以上命令执行完成后</p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868265946.png"></p>
+<p>输入yes之后将会出现以下信息</p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868317543.png"></p>
+<h3 id="4-6-测试"><a href="#4-6-测试" class="headerlink" title="4.6 测试"></a>4.6 测试</h3><p> 在第一台机器上连接集群的6379端口的节点，在另外一台连接6382节点，连接方式为  </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli -h 192.168.1.10 -c -p 6379  #-h 连接主机的ip <br>                                      #-c连接集群结点时使用，此选项可防止moved和ask异常 <br>                                      #-p 端口   <br>                                      #-a 如果设置密码 可加上-a进行密码验证登录 <br></code></pre></td></tr></table></figure>
+
+<p>在6379节点设置key值，然后在6382获取key的值</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">在节点6379上设置值</span><br>192.168.1.10:6379&gt; set k1 v1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">在6382也可以获取值</span><br>192.168.1.8:6382&gt; get k1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>&quot;v1&quot;<br></code></pre></td></tr></table></figure>
+
+<p>结果分别如下：</p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869331466.png"></p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869348246.png"></p>
+<h2 id="5-Cluster模式的优缺点"><a href="#5-Cluster模式的优缺点" class="headerlink" title="5. Cluster模式的优缺点"></a>5. Cluster模式的优缺点</h2><h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ol>
+<li>无中心架构，数据按照slot分布在多个节点。</li>
+<li>集群中的每个节点都是平等的关系，每个节点都保存各自的数据和整个集群的状态。每个节点都和其他所有节点连接，而且这些连接保持活跃，这样就保证了我们只需要连接集群中的任意一个节点，就可以获取到其他节点的数据。</li>
+<li>可线性扩展到1000多个节点，节点可动态添加或删除</li>
+<li>能够实现自动故障转移，节点之间通过gossip协议交换状态信息，用投票机制完成slave到master的角色转换</li>
+</ol>
+<h3 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h3><ol>
+<li>客户端实现复杂，驱动要求实现Smart Client，缓存slots mapping信息并及时更新，提高了开发难度。目前仅JedisCluster相对成熟，异常处理还不完善，比如常见的“max redirect exception”</li>
+<li>节点会因为某些原因发生阻塞（阻塞时间大于 cluster-node-timeout）被判断下线，这种failover是没有必要的</li>
+<li>数据通过异步复制，不保证数据的强一致性</li>
+<li>slave充当“冷备”，不能缓解读压力</li>
+<li>批量操作限制，目前只支持具有相同slot值的key执行批量操作，对mset、mget、sunion等操作支持不友好</li>
+<li>key事务操作支持有线，只支持多key在同一节点的事务操作，多key分布不同节点时无法使用事务功能</li>
+<li>不支持多数据库空间，单机redis可以支持16个db，集群模式下只能使用一个，即db 0</li>
+</ol>
+<p> <strong>Redis Cluster模式不建议使用pipeline和multi-keys操作，减少max redirect产生的场景。</strong> </p>
+<h2 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h2><p>Redis集群方案的三种模式，其中主从复制模式能实现读写分离，但是不能自动故障转移；哨兵模式基于主从复制模式，能实现自动故障转移，达到高可用，但与主从复制模式一样，不能在线扩容，容量受限于单机的配置；Cluster模式通过无中心化架构，实现分布式存储，可进行线性扩展，也能高可用，但对于像批量操作、事务操作等的支持性不够好。三种模式各有优缺点，可根据实际场景进行选择。</p>
+<h2 id="附：Redis集群各种参数设置"><a href="#附：Redis集群各种参数设置" class="headerlink" title="附：Redis集群各种参数设置"></a>附：Redis集群各种参数设置</h2><h3 id="1-创建集群主节点"><a href="#1-创建集群主节点" class="headerlink" title="1. 创建集群主节点"></a>1. 创建集群主节点</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-创建集群主从节点"><a href="#2-创建集群主从节点" class="headerlink" title="2. 创建集群主从节点"></a>2. 创建集群主从节点</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">/redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381 192.168.1.8:6382 192.168.1.8:6383 192.168.1.8:6384 --cluster-replicas 1<br></code></pre></td></tr></table></figure>
+
+<p> <strong>说明：–cluster-replicas 参数为数字，1表示每个主节点需要1个从节点。</strong> </p>
+<p>通过该方式创建的带有从节点的机器不能够自己手动指定主节点，所以如果需要指定的话，需要自己手动指定，先使用1或3创建好主节点后，再通过4来处理。 </p>
+<h3 id="3-添加集群主节点"><a href="#3-添加集群主节点" class="headerlink" title="3. 添加集群主节点"></a>3. 添加集群主节点</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster add-node 192.168.1.8:6382 192.168.1.10:6379 <br></code></pre></td></tr></table></figure>
+
+<p>说明：为一个指定集群添加节点，需要先连到该集群的任意一个节点IP（192.168.1.10:6379），再把新节点加入。该2个参数的顺序有要求：新加入的节点放前 </p>
+<h3 id="4-添加集群从节点"><a href="#4-添加集群从节点" class="headerlink" title="4. 添加集群从节点"></a>4. 添加集群从节点</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster add-node 192.168.1.8:6382 192.168.1.10:6379 --cluster-slave --cluster-master-id 117457eab5071954faab5e81c3170600d5192270<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">说明：把6382节点加入到6379节点的集群中，并且当做node_id:17ea90fd81280b5ee7999cbf0313f89206688242的从节点。如果不指定 --cluster-master-id 会随机分配到任意一个主节点。</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-删除节点"><a href="#5-删除节点" class="headerlink" title="5. 删除节点"></a>5. 删除节点</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster del-node 192.168.1.8:6384 f6a6957421b80409106cb36be3c7ba41f3b603ff<br></code></pre></td></tr></table></figure>
+
+<p>说明：指定IP、端口和node_id 来删除一个节点，从节点可以直接删除，有slot分配的主节点不能直接删除。</p>
+<p>注意：当被删除掉的节点重新起来之后不能自动加入集群，但其和主的复制还是正常的，也可以通过该节点看到集群信息（通过其他正常节点已经看不到该被del-node节点的信息）。</p>
+<p>如果想要再次加入集群，则需要先在该节点执行cluster reset，再用add-node进行添加，进行增量同步复制。</p>
+<h3 id="6-检查集群"><a href="#6-检查集群" class="headerlink" title="6. 检查集群"></a>6. 检查集群</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster check 192.168.1.8:6384 --cluster-search-multiple-owners<br></code></pre></td></tr></table></figure>
+
+<p> 说明：任意连接一个集群节点，进行集群状态检查 </p>
+<h3 id="7-集群信息查看"><a href="#7-集群信息查看" class="headerlink" title="7. 集群信息查看"></a>7. 集群信息查看</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster info 192.168.1.8:6384<br></code></pre></td></tr></table></figure>
+
+<p> 说明：检查key、slots、从节点个数的分配情况 </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-cli --cluster info 192.168.1.8:6384<br>192.168.1.10:6379 (17ea90fd...) -&gt; 1 keys | 5461 slots | 1 slaves.<br>192.168.1.8:6382 (4a8b3637...) -&gt; 0 keys | 5462 slots | 1 slaves.<br>192.168.1.10:6380 (4c4710e3...) -&gt; 1 keys | 5461 slots | 1 slaves.<br>[OK] 2 keys in 3 masters.<br>0.00 keys per slot on average.<br></code></pre></td></tr></table></figure>
+
+<h3 id="8-修复集群"><a href="#8-修复集群" class="headerlink" title="8. 修复集群"></a>8. 修复集群</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster fix 192.168.1.8:6384 --cluster-search-multiple-owners<br></code></pre></td></tr></table></figure>
+
+<p> 说明：修复集群和槽的重复分配问题 </p>
+<h3 id="9-设置集群的超时时间"><a href="#9-设置集群的超时时间" class="headerlink" title="9. 设置集群的超时时间"></a>9. 设置集群的超时时间</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster set-timeout 192.168.1.8:6382 10000<br></code></pre></td></tr></table></figure>
+
+<p> 说明：连接到集群的任意一节点来设置集群的超时时间参数cluster-node-timeout </p>
+<h3 id="10-集群中执行相关命令"><a href="#10-集群中执行相关命令" class="headerlink" title="10. 集群中执行相关命令"></a>10. 集群中执行相关命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster call 192.168.1.10:6381 config set requirepass cc<br>redis-cli -a cc --cluster call 192.168.1.10:6381 config set masterauth cc<br>redis-cli -a cc --cluster call 192.168.1.10 config rewrite<br></code></pre></td></tr></table></figure>
+
+<p> 说明：连接到集群的任意一节点来对整个集群的所有节点进行设置。 </p>
+<p>到此，相关集群的基本操作已经介绍完，现在说明集群迁移的相关操作。</p>
+<p>Redis 6.0 新增了几个命令：</p>
+<p>1，fix 的子命令：–cluster-fix-with-unreachable-masters</p>
+<p>2，call的子命令：–cluster-only-masters、–cluster-only-replicas</p>
+<p>3，集群节点备份：backup</p>
+<h2 id="迁移相关"><a href="#迁移相关" class="headerlink" title="迁移相关"></a>迁移相关</h2><h3 id="在线迁移slot-："><a href="#在线迁移slot-：" class="headerlink" title="在线迁移slot ："></a><strong>在线迁移slot</strong> ：</h3><p>​       在线把集群的一些slot从集群原来slot节点迁移到新的节点，即可以完成集群的在线横向扩容和缩容。有2种方式进行迁移</p>
+<p>一、是根据提示来进行操作：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">直接连接到集群的任意一节点</span><br>redis-cli -a cc --cluster reshard 192.168.1.10:6379<br></code></pre></td></tr></table></figure>
+
+<p>​       二、是根据参数进行操作： </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli -a cc --cluster reshard 192.168.1.10:6379 --cluster-from 117457eab5071954faab5e81c3170600d5192270 --cluster-to 815da8448f5d5a304df0353ca10d8f9b77016b28 --cluster-slots 10 --cluster-yes --cluster-timeout 5000 --cluster-pipeline 10 --cluster-replace<br></code></pre></td></tr></table></figure>
+
+<p>​       说明：连接到集群的任意一节点来对指定节点指定数量的slot进行迁移到指定的节点。  </p>
+<h3 id="平衡（rebalance）slot-："><a href="#平衡（rebalance）slot-：" class="headerlink" title="平衡（rebalance）slot ："></a>平衡（rebalance）<strong>slot</strong> ：</h3><p>1）  平衡集群中各个节点的slot数量 </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli -a cc --cluster rebalance 192.168.163.132:6379<br></code></pre></td></tr></table></figure>
+
+<p>2）根据集群中各个节点设置的权重等平衡slot数量（不执行，只模拟） </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli -a cc --cluster rebalance --cluster-weight 117457eab5071954faab5e81c3170600d5192270=5 815da8448f5d5a304df0353ca10d8f9b77016b28=4 56005b9413cbf225783906307a2631109e753f8f=3 --cluster-simulate 192.168.1.10:6379<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 导入集群 </li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli --cluster import 192.168.1.10:6379 --cluster-from 192.168.1.10:9021 --cluster-replace<br></code></pre></td></tr></table></figure>
+
+<p> 说明：外部Redis实例（9021）导入到集群中的任意一节点。 </p>
+<p> 注意：测试下来发现参数–cluster-replace没有用，如果集群中已经包含了某个key，在导入的时候会失败，不会覆盖，只有清空集群key才能导入。 </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">*** Importing 97847 keys from DB 0<br>Migrating 9223372011174675807 to 192.168.1.10:6381: Source 192.168.1.10:9021 replied with error:<br>ERR Target instance replied with error: BUSYKEY Target key name already exists<br></code></pre></td></tr></table></figure>
+
+<p> 并且发现如果集群设置了密码，也会导入失败，需要设置集群密码为空才能进行导入（call）。通过monitor（9021）的时候发现，在migrate的时候需要密码进行auth认证 </p>
+<p><strong>Redis Cluster 通过redis-cli –cluster来创建和管理集群的方式和 redis-trib.rb脚本绝大部分都是一样的，所以对于比较熟悉 redis-trib.rb 脚本的，使用–cluster也非常顺手。</strong> </p>
+<p>参考：</p>
+<hr>
+<p><a href="https://www.cnblogs.com/zhoujinyi/p/11606935.html">https://www.cnblogs.com/zhoujinyi/p/11606935.html</a></p>
+<p><a href="https://www.cnblogs.com/saneri/p/12409173.html">https://www.cnblogs.com/saneri/p/12409173.html</a></p>
+<p>半路雨歌链接：<a href="https://juejin.cn/post/6844904097116585991">https://juejin.cn/post/6844904097116585991</a></p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis.conf详解</title>
     <url>/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><strong>以下将从配置文件中顺序往下讲解</strong>,<strong>涉及主从复制，持久化将会另起讲解</strong></p>
 <h4 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png"></p>
@@ -672,7 +852,7 @@
       </tags>
   </entry>
   <entry>
-    <title>redis基础</title>
+    <title>Redis基础</title>
     <url>/2021/09/25/redis%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
 <p>Redis是什么？</p>
@@ -713,7 +893,7 @@
 <p>3.解压之后可以看到一个redis目录,进入Redis目录可以看到redis.conf的一个文件</p>
 <p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632574182949.png"></p>
 <p>4.在redis下我们首先进行基本安装及编译安装</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">基础环境安装</span><br>yum install gcc-c++<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">编译</span><br>make<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">安装 redis安装之后默认安装在 /usr/<span class="hljs-built_in">local</span>/bin 下</span><br>make install<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">基础环境安装</span><br>yum install gcc-c++<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">编译</span><br>make<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">安装 redis安装之后默认安装在 /usr/<span class="hljs-built_in">local</span>/bin 下</span><br>make install<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">make PREFIX=/data/redis install  指定目录安装</span><br><br></code></pre></td></tr></table></figure>
 
 <p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632575400027.png"></p>
 <p>5.在安装目录下复制redis.conf文件复制到安装目录下即：/usr/local/bin</p>

@@ -22,7 +22,7 @@ Redis是什么？
   <meta name="keywords" content="">
   <meta name="description" content="概述 Redis是什么？   Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。从2010年3月15日起，Redis的开发工作由VMware主持。从2013年5月开始，Redis的开发由Pivotal赞助。   免费和开源！是当下最热门的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis基础">
+<meta property="og:title" content="Redis基础">
 <meta property="og:url" content="https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="概述 Redis是什么？   Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。从2010年3月15日起，Redis的开发工作由VMware主持。从2013年5月开始，Redis的开发由Pivotal赞助。   免费和开源！是当下最热门的">
@@ -36,13 +36,13 @@ Redis是什么？
 <meta property="og:image" content="https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632576417517.png">
 <meta property="og:image" content="https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632576644195.png">
 <meta property="article:published_time" content="2021-09-25T12:08:22.000Z">
-<meta property="article:modified_time" content="2021-10-08T02:53:55.523Z">
+<meta property="article:modified_time" content="2021-10-11T01:30:45.721Z">
 <meta property="article:author" content="pudewu">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632572684797.png">
   
-  <title>redis基础 - 远方</title>
+  <title>Redis基础 - 远方</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -189,7 +189,7 @@ Redis是什么？
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="redis基础">
+            <span class="h2" id="subtitle" title="Redis基础">
               
             </span>
 
@@ -210,7 +210,7 @@ Redis是什么？
   
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      9.9k 字
+      10k 字
     </span>
   
 
@@ -256,7 +256,7 @@ Redis是什么？
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">redis基础</h1>
+            <h1 style="display: none">Redis基础</h1>
             
             <div class="markdown-body">
               <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
@@ -298,7 +298,7 @@ Redis是什么？
 <p>3.解压之后可以看到一个redis目录,进入Redis目录可以看到redis.conf的一个文件</p>
 <p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632574182949.png" srcset="/img/loading.gif" lazyload></p>
 <p>4.在redis下我们首先进行基本安装及编译安装</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">基础环境安装</span><br>yum install gcc-c++<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">编译</span><br>make<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">安装 redis安装之后默认安装在 /usr/<span class="hljs-built_in">local</span>/bin 下</span><br>make install<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">基础环境安装</span><br>yum install gcc-c++<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">编译</span><br>make<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">安装 redis安装之后默认安装在 /usr/<span class="hljs-built_in">local</span>/bin 下</span><br>make install<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">make PREFIX=/data/redis install  指定目录安装</span><br><br></code></pre></td></tr></table></figure>
 
 <p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632575400027.png" srcset="/img/loading.gif" lazyload></p>
 <p>5.在安装目录下复制redis.conf文件复制到安装目录下即：/usr/local/bin</p>

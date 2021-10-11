@@ -1,0 +1,670 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="1、redis-cluter设计 Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)哨兵模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-clus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis三种集群模式之Cluster模式">
+<meta property="og:url" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="1、redis-cluter设计 Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)哨兵模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-clus">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850372740.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850438157.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868265946.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868317543.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869331466.png">
+<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869348246.png">
+<meta property="article:published_time" content="2021-10-07T07:56:51.000Z">
+<meta property="article:modified_time" content="2021-10-11T01:30:45.715Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="Redis">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png">
+  
+  <title>Redis三种集群模式之Cluster模式 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Redis三种集群模式之Cluster模式">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-10-07 15:56" pubdate>
+        2021年10月7日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      25 分钟
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> 次
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis三种集群模式之Cluster模式</h1>
+            
+            <div class="markdown-body">
+              <h2 id="1、redis-cluter设计"><a href="#1、redis-cluter设计" class="headerlink" title="1、redis-cluter设计"></a>1、redis-cluter设计</h2><p> Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)<strong>哨兵</strong>模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-cluster集群. </p>
+<p> Redis-Cluster采用无中心结构，每个节点保存数据和整个集群状态,每个节点都和其他所有节点连接。其redis-cluster架构图如下： </p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png" srcset="/img/loading.gif" lazyload></p>
+<p> 其结构特点： </p>
+<ol>
+<li> 所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。 </li>
+<li> 节点的fail是通过集群中超过半数的节点检测失效时才生效。 </li>
+<li> 客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可。 </li>
+<li> redis-cluster把所有的物理节点映射到[0-16383]slot上（不一定是平均分配）,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value。 </li>
+<li> Redis集群预分好16384个桶，当需要在 Redis 集群中放置一个 key-value 时，根据 CRC16(key) mod 16384的值，决定将一个key放到哪个桶中。 </li>
+</ol>
+<h2 id="2、redis-cluster节点分配"><a href="#2、redis-cluster节点分配" class="headerlink" title="2、redis cluster节点分配"></a>2、redis cluster节点分配</h2><p>现在我们是三个节点分别是：A,B,C 三个节点，它们可以是一台机器上的三个端口，也可以是三台不同服务器。那么，采用哈希槽（hash solt）的方式来分配16384个solt的话，他们三个节点分别承担的solt区间是：</p>
+<ul>
+<li><p>节点A覆盖0－5460; </p>
+</li>
+<li><p>节点B覆盖5461－10922; </p>
+</li>
+<li><p>节点C覆盖10923－16383；</p>
+</li>
+</ul>
+<p> 获取数据： </p>
+<p>​     如果存入一个值，按照redis-cluster哈希槽的算法：CRC16(‘key’)%16384 = 6782。那么就会把这个key的存储分配到 B 上。同样，当我连接（A，B，C）任何一个节点，想获取’key’这个key时，也会这样的算法，然后内部跳转到B节点上获取数据新增一个主节点：</p>
+<p> 新增一个节点D，redis cluster的这种做法是从各个节点的前面各拿取一部分slot到D上，我会在接下来的实践中实验。大致就会变成这样： </p>
+<ul>
+<li>节点A覆盖1365-5460</li>
+<li> 节点B覆盖6827-10922</li>
+<li> 节点C覆盖12288-16383</li>
+<li> 节点D覆盖0-1364,5461-6826,10923-12287 </li>
+</ul>
+<h2 id="3、-Redis-Cluster主从模式"><a href="#3、-Redis-Cluster主从模式" class="headerlink" title="3、 Redis Cluster主从模式"></a>3、 <strong>Redis Cluster主从模式</strong></h2><p>​        redis cluster 为了保证数据的高可用性，加入了主从模式，一个主节点对应一个或多个从节点，主节点提供数据存取，从节点则是从主节点拉取数据备份，当这个主节点挂掉后，就会有这个从节点选取一个来充当主节点，从而保证集群不会挂掉。</p>
+<p>​       上面那个例子里, 集群有ABC三个主节点, 如果这3个节点都没有加入从节点，如果B挂掉了，我们就无法访问整个集群了。A和C的slot也无法访问。所以我们在集群建立的时候，一定要为每个主节点都添加了从节点, 比如像这样, 集群包含主节点A、B、C, 以及从节点A1、B1、C1, 那么即使B挂掉系统也可以继续正确工作。B1节点替代了B节点，所以Redis集群将会选择B1节点作为新的主节点，集群将会继续正确地提供服务。 当B重新开启后，它就会变成B1的从节点。不过需要注意，如果节点B和B1同时挂了，Redis集群就无法继续正确地提供服务了。</p>
+<h2 id="4、redis6-2-5-集群部署"><a href="#4、redis6-2-5-集群部署" class="headerlink" title="4、redis6.2.5 集群部署"></a><strong>4、redis6.2.5 集群部署</strong></h2><p><strong>集群中至少应该有奇数个节点，所以至少有三个节点，每个节点至少有一个备份节点，所以下面使用6节点（主节点、备份节点由redis-cluster集群确定）。</strong></p>
+<h3 id="4-1-准备工作"><a href="#4-1-准备工作" class="headerlink" title="4.1 准备工作"></a><strong>4.1 准备工作</strong></h3><p>   本文使用两台centOS7主机，一台机器3个节点，创建出3 master、3 salve 环境，master（192.168.1.8） salve(192.168.1.10) </p>
+<h3 id="4-2-创建Redis节点"><a href="#4-2-创建Redis节点" class="headerlink" title="4.2 创建Redis节点"></a>4.2 创建Redis节点</h3><p>首先在指定目录下创建  redis_cluster </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir /software01/redis_cluster<br></code></pre></td></tr></table></figure>
+
+<p> 在 redis_cluster 目录下，创建名为 6379、6380、6381的目录，并将 redis.conf 拷贝到这六个目录中</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir 6379 6380 6381、6382、6383、6384</span><br><span class="hljs-meta">#</span><span class="bash"> cp redis.conf redis_cluster/6379</span><br><span class="hljs-meta">#</span><span class="bash"> cp redis.conf redis_cluster/6380</span> <br><span class="hljs-meta">#</span><span class="bash"> cp redis.conf redis_cluster/6381</span><br></code></pre></td></tr></table></figure>
+
+<p> 分别修改这三个配置文件，修改如下内容 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">port 6379　　　　　　#端口6379 6380 6381、6382、6383、6384 <br>bind 本机ip 　　　　 #默认ip为127.0.0.1 需要改为其他节点机器可访问的ip 否则创建集群时无法访问对应的端口，无法创建集群 <br>daemonize yes 　　  #redis后台运行 <br>pidfile /var/run/redis_6379.pid 　　#pidfile文件对应6379,6380,6381 <br>cluster-enabled yes 　　　　　　　　　#开启集群 <br>cluster-config-file nodes_6379.conf #集群的配置 配置文件首次启动自动生成 6379,6380,6381 <br>cluster-node-timeout 15000 　　　　　　#请求超时 默认15秒，可自行设置  <br>appendonly yes 　　　　　　　　　　　　#aof日志开启 有需要就开启，它会每次写操作都记录一条日志<br></code></pre></td></tr></table></figure>
+
+
+
+<p>接着在另外一台机器上（192.168.1.10），的操作重复以上三步，只是把目录改为6382、6383、6384，对应的配置文件也按照这个规则修改即可. </p>
+<h3 id="4-3-启动各节点"><a href="#4-3-启动各节点" class="headerlink" title="4.3 启动各节点"></a>4.3 启动各节点</h3><p> 第一台机器上执行: </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server /root/software01/redis_cluster/6379/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6380/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6381/redis.conf <br></code></pre></td></tr></table></figure>
+
+<p> 另外一台机器上执行: </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server /root/software01/redis_cluster/6382/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6383/redis.conf <br>[root@centos7 bin]# redis-server /root/software01/redis_cluster/6384/redis.conf <br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-4-检查-redis-启动情况"><a href="#4-4-检查-redis-启动情况" class="headerlink" title="4.4 检查 redis 启动情况"></a>4.4 检查 redis 启动情况</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ps -ef | grep redis //查看redis启动情况</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850372740.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850438157.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-5-创建集群"><a href="#4-5-创建集群" class="headerlink" title="4.5 创建集群"></a>4.5 创建集群</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# ./redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381 192.168.1.8:6382 192.168.1.8:6383 192.168.1.8:6384 --cluster-replicas 1<br></code></pre></td></tr></table></figure>
+
+<p> <strong>注意：Redis Cluster最低要求是3个主节点，如果需要集群需要认证，则在最后加入 -a xx 即可。</strong> </p>
+<p>以上命令执行完成后</p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868265946.png" srcset="/img/loading.gif" lazyload></p>
+<p>输入yes之后将会出现以下信息</p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868317543.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="4-6-测试"><a href="#4-6-测试" class="headerlink" title="4.6 测试"></a>4.6 测试</h3><p> 在第一台机器上连接集群的6379端口的节点，在另外一台连接6382节点，连接方式为  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli -h 192.168.1.10 -c -p 6379  #-h 连接主机的ip <br>                                      #-c连接集群结点时使用，此选项可防止moved和ask异常 <br>                                      #-p 端口   <br>                                      #-a 如果设置密码 可加上-a进行密码验证登录 <br></code></pre></td></tr></table></figure>
+
+<p>在6379节点设置key值，然后在6382获取key的值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">在节点6379上设置值</span><br>192.168.1.10:6379&gt; set k1 v1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">在6382也可以获取值</span><br>192.168.1.8:6382&gt; get k1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>&quot;v1&quot;<br></code></pre></td></tr></table></figure>
+
+<p>结果分别如下：</p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869331466.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869348246.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-Cluster模式的优缺点"><a href="#5-Cluster模式的优缺点" class="headerlink" title="5. Cluster模式的优缺点"></a>5. Cluster模式的优缺点</h2><h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ol>
+<li>无中心架构，数据按照slot分布在多个节点。</li>
+<li>集群中的每个节点都是平等的关系，每个节点都保存各自的数据和整个集群的状态。每个节点都和其他所有节点连接，而且这些连接保持活跃，这样就保证了我们只需要连接集群中的任意一个节点，就可以获取到其他节点的数据。</li>
+<li>可线性扩展到1000多个节点，节点可动态添加或删除</li>
+<li>能够实现自动故障转移，节点之间通过gossip协议交换状态信息，用投票机制完成slave到master的角色转换</li>
+</ol>
+<h3 id="缺点："><a href="#缺点：" class="headerlink" title="缺点："></a>缺点：</h3><ol>
+<li>客户端实现复杂，驱动要求实现Smart Client，缓存slots mapping信息并及时更新，提高了开发难度。目前仅JedisCluster相对成熟，异常处理还不完善，比如常见的“max redirect exception”</li>
+<li>节点会因为某些原因发生阻塞（阻塞时间大于 cluster-node-timeout）被判断下线，这种failover是没有必要的</li>
+<li>数据通过异步复制，不保证数据的强一致性</li>
+<li>slave充当“冷备”，不能缓解读压力</li>
+<li>批量操作限制，目前只支持具有相同slot值的key执行批量操作，对mset、mget、sunion等操作支持不友好</li>
+<li>key事务操作支持有线，只支持多key在同一节点的事务操作，多key分布不同节点时无法使用事务功能</li>
+<li>不支持多数据库空间，单机redis可以支持16个db，集群模式下只能使用一个，即db 0</li>
+</ol>
+<p> <strong>Redis Cluster模式不建议使用pipeline和multi-keys操作，减少max redirect产生的场景。</strong> </p>
+<h2 id="6-总结"><a href="#6-总结" class="headerlink" title="6. 总结"></a>6. 总结</h2><p>Redis集群方案的三种模式，其中主从复制模式能实现读写分离，但是不能自动故障转移；哨兵模式基于主从复制模式，能实现自动故障转移，达到高可用，但与主从复制模式一样，不能在线扩容，容量受限于单机的配置；Cluster模式通过无中心化架构，实现分布式存储，可进行线性扩展，也能高可用，但对于像批量操作、事务操作等的支持性不够好。三种模式各有优缺点，可根据实际场景进行选择。</p>
+<h2 id="附：Redis集群各种参数设置"><a href="#附：Redis集群各种参数设置" class="headerlink" title="附：Redis集群各种参数设置"></a>附：Redis集群各种参数设置</h2><h3 id="1-创建集群主节点"><a href="#1-创建集群主节点" class="headerlink" title="1. 创建集群主节点"></a>1. 创建集群主节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-创建集群主从节点"><a href="#2-创建集群主从节点" class="headerlink" title="2. 创建集群主从节点"></a>2. 创建集群主从节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">/redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381 192.168.1.8:6382 192.168.1.8:6383 192.168.1.8:6384 --cluster-replicas 1<br></code></pre></td></tr></table></figure>
+
+<p> <strong>说明：–cluster-replicas 参数为数字，1表示每个主节点需要1个从节点。</strong> </p>
+<p>通过该方式创建的带有从节点的机器不能够自己手动指定主节点，所以如果需要指定的话，需要自己手动指定，先使用1或3创建好主节点后，再通过4来处理。 </p>
+<h3 id="3-添加集群主节点"><a href="#3-添加集群主节点" class="headerlink" title="3. 添加集群主节点"></a>3. 添加集群主节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster add-node 192.168.1.8:6382 192.168.1.10:6379 <br></code></pre></td></tr></table></figure>
+
+<p>说明：为一个指定集群添加节点，需要先连到该集群的任意一个节点IP（192.168.1.10:6379），再把新节点加入。该2个参数的顺序有要求：新加入的节点放前 </p>
+<h3 id="4-添加集群从节点"><a href="#4-添加集群从节点" class="headerlink" title="4. 添加集群从节点"></a>4. 添加集群从节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster add-node 192.168.1.8:6382 192.168.1.10:6379 --cluster-slave --cluster-master-id 117457eab5071954faab5e81c3170600d5192270<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">说明：把6382节点加入到6379节点的集群中，并且当做node_id:17ea90fd81280b5ee7999cbf0313f89206688242的从节点。如果不指定 --cluster-master-id 会随机分配到任意一个主节点。</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-删除节点"><a href="#5-删除节点" class="headerlink" title="5. 删除节点"></a>5. 删除节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster del-node 192.168.1.8:6384 f6a6957421b80409106cb36be3c7ba41f3b603ff<br></code></pre></td></tr></table></figure>
+
+<p>说明：指定IP、端口和node_id 来删除一个节点，从节点可以直接删除，有slot分配的主节点不能直接删除。</p>
+<p>注意：当被删除掉的节点重新起来之后不能自动加入集群，但其和主的复制还是正常的，也可以通过该节点看到集群信息（通过其他正常节点已经看不到该被del-node节点的信息）。</p>
+<p>如果想要再次加入集群，则需要先在该节点执行cluster reset，再用add-node进行添加，进行增量同步复制。</p>
+<h3 id="6-检查集群"><a href="#6-检查集群" class="headerlink" title="6. 检查集群"></a>6. 检查集群</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster check 192.168.1.8:6384 --cluster-search-multiple-owners<br></code></pre></td></tr></table></figure>
+
+<p> 说明：任意连接一个集群节点，进行集群状态检查 </p>
+<h3 id="7-集群信息查看"><a href="#7-集群信息查看" class="headerlink" title="7. 集群信息查看"></a>7. 集群信息查看</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster info 192.168.1.8:6384<br></code></pre></td></tr></table></figure>
+
+<p> 说明：检查key、slots、从节点个数的分配情况 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-cli --cluster info 192.168.1.8:6384<br>192.168.1.10:6379 (17ea90fd...) -&gt; 1 keys | 5461 slots | 1 slaves.<br>192.168.1.8:6382 (4a8b3637...) -&gt; 0 keys | 5462 slots | 1 slaves.<br>192.168.1.10:6380 (4c4710e3...) -&gt; 1 keys | 5461 slots | 1 slaves.<br>[OK] 2 keys in 3 masters.<br>0.00 keys per slot on average.<br></code></pre></td></tr></table></figure>
+
+<h3 id="8-修复集群"><a href="#8-修复集群" class="headerlink" title="8. 修复集群"></a>8. 修复集群</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster fix 192.168.1.8:6384 --cluster-search-multiple-owners<br></code></pre></td></tr></table></figure>
+
+<p> 说明：修复集群和槽的重复分配问题 </p>
+<h3 id="9-设置集群的超时时间"><a href="#9-设置集群的超时时间" class="headerlink" title="9. 设置集群的超时时间"></a>9. 设置集群的超时时间</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster set-timeout 192.168.1.8:6382 10000<br></code></pre></td></tr></table></figure>
+
+<p> 说明：连接到集群的任意一节点来设置集群的超时时间参数cluster-node-timeout </p>
+<h3 id="10-集群中执行相关命令"><a href="#10-集群中执行相关命令" class="headerlink" title="10. 集群中执行相关命令"></a>10. 集群中执行相关命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster call 192.168.1.10:6381 config set requirepass cc<br>redis-cli -a cc --cluster call 192.168.1.10:6381 config set masterauth cc<br>redis-cli -a cc --cluster call 192.168.1.10 config rewrite<br></code></pre></td></tr></table></figure>
+
+<p> 说明：连接到集群的任意一节点来对整个集群的所有节点进行设置。 </p>
+<p>到此，相关集群的基本操作已经介绍完，现在说明集群迁移的相关操作。</p>
+<p>Redis 6.0 新增了几个命令：</p>
+<p>1，fix 的子命令：–cluster-fix-with-unreachable-masters</p>
+<p>2，call的子命令：–cluster-only-masters、–cluster-only-replicas</p>
+<p>3，集群节点备份：backup</p>
+<h2 id="迁移相关"><a href="#迁移相关" class="headerlink" title="迁移相关"></a>迁移相关</h2><h3 id="在线迁移slot-："><a href="#在线迁移slot-：" class="headerlink" title="在线迁移slot ："></a><strong>在线迁移slot</strong> ：</h3><p>​       在线把集群的一些slot从集群原来slot节点迁移到新的节点，即可以完成集群的在线横向扩容和缩容。有2种方式进行迁移</p>
+<p>一、是根据提示来进行操作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">直接连接到集群的任意一节点</span><br>redis-cli -a cc --cluster reshard 192.168.1.10:6379<br></code></pre></td></tr></table></figure>
+
+<p>​       二、是根据参数进行操作： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli -a cc --cluster reshard 192.168.1.10:6379 --cluster-from 117457eab5071954faab5e81c3170600d5192270 --cluster-to 815da8448f5d5a304df0353ca10d8f9b77016b28 --cluster-slots 10 --cluster-yes --cluster-timeout 5000 --cluster-pipeline 10 --cluster-replace<br></code></pre></td></tr></table></figure>
+
+<p>​       说明：连接到集群的任意一节点来对指定节点指定数量的slot进行迁移到指定的节点。  </p>
+<h3 id="平衡（rebalance）slot-："><a href="#平衡（rebalance）slot-：" class="headerlink" title="平衡（rebalance）slot ："></a>平衡（rebalance）<strong>slot</strong> ：</h3><p>1）  平衡集群中各个节点的slot数量 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli -a cc --cluster rebalance 192.168.163.132:6379<br></code></pre></td></tr></table></figure>
+
+<p>2）根据集群中各个节点设置的权重等平衡slot数量（不执行，只模拟） </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli -a cc --cluster rebalance --cluster-weight 117457eab5071954faab5e81c3170600d5192270=5 815da8448f5d5a304df0353ca10d8f9b77016b28=4 56005b9413cbf225783906307a2631109e753f8f=3 --cluster-simulate 192.168.1.10:6379<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> 导入集群 </li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli --cluster import 192.168.1.10:6379 --cluster-from 192.168.1.10:9021 --cluster-replace<br></code></pre></td></tr></table></figure>
+
+<p> 说明：外部Redis实例（9021）导入到集群中的任意一节点。 </p>
+<p> 注意：测试下来发现参数–cluster-replace没有用，如果集群中已经包含了某个key，在导入的时候会失败，不会覆盖，只有清空集群key才能导入。 </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">*** Importing 97847 keys from DB 0<br>Migrating 9223372011174675807 to 192.168.1.10:6381: Source 192.168.1.10:9021 replied with error:<br>ERR Target instance replied with error: BUSYKEY Target key name already exists<br></code></pre></td></tr></table></figure>
+
+<p> 并且发现如果集群设置了密码，也会导入失败，需要设置集群密码为空才能进行导入（call）。通过monitor（9021）的时候发现，在migrate的时候需要密码进行auth认证 </p>
+<p><strong>Redis Cluster 通过redis-cli –cluster来创建和管理集群的方式和 redis-trib.rb脚本绝大部分都是一样的，所以对于比较熟悉 redis-trib.rb 脚本的，使用–cluster也非常顺手。</strong> </p>
+<p>参考：</p>
+<hr>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhoujinyi/p/11606935.html">https://www.cnblogs.com/zhoujinyi/p/11606935.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/saneri/p/12409173.html">https://www.cnblogs.com/saneri/p/12409173.html</a></p>
+<p>半路雨歌链接：<a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904097116585991">https://juejin.cn/post/6844904097116585991</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Redis/">Redis</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Redis/">Redis</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Redis缓存穿透和雪崩</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">
+                        <span class="hidden-mobile">Redis三种集群模式之哨兵模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
