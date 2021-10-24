@@ -84,7 +84,7 @@
         <category>Java基础</category>
       </categories>
       <tags>
-        <tag>Java技术</tag>
+        <tag>Java基础</tag>
       </tags>
   </entry>
   <entry>
@@ -1178,6 +1178,405 @@
       </categories>
       <tags>
         <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java基础概念</title>
+    <url>/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="基础概念与常识"><a href="#基础概念与常识" class="headerlink" title="基础概念与常识"></a>基础概念与常识</h2><h3 id="Java语言有哪些特点"><a href="#Java语言有哪些特点" class="headerlink" title="Java语言有哪些特点"></a>Java语言有哪些特点</h3><ol>
+<li>简单易学；</li>
+<li>面向对象（封装，继承，多态）；</li>
+<li>平台无关性(Java虚拟机实现平台无关性)；</li>
+<li>支持多线程；</li>
+<li>可靠性；</li>
+<li>安全性；</li>
+<li>支持网络编程并且很方便(Java语言诞生本身就是为简化网络编程设计的，因此Java语言不仅支持网络编程而且很方便)；</li>
+<li>编译与解释并存；</li>
+</ol>
+<h3 id="JVM-vs-JDK-vs-JRE"><a href="#JVM-vs-JDK-vs-JRE" class="headerlink" title="JVM vs JDK vs JRE"></a>JVM vs JDK vs JRE</h3><h4 id="JVM"><a href="#JVM" class="headerlink" title="JVM"></a>JVM</h4><p>Java虚拟机(JVM)是运行Java字节码的虚拟机。JVM有针对不同系统的特定实现(Windows，Linux，Macos)，目的是使用相同的字节码,他们都会给出相同的结果。</p>
+<h4 id="什么是字节码？采用字节码的"><a href="#什么是字节码？采用字节码的" class="headerlink" title="什么是字节码？采用字节码的"></a>什么是字节码？采用字节码的</h4><blockquote>
+<p>在Java中，JVM可以理解的代码就叫做 <code>字节码</code> (即扩展名为<code>.class</code>的文件)，它不面向任何特定的处理器，只面向虚拟机。Java语言通过字节码的方式，在一定程度上解决了传统解型语言执行效率低的问题，同时又保留解释型语言可移值的特点。所以Java程序运行时比较高效，而且，由于字节码并不针对一种特定的机器，因此，Java程序无需重新编译便可在多种不同操作系统的计算机上运行。</p>
+</blockquote>
+<p> <strong>Java 程序从源代码到运行一般有下面 3 步：</strong> </p>
+<p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/1634221350574.png"></p>
+<p>我们需要格外注意的是.class -&gt; 机器码。在这一步JVM类加载器首先加载字节码文件，然后通过解释器逐行解释执行，这种方式的执行速度会相对比较慢。而且，有些方法和代码块是经常需要被调用的(也就是所谓的热点代码)，所以后面引进了JIT编译器，而JIT编译器属于运行时编译。当JIT编译器完成第一次编译之后，其会将字节码对应的机器码保存下来，下次可以直接使用。而我们知道，机器码的运行效率肯定高于Java解释器的。这也解释了我们为什么经常会说Java是编译与解释共存的语言。</p>
+<blockquote>
+<p> HotSpot 采用了惰性评估(Lazy Evaluation)的做法，根据二八定律，消耗大部分系统资源的只有那一小部分的代码（热点代码），而这也就是 JIT 所需要编译的部分。JVM 会根据代码每次被执行的情况收集信息并相应地做出一些优化，因此执行的次数越多，它的速度就越快。JDK 9 引入了一种新的编译模式 AOT(Ahead of Time Compilation)，它是直接将字节码编译成机器码，这样就避免了 JIT 预热等各方面的开销。JDK 支持分层编译和 AOT 协作使用。但是 ，AOT 编译器的编译质量是肯定比不上 JIT 编译器的。 </p>
+</blockquote>
+<p> <strong>总结：</strong> </p>
+<p> Java 虚拟机（JVM）是运行 Java 字节码的虚拟机 。 JVM 有针对不同系统的特定实现（Windows，Linux，macOS），目的是使用相同的字节码，  它们都会给出相同的结果。字节码和不同系统的 JVM 实现是 Java 语言“一次编译，随处可以运行”的关键所在。 </p>
+<h4 id="JDK-和-JRE"><a href="#JDK-和-JRE" class="headerlink" title="JDK 和 JRE"></a>JDK 和 JRE</h4><p>JDK 是 Java Development Kit 缩写，它是功能齐全的 Java SDK。它拥有 JRE 所拥有的一切，还有编译器(javac）和工具（如 javadoc 和 jdb）。它能够创建和编译程序。 </p>
+<p>JRE 是 Java 运行时环境。它是运行已编译 Java 程序所需的所有内容的集合，包括 Java 虚拟机（JVM），Java 类库，java 命令和其他的一些基础构件。但是，它不能用于创建新程序。 </p>
+<p>如果你只是为了运行一下 Java 程序的话，那么你只需要安装 JRE 就可以了。如果你需要进行一些 Java 编程方面的工作，那么你就需要安装 JDK 了。但是，这不是绝对的。有时，即使您不打算在计算机上进行任何 Java 开发，仍然需要安装 JDK。例如，如果要使用 JSP 部署 Web 应用程序，那么从技术上讲，您只是在应用程序服务器中运行 Java 程序。那你为什么需要 JDK 呢？因为应用程序服务器会将 JSP 转换为 Java servlet，并且需要使用 JDK 来编译 servlet。 </p>
+<h3 id="Java-语言“编译与解释并存"><a href="#Java-语言“编译与解释并存" class="headerlink" title="Java 语言“编译与解释并存"></a>Java 语言“编译与解释并存</h3><p>高级编程语言按照程序的执行方式分为编译型和解释型两种。简单来说，编译型语言是指编译器针对特定的操作系统将源代码一次性翻译成可被该平台执行的机器码；解释型语言是指解释器对源程序逐行解释成特定平台的机器码并立即执行。比如，你想阅读一本英文名著，你可以找一个英文翻译人员帮助你阅读， 有两种选择方式，你可以先等翻译人员将全本的英文名著（也就是源码）都翻译成汉语，再去阅读，也可以让翻译人员翻译一段，你在旁边阅读一段，慢慢把书读完。</p>
+<p>Java 语言既具有编译型语言的特征，也具有解释型语言的特征，因为 Java 程序要经过先编译，后解释两个步骤，由 Java 编写的程序需要先经过编译步骤，生成字节码（<code>*.class</code> 文件），这种字节码必须由 Java 解释器来解释执行。因此，我们可以认为 Java 语言编译与解释并存。</p>
+<h3 id="Java-和-C-的区别"><a href="#Java-和-C-的区别" class="headerlink" title="Java 和 C++的区别"></a>Java 和 C++的区别</h3><ul>
+<li>都是面向对象的语言，都支持封装、继承和多态</li>
+<li>Java 不提供指针来直接访问内存，程序内存更加安全</li>
+<li>Java 的类是单继承的，C++ 支持多重继承；虽然 Java 的类不可以多继承，但是接口可以多继承。</li>
+<li>Java 有自动内存管理垃圾回收机制(GC)，不需要程序员手动释放无用内存。</li>
+<li>C ++同时支持方法重载和操作符重载，但是 Java 只支持方法重载（操作符重载增加了复杂性，这与 Java 最初的设计思想不符）。</li>
+</ul>
+<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h3 id="基本类型"><a href="#基本类型" class="headerlink" title="基本类型"></a>基本类型</h3><p>八个基本类型</p>
+<ul>
+<li>byte（字节型）</li>
+<li>short（短整型）</li>
+<li>int（整型）</li>
+<li>long（长整型）</li>
+<li>float（单精度浮点型）</li>
+<li>double（双精度浮点型）</li>
+<li>boolean（布尔型）</li>
+<li>char（字符型）</li>
+</ul>
+<h3 id="对应包装类"><a href="#对应包装类" class="headerlink" title="对应包装类"></a>对应包装类</h3><ul>
+<li>Byte</li>
+<li>Short</li>
+<li>Integer</li>
+<li>Long</li>
+<li>Float</li>
+<li>Double</li>
+<li>Boolean</li>
+<li>Character</li>
+</ul>
+<h3 id="详细划分"><a href="#详细划分" class="headerlink" title="详细划分"></a>详细划分</h3><p><strong>具体可分为四类</strong></p>
+<ul>
+<li>整型 byte short int long</li>
+<li>浮点型 float double</li>
+<li>逻辑型 boolean</li>
+<li>字符型 char</li>
+</ul>
+<h3 id="八种基本数据类型的默认值"><a href="#八种基本数据类型的默认值" class="headerlink" title="八种基本数据类型的默认值"></a>八种基本数据类型的默认值</h3><p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021215018133.png"></p>
+<p>基本类型都有对应的包装类型，基本类型与其对应的包装类型之间的赋值使用自动装箱与拆箱完成。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">Integer x = <span class="hljs-number">2</span>;     <span class="hljs-comment">// 装箱</span><br><span class="hljs-keyword">int</span> y = x;         <span class="hljs-comment">// 拆箱</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="缓存池"><a href="#缓存池" class="headerlink" title="缓存池"></a>缓存池</h3><p>new Integer(123) 与 Integer.valueOf(123) 的区别在于:</p>
+<ul>
+<li>new Integer(123) 每次都会新建一个对象</li>
+<li>Integer.valueOf(123) 会使用缓存池中的对象，多次调用会取得同一个对象的引用。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">Integer x = <span class="hljs-keyword">new</span> Integer(<span class="hljs-number">123</span>);<br>Integer y = <span class="hljs-keyword">new</span> Integer(<span class="hljs-number">123</span>);<br>System.out.println(x == y);    <span class="hljs-comment">// false</span><br>Integer z = Integer.valueOf(<span class="hljs-number">123</span>);<br>Integer k = Integer.valueOf(<span class="hljs-number">123</span>);<br>System.out.println(z == k);   <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>valueOf() 方法的实现比较简单，就是先判断值是否在缓存池中，如果在的话就直接返回缓存池的内容。</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Integer <span class="hljs-title">valueOf</span><span class="hljs-params">(<span class="hljs-keyword">int</span> i)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)<br>        <span class="hljs-keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Integer(i);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>在 Java 8 中，Integer 缓存池的大小默认为 -128~127。</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> low = -<span class="hljs-number">128</span>;<br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> high;<br><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Integer cache[];<br><br><span class="hljs-keyword">static</span> &#123;<br>    <span class="hljs-comment">// high value may be configured by property</span><br>    <span class="hljs-keyword">int</span> h = <span class="hljs-number">127</span>;<br>    String integerCacheHighPropValue =<br>        sun.misc.VM.getSavedProperty(<span class="hljs-string">&quot;java.lang.Integer.IntegerCache.high&quot;</span>);<br>    <span class="hljs-keyword">if</span> (integerCacheHighPropValue != <span class="hljs-keyword">null</span>) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">int</span> i = parseInt(integerCacheHighPropValue);<br>            i = Math.max(i, <span class="hljs-number">127</span>);<br>            <span class="hljs-comment">// Maximum array size is Integer.MAX_VALUE</span><br>            h = Math.min(i, Integer.MAX_VALUE - (-low) -<span class="hljs-number">1</span>);<br>        &#125; <span class="hljs-keyword">catch</span>( NumberFormatException nfe) &#123;<br>            <span class="hljs-comment">// If the property cannot be parsed into an int, ignore it.</span><br>        &#125;<br>    &#125;<br>    high = h;<br><br>    cache = <span class="hljs-keyword">new</span> Integer[(high - low) + <span class="hljs-number">1</span>];<br>    <span class="hljs-keyword">int</span> j = low;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> k = <span class="hljs-number">0</span>; k &lt; cache.length; k++)<br>        cache[k] = <span class="hljs-keyword">new</span> Integer(j++);<br><br>    <span class="hljs-comment">// range [-128, 127] must be interned (JLS7 5.1.7)</span><br>    <span class="hljs-keyword">assert</span> IntegerCache.high &gt;= <span class="hljs-number">127</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译器会<strong>在缓冲池范围内的基本类型</strong>自动装箱过程调用 valueOf() 方法，因此多个 Integer 实例使用自动装箱来创建并且值相同，那么就会引用相同的对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">Integer m = <span class="hljs-number">123</span>;<br>Integer n = <span class="hljs-number">123</span>;<br>System.out.println(m == n); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p>基本类型对应的缓冲池如下:</p>
+<ul>
+<li>boolean values true and false</li>
+<li>all byte values</li>
+<li>short values between -128 and 127</li>
+<li>int values between -128 and 127</li>
+<li>char in the range \u0000 to \u007F</li>
+</ul>
+<p>在使用这些基本类型对应的包装类型时，就可以直接使用缓冲池中的对象。</p>
+<p>如果在缓冲池之外：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">Integer m = <span class="hljs-number">323</span>;<br>Integer n = <span class="hljs-number">323</span>;<br>System.out.println(m == n); <span class="hljs-comment">// false</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><h3 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h3><p>String 被声明为 final，因此它不可被继承。</p>
+<p>内部使用 char 数组存储数据，该数组被声明为 final，这意味着 value 数组初始化之后就不能再引用其它数组。并且 String 内部没有改变 value 数组的方法，因此可以保证 String 不可变。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">String</span></span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span>, <span class="hljs-title">Comparable</span>&lt;<span class="hljs-title">String</span>&gt;, <span class="hljs-title">CharSequence</span> </span>&#123;<br>    <span class="hljs-comment">/** The value is used for character storage. */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">char</span> value[];<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="不可变的好处"><a href="#不可变的好处" class="headerlink" title="不可变的好处"></a>不可变的好处</h3><p><strong>1. 可以缓存 hash 值</strong></p>
+<p>因为 String 的 hash 值经常被使用，例如 String 用做 HashMap 的 key。不可变的特性可以使得 hash 值也不可变，因此只需要进行一次计算。</p>
+<p><strong>2. String Pool 的需要</strong></p>
+<p>如果一个 String 对象已经被创建过了，那么就会从 String Pool 中取得引用。只有 String 是不可变的，才可能使用 String Pool。</p>
+<p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021222448391.png"></p>
+<p><strong>3. 安全性</strong></p>
+<p>String 经常作为参数，String 不可变性可以保证参数不可变。例如在作为网络连接参数的情况下如果 String 是可变的，那么在网络连接过程中，String 被改变，改变 String 对象的那一方以为现在连接的是其它主机，而实际情况却不一定是。</p>
+<p><strong>4. 线程安全</strong></p>
+<p>String 不可变性天生具备线程安全，可以在多个线程中安全地使用。</p>
+<h3 id="String-StringBuffer-and-StringBuilder"><a href="#String-StringBuffer-and-StringBuilder" class="headerlink" title="String, StringBuffer and StringBuilder"></a>String, StringBuffer and StringBuilder</h3><p><strong>1. 可变性</strong></p>
+<ul>
+<li>String 不可变</li>
+<li>StringBuffer 和 StringBuilder 可变</li>
+</ul>
+<p><strong>2. 线程安全</strong></p>
+<ul>
+<li>String 不可变，因此是线程安全的</li>
+<li>StringBuilder 不是线程安全的</li>
+<li>StringBuffer 是线程安全的，内部使用 synchronized 进行同步</li>
+</ul>
+<h3 id="String-intern"><a href="#String-intern" class="headerlink" title="String.intern()"></a>String.intern()</h3><p>使用 String.intern() 可以保证相同内容的字符串变量引用同一的内存对象。</p>
+<p>下面示例中，s1 和 s2 采用 new String() 的方式新建了两个不同对象，而 s3 是通过 s1.intern() 方法取得一个对象引用。intern() 首先把 s1 引用的对象放到 String Pool(字符串常量池)中，然后返回这个对象引用。因此 s3 和 s1 引用的是同一个字符串常量池的对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">String s1 = <span class="hljs-keyword">new</span> String(<span class="hljs-string">&quot;aaa&quot;</span>);<br>String s2 = <span class="hljs-keyword">new</span> String(<span class="hljs-string">&quot;aaa&quot;</span>);<br>System.out.println(s1 == s2);           <span class="hljs-comment">// false</span><br>String s3 = s1.intern();<br>System.out.println(s1.intern() == s3);  <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p>如果是采用 “bbb” 这种使用双引号的形式创建字符串实例，会自动地将新建的对象放入 String Pool 中。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">String s4 = <span class="hljs-string">&quot;bbb&quot;</span>;<br>String s5 = <span class="hljs-string">&quot;bbb&quot;</span>;<br>System.out.println(s4 == s5);  <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p>在 Java 7 之前，字符串常量池被放在运行时常量池中，它属于永久代。而在 Java 7，字符串常量池被移到 Native Method 中。这是因为永久代的空间有限，在大量使用字符串的场景下会导致 OutOfMemoryError 错误。</p>
+<h2 id="运算"><a href="#运算" class="headerlink" title="运算"></a>运算</h2><h3 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h3><p>Java 的参数是以值传递的形式传入方法中，而不是引用传递。</p>
+<p>以下代码中 Dog dog 的 dog 是一个指针，存储的是对象的地址。在将一个参数传入一个方法时，本质上是将对象的地址以值的方式传递到形参中。因此在方法中改变指针引用的对象，那么这两个指针此时指向的是完全不同的对象，一方改变其所指向对象的内容对另一方没有影响。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Dog</span> </span>&#123;<br>    String name;<br><br>    Dog(String name) &#123;<br>        <span class="hljs-keyword">this</span>.name = name;<br>    &#125;<br><br>    <span class="hljs-function">String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.name;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">setName</span><span class="hljs-params">(String name)</span> </span>&#123;<br>        <span class="hljs-keyword">this</span>.name = name;<br>    &#125;<br><br>    <span class="hljs-function">String <span class="hljs-title">getObjectAddress</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.toString();<br>    &#125;<br>&#125;<br><br><br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PassByValueExample</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        Dog dog = <span class="hljs-keyword">new</span> Dog(<span class="hljs-string">&quot;A&quot;</span>);<br>        System.out.println(dog.getObjectAddress()); <span class="hljs-comment">// Dog@4554617c</span><br>        func(dog);<br>        System.out.println(dog.getObjectAddress()); <span class="hljs-comment">// Dog@4554617c</span><br>        System.out.println(dog.getName());          <span class="hljs-comment">// A</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func</span><span class="hljs-params">(Dog dog)</span> </span>&#123;<br>        System.out.println(dog.getObjectAddress()); <span class="hljs-comment">// Dog@4554617c</span><br>        dog = <span class="hljs-keyword">new</span> Dog(<span class="hljs-string">&quot;B&quot;</span>);<br>        System.out.println(dog.getObjectAddress()); <span class="hljs-comment">// Dog@74a14482</span><br>        System.out.println(dog.getName());          <span class="hljs-comment">// B</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>但是如果在方法中改变对象的字段值会改变原对象该字段值，因为改变的是同一个地址指向的内容。</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PassByValueExample</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        Dog dog = <span class="hljs-keyword">new</span> Dog(<span class="hljs-string">&quot;A&quot;</span>);<br>        func(dog);<br>        System.out.println(dog.getName());          <span class="hljs-comment">// B</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func</span><span class="hljs-params">(Dog dog)</span> </span>&#123;<br>        dog.setName(<span class="hljs-string">&quot;B&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="float-与-double"><a href="#float-与-double" class="headerlink" title="float 与 double"></a>float 与 double</h3><p>1.1 字面量属于 double 类型，不能直接将 1.1 直接赋值给 float 变量，因为这是向下转型。Java 不能隐式执行向下转型，因为这会使得精度降低。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">float</span> f = <span class="hljs-number">1.1</span>;  <span class="hljs-comment">//编译错误</span><br></code></pre></td></tr></table></figure>
+
+<p>1.1f 字面量才是 float 类型。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">float</span> f = <span class="hljs-number">1.1f</span>;<br></code></pre></td></tr></table></figure>
+
+<h3 id="隐式类型转换"><a href="#隐式类型转换" class="headerlink" title="隐式类型转换"></a>隐式类型转换</h3><p>因为字面量 1 是 int 类型，它比 short 类型精度要高，因此不能隐式地将 int 类型下转型为 short 类型。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">short</span> s1 = <span class="hljs-number">1</span>;<br>s1 = s1 + <span class="hljs-number">1</span>;  <span class="hljs-comment">//编译错误</span><br></code></pre></td></tr></table></figure>
+
+<p>但是使用 += 运算符可以执行隐式类型转换。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">s1 += <span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<p>上面的语句相当于将 s1 + 1 的计算结果进行了向下转型:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">s1 = (<span class="hljs-keyword">short</span>) (s1 + <span class="hljs-number">1</span>);<br></code></pre></td></tr></table></figure>
+
+<h3 id="switch"><a href="#switch" class="headerlink" title="switch"></a>switch</h3><p>从 Java 7 开始，可以在 switch 条件判断语句中使用 String 对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">String s = <span class="hljs-string">&quot;a&quot;</span>;<br><span class="hljs-keyword">switch</span> (s) &#123;<br>    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;a&quot;</span>:<br>        System.out.println(<span class="hljs-string">&quot;aaa&quot;</span>);<br>        <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;b&quot;</span>:<br>        System.out.println(<span class="hljs-string">&quot;bbb&quot;</span>);<br>        <span class="hljs-keyword">break</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>switch 不支持 long，是因为 switch 的设计初衷是对那些只有少数的几个值进行等值判断，如果值过于复杂，那么还是用 if 比较合适。</strong></p>
+<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><h3 id="访问权限"><a href="#访问权限" class="headerlink" title="访问权限"></a>访问权限</h3><p>Java 中有三个访问权限修饰符: private、protected 以及 public，如果不加访问修饰符，表示包级可见。</p>
+<p>可以对类或类中的成员(字段以及方法)加上访问修饰符。</p>
+<ul>
+<li>类可见表示其它类可以用这个类创建实例对象。</li>
+<li>成员可见表示其它类可以用这个类的实例对象访问到该成员；</li>
+</ul>
+<p>protected 用于修饰成员，表示在继承体系中成员对于子类可见，但是这个访问修饰符对于类没有意义。</p>
+<p>设计良好的模块会隐藏所有的实现细节，把它的 API 与它的实现清晰地隔离开来。模块之间只通过它们的 API 进行通信，一个模块不需要知道其他模块的内部工作情况，这个概念被称为信息隐藏或封装。因此访问权限应当尽可能地使每个类或者成员不被外界访问。</p>
+<p>如果子类的方法重写了父类的方法，那么子类中该方法的访问级别不允许低于父类的访问级别。这是为了确保可以使用父类实例的地方都可以使用子类实例，也就是确保满足里氏替换原则。</p>
+<p>字段决不能是公有的，因为这么做的话就失去了对这个字段修改行为的控制，客户端可以对其随意修改。例如下面的例子中，AccessExample 拥有 id 共有字段，如果在某个时刻，我们想要使用 int 去存储 id 字段，那么就需要去修改所有的客户端代码。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AccessExample</span> </span>&#123;<br>    <span class="hljs-keyword">public</span> String id;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>可以使用公有的 getter 和 setter 方法来替换公有字段，这样的话就可以控制对字段的修改行为。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AccessExample</span> </span>&#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> id;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getId</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> id + <span class="hljs-string">&quot;&quot;</span>;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setId</span><span class="hljs-params">(String id)</span> </span>&#123;<br>        <span class="hljs-keyword">this</span>.id = Integer.valueOf(id);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>但是也有例外，如果是包级私有的类或者私有的嵌套类，那么直接暴露成员不会有特别大的影响.</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AccessWithInnerClassExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InnerClass</span> </span>&#123;<br>        <span class="hljs-keyword">int</span> x;<br>    &#125;<br><br>    <span class="hljs-keyword">private</span> InnerClass innerClass;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">AccessWithInnerClassExample</span><span class="hljs-params">()</span> </span>&#123;<br>        innerClass = <span class="hljs-keyword">new</span> InnerClass();<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getValue</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> innerClass.x;  <span class="hljs-comment">// 直接访问</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="抽象类与接口"><a href="#抽象类与接口" class="headerlink" title="抽象类与接口"></a>抽象类与接口</h3><p><strong>1. 抽象类</strong></p>
+<p>抽象类和抽象方法都使用 abstract 关键字进行声明。抽象类一般会包含抽象方法，抽象方法一定位于抽象类中。</p>
+<p>抽象类和普通类最大的区别是，抽象类不能被实例化，需要继承抽象类才能实例化其子类。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractClassExample</span> </span>&#123;<br><br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">int</span> x;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> y;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func2</span><span class="hljs-params">()</span> </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;func2&quot;</span>);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractExtendClassExample</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractClassExample</span> </span>&#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span> </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;func1&quot;</span>);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-comment">// AbstractClassExample ac1 = new AbstractClassExample(); // &#x27;AbstractClassExample&#x27; is abstract; cannot be instantiated</span><br>AbstractClassExample ac2 = <span class="hljs-keyword">new</span> AbstractExtendClassExample();<br>ac2.func1();<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 接口</strong></p>
+<p>接口是抽象类的延伸，在 Java 8 之前，它可以看成是一个完全抽象的类，也就是说它不能有任何的方法实现。</p>
+<p>从 Java 8 开始，接口也可以拥有默认的方法实现，这是因为不支持默认方法的接口的维护成本太高了。在 Java 8 之前，如果一个接口想要添加新的方法，那么要修改所有实现了该接口的类。</p>
+<p>接口的成员(字段 + 方法)默认都是 public 的，并且不允许定义为 private 或者 protected。</p>
+<p>接口的字段默认都是 static 和 final 的。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">InterfaceExample</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">default</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func2</span><span class="hljs-params">()</span></span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;func2&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">int</span> x = <span class="hljs-number">123</span>;<br>    <span class="hljs-comment">// int y;               // Variable &#x27;y&#x27; might not have been initialized</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> z = <span class="hljs-number">0</span>;       <span class="hljs-comment">// Modifier &#x27;public&#x27; is redundant for interface fields</span><br>    <span class="hljs-comment">// private int k = 0;   // Modifier &#x27;private&#x27; not allowed here</span><br>    <span class="hljs-comment">// protected int l = 0; // Modifier &#x27;protected&#x27; not allowed here</span><br>    <span class="hljs-comment">// private void fun3(); // Modifier &#x27;private&#x27; not allowed here</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 比较</strong></p>
+<ul>
+<li>从设计层面上看，抽象类提供了一种 IS-A 关系，那么就必须满足里式替换原则，即子类对象必须能够替换掉所有父类对象。而接口更像是一种 LIKE-A 关系，它只是提供一种方法实现契约，并不要求接口和实现接口的类具有 IS-A 关系。</li>
+<li>从使用上来看，一个类可以实现多个接口，但是不能继承多个抽象类。</li>
+<li>接口的字段只能是 static 和 final 类型的，而抽象类的字段没有这种限制。</li>
+<li>接口的成员只能是 public 的，而抽象类的成员可以有多种访问权限。</li>
+</ul>
+<p><strong>4. 使用选择</strong></p>
+<p>使用接口:</p>
+<ul>
+<li>需要让不相关的类都实现一个方法，例如不相关的类都可以实现 Compareable 接口中的 compareTo() 方法；</li>
+<li>需要使用多重继承。</li>
+</ul>
+<p> 使用抽象类:</p>
+<ul>
+<li>需要在几个相关的类中共享代码。</li>
+<li>需要能控制继承来的成员的访问权限，而不是都为 public。</li>
+<li>需要继承非静态和非常量字段。</li>
+</ul>
+<p>在很多情况下，接口优先于抽象类，因为接口没有抽象类严格的类层次结构要求，可以灵活地为一个类添加行为。并且从 Java 8 开始，接口也可以有默认的方法实现，使得修改接口的成本也变的很低。</p>
+<h3 id="super"><a href="#super" class="headerlink" title="super"></a>super</h3><ul>
+<li>访问父类的构造函数: 可以使用 super() 函数访问父类的构造函数，从而委托父类完成一些初始化的工作。</li>
+<li>访问父类的成员: 如果子类重写了父类的中某个方法的实现，可以通过使用 super 关键字来引用父类的方法实现。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SuperExample</span> </span>&#123;<br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">int</span> x;<br>    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">int</span> y;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SuperExample</span><span class="hljs-params">(<span class="hljs-keyword">int</span> x, <span class="hljs-keyword">int</span> y)</span> </span>&#123;<br>        <span class="hljs-keyword">this</span>.x = x;<br>        <span class="hljs-keyword">this</span>.y = y;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func</span><span class="hljs-params">()</span> </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;SuperExample.func()&quot;</span>);<br>    &#125;<br>&#125;<br><br><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SuperExtendExample</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">SuperExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> z;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">SuperExtendExample</span><span class="hljs-params">(<span class="hljs-keyword">int</span> x, <span class="hljs-keyword">int</span> y, <span class="hljs-keyword">int</span> z)</span> </span>&#123;<br>        <span class="hljs-keyword">super</span>(x, y);<br>        <span class="hljs-keyword">this</span>.z = z;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">super</span>.func();<br>        System.out.println(<span class="hljs-string">&quot;SuperExtendExample.func()&quot;</span>);<br>    &#125;<br>&#125;<br><br><br><br>SuperExample e = <span class="hljs-keyword">new</span> SuperExtendExample(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>);<br>e.func();<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="重写与重载"><a href="#重写与重载" class="headerlink" title="重写与重载"></a>重写与重载</h3><p><strong>1. 重写(Override)</strong></p>
+<p>存在于继承体系中，指子类实现了一个与父类在方法声明上完全相同的一个方法。</p>
+<p>为了满足里式替换原则，重写有有以下两个限制:</p>
+<ul>
+<li>子类方法的访问权限必须大于等于父类方法；</li>
+<li>子类方法的返回类型必须是父类方法返回类型或为其子类型。</li>
+</ul>
+<p>使用 @Override 注解，可以让编译器帮忙检查是否满足上面的两个限制条件。</p>
+<p><strong>2. 重载(Overload)</strong></p>
+<p>存在于同一个类中，指一个方法与已经存在的方法名称上相同，但是参数类型、个数、顺序至少有一个不同。</p>
+<p>应该注意的是，返回值不同，其它都相同不算是重载。</p>
+<h2 id="Object-通用方法"><a href="#Object-通用方法" class="headerlink" title="Object 通用方法"></a>Object 通用方法</h2><h3 id="概览-1"><a href="#概览-1" class="headerlink" title="概览"></a>概览</h3><figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> Class&lt;?&gt; getClass()<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hashCode</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">equals</span><span class="hljs-params">(Object obj)</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">native</span> Object <span class="hljs-title">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">toString</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title">notify</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title">notifyAll</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title">wait</span><span class="hljs-params">(<span class="hljs-keyword">long</span> timeout)</span> <span class="hljs-keyword">throws</span> InterruptedException</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">wait</span><span class="hljs-params">(<span class="hljs-keyword">long</span> timeout, <span class="hljs-keyword">int</span> nanos)</span> <span class="hljs-keyword">throws</span> InterruptedException</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">wait</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">finalize</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Throwable </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="equals"><a href="#equals" class="headerlink" title="equals()"></a>equals()</h3><p><strong>1. 等价关系</strong></p>
+<p>(一)自反性</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">x.equals(x); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p>(二)对称性</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">x.equals(y) == y.equals(x); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p>(三)传递性</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (x.equals(y) &amp;&amp; y.equals(z))<br>    x.equals(z); <span class="hljs-comment">// true;</span><br></code></pre></td></tr></table></figure>
+
+<p>(四)一致性</p>
+<p>多次调用 equals() 方法结果不变</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">x.equals(y) == x.equals(y); <span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+
+<p>(五)与 null 的比较</p>
+<p>对任何不是 null 的对象 x 调用 x.equals(null) 结果都为 false</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">x.equals(<span class="hljs-keyword">null</span>); <span class="hljs-comment">// false;</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>2. equals() 与 ==</strong></p>
+<ul>
+<li>对于基本类型，== 判断两个值是否相等，基本类型没有 equals() 方法。</li>
+<li>对于引用类型，== 判断两个变量是否引用同一个对象，而 equals() 判断引用的对象是否等价。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">Integer x = <span class="hljs-keyword">new</span> Integer(<span class="hljs-number">1</span>);<br>Integer y = <span class="hljs-keyword">new</span> Integer(<span class="hljs-number">1</span>);<br>System.out.println(x.equals(y)); <span class="hljs-comment">// true</span><br>System.out.println(x == y);      <span class="hljs-comment">// false</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 实现</strong></p>
+<ul>
+<li>检查是否为同一个对象的引用，如果是直接返回 true；</li>
+<li>检查是否是同一个类型，如果不是，直接返回 false；</li>
+<li>将 Object 对象进行转型；</li>
+<li>判断每个关键域是否相等。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EqualExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> x;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> y;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> z;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">EqualExample</span><span class="hljs-params">(<span class="hljs-keyword">int</span> x, <span class="hljs-keyword">int</span> y, <span class="hljs-keyword">int</span> z)</span> </span>&#123;<br>        <span class="hljs-keyword">this</span>.x = x;<br>        <span class="hljs-keyword">this</span>.y = y;<br>        <span class="hljs-keyword">this</span>.z = z;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">equals</span><span class="hljs-params">(Object o)</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span> == o) <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>        <span class="hljs-keyword">if</span> (o == <span class="hljs-keyword">null</span> || getClass() != o.getClass()) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br><br>        EqualExample that = (EqualExample) o;<br><br>        <span class="hljs-keyword">if</span> (x != that.x) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        <span class="hljs-keyword">if</span> (y != that.y) <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        <span class="hljs-keyword">return</span> z == that.z;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode()"></a>hashCode()</h3><p>hashCode() 返回散列值，而 equals() 是用来判断两个对象是否等价。等价的两个对象散列值一定相同，但是散列值相同的两个对象不一定等价。</p>
+<p>在覆盖 equals() 方法时应当总是覆盖 hashCode() 方法，保证等价的两个对象散列值也相等。</p>
+<p>下面的代码中，新建了两个等价的对象，并将它们添加到 HashSet 中。我们希望将这两个对象当成一样的，只在集合中添加一个对象，但是因为 EqualExample 没有实现 hasCode() 方法，因此这两个对象的散列值是不同的，最终导致集合添加了两个等价的对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">EqualExample e1 = <span class="hljs-keyword">new</span> EqualExample(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);<br>EqualExample e2 = <span class="hljs-keyword">new</span> EqualExample(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);<br>System.out.println(e1.equals(e2)); <span class="hljs-comment">// true</span><br>HashSet&lt;EqualExample&gt; set = <span class="hljs-keyword">new</span> HashSet&lt;&gt;();<br>set.add(e1);<br>set.add(e2);<br>System.out.println(set.size());   <span class="hljs-comment">// 2</span><br></code></pre></td></tr></table></figure>
+
+<p>理想的散列函数应当具有均匀性，即不相等的对象应当均匀分布到所有可能的散列值上。这就要求了散列函数要把所有域的值都考虑进来，可以将每个域都当成 R 进制的某一位，然后组成一个 R 进制的整数。R 一般取 31，因为它是一个奇素数，如果是偶数的话，当出现乘法溢出，信息就会丢失，因为与 2 相乘相当于向左移一位。</p>
+<p>一个数与 31 相乘可以转换成移位和减法: <code>31*x == (x&lt;&lt;5)-x</code>，编译器会自动进行这个优化。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hashCode</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">int</span> result = <span class="hljs-number">17</span>;<br>    result = <span class="hljs-number">31</span> * result + x;<br>    result = <span class="hljs-number">31</span> * result + y;<br>    result = <span class="hljs-number">31</span> * result + z;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="toString-NaN"><a href="#toString-NaN" class="headerlink" title="toString()"></a>toString()</h3><p>默认返回 ToStringExample@4554617c 这种形式，其中 @ 后面的数值为散列码的无符号十六进制表示。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ToStringExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> number;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ToStringExample</span><span class="hljs-params">(<span class="hljs-keyword">int</span> number)</span> </span>&#123;<br>        <span class="hljs-keyword">this</span>.number = number;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">ToStringExample example = <span class="hljs-keyword">new</span> ToStringExample(<span class="hljs-number">123</span>);<br>System.out.println(example.toString());<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">ToStringExample@4554617c<br></code></pre></td></tr></table></figure>
+
+<h3 id="clone"><a href="#clone" class="headerlink" title="clone()"></a>clone()</h3><p><strong>1. cloneable</strong></p>
+<p>clone() 是 Object 的 protected 方法，它不是 public，一个类不显式去重写 clone()，其它类就不能直接去调用该类实例的 clone() 方法。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CloneExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> a;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> b;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">CloneExample e1 = <span class="hljs-keyword">new</span> CloneExample();<br><span class="hljs-comment">// CloneExample e2 = e1.clone(); // &#x27;clone()&#x27; has protected access in &#x27;java.lang.Object&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>重写 clone() 得到以下实现:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CloneExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> a;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> b;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">protected</span> CloneExample <span class="hljs-title">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException </span>&#123;<br>        <span class="hljs-keyword">return</span> (CloneExample)<span class="hljs-keyword">super</span>.clone();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">CloneExample e1 = <span class="hljs-keyword">new</span> CloneExample();<br><span class="hljs-keyword">try</span> &#123;<br>    CloneExample e2 = e1.clone();<br>&#125; <span class="hljs-keyword">catch</span> (CloneNotSupportedException e) &#123;<br>    e.printStackTrace();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">java.lang.CloneNotSupportedException: CloneExample<br></code></pre></td></tr></table></figure>
+
+<p>应该注意的是，clone() 方法并不是 Cloneable 接口的方法，而是 Object 的一个 protected 方法。Cloneable 接口只是规定，如果一个类没有实现 Cloneable 接口又调用了 clone() 方法，就会抛出 CloneNotSupportedException。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CloneExample</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Cloneable</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> a;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> b;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">protected</span> Object <span class="hljs-title">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">super</span>.clone();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 浅拷贝</strong></p>
+<p>拷贝对象和原始对象的引用类型引用同一个对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ShallowCloneExample</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Cloneable</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span>[] arr;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ShallowCloneExample</span><span class="hljs-params">()</span> </span>&#123;<br>        arr = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[<span class="hljs-number">10</span>];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; arr.length; i++) &#123;<br>            arr[i] = i;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, <span class="hljs-keyword">int</span> value)</span> </span>&#123;<br>        arr[index] = value;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> arr[index];<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">protected</span> ShallowCloneExample <span class="hljs-title">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException </span>&#123;<br>        <span class="hljs-keyword">return</span> (ShallowCloneExample) <span class="hljs-keyword">super</span>.clone();<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">ShallowCloneExample e1 = <span class="hljs-keyword">new</span> ShallowCloneExample();<br>ShallowCloneExample e2 = <span class="hljs-keyword">null</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    e2 = e1.clone();<br>&#125; <span class="hljs-keyword">catch</span> (CloneNotSupportedException e) &#123;<br>    e.printStackTrace();<br>&#125;<br>e1.set(<span class="hljs-number">2</span>, <span class="hljs-number">222</span>);<br>System.out.println(e2.get(<span class="hljs-number">2</span>)); <span class="hljs-comment">// 222</span><br><br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 深拷贝</strong></p>
+<p>拷贝对象和原始对象的引用类型引用不同对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DeepCloneExample</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Cloneable</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span>[] arr;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">DeepCloneExample</span><span class="hljs-params">()</span> </span>&#123;<br>        arr = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[<span class="hljs-number">10</span>];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; arr.length; i++) &#123;<br>            arr[i] = i;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, <span class="hljs-keyword">int</span> value)</span> </span>&#123;<br>        arr[index] = value;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> arr[index];<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">protected</span> DeepCloneExample <span class="hljs-title">clone</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException </span>&#123;<br>        DeepCloneExample result = (DeepCloneExample) <span class="hljs-keyword">super</span>.clone();<br>        result.arr = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[arr.length];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; arr.length; i++) &#123;<br>            result.arr[i] = arr[i];<br>        &#125;<br>        <span class="hljs-keyword">return</span> result;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">DeepCloneExample e1 = <span class="hljs-keyword">new</span> DeepCloneExample();<br>DeepCloneExample e2 = <span class="hljs-keyword">null</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    e2 = e1.clone();<br>&#125; <span class="hljs-keyword">catch</span> (CloneNotSupportedException e) &#123;<br>    e.printStackTrace();<br>&#125;<br>e1.set(<span class="hljs-number">2</span>, <span class="hljs-number">222</span>);<br>System.out.println(e2.get(<span class="hljs-number">2</span>)); <span class="hljs-comment">// 2</span><br><br></code></pre></td></tr></table></figure>
+
+<p><strong>4. clone() 的替代方案</strong></p>
+<p>使用 clone() 方法来拷贝一个对象即复杂又有风险，它会抛出异常，并且还需要类型转换。Effective Java 书上讲到，最好不要去使用 clone()，可以使用拷贝构造函数或者拷贝工厂来拷贝一个对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CloneConstructorExample</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span>[] arr;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CloneConstructorExample</span><span class="hljs-params">()</span> </span>&#123;<br>        arr = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[<span class="hljs-number">10</span>];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; arr.length; i++) &#123;<br>            arr[i] = i;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CloneConstructorExample</span><span class="hljs-params">(CloneConstructorExample original)</span> </span>&#123;<br>        arr = <span class="hljs-keyword">new</span> <span class="hljs-keyword">int</span>[original.arr.length];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; original.arr.length; i++) &#123;<br>            arr[i] = original.arr[i];<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, <span class="hljs-keyword">int</span> value)</span> </span>&#123;<br>        arr[index] = value;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> arr[index];<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">CloneConstructorExample e1 = <span class="hljs-keyword">new</span> CloneConstructorExample();<br>CloneConstructorExample e2 = <span class="hljs-keyword">new</span> CloneConstructorExample(e1);<br>e1.set(<span class="hljs-number">2</span>, <span class="hljs-number">222</span>);<br>System.out.println(e2.get(<span class="hljs-number">2</span>)); <span class="hljs-comment">// 2</span><br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><h3 id="final"><a href="#final" class="headerlink" title="final"></a>final</h3><p><strong>1. 数据</strong></p>
+<p>声明数据为常量，可以是编译时常量，也可以是在运行时被初始化后不能被改变的常量。</p>
+<ul>
+<li>对于基本类型，final 使数值不变；</li>
+<li>对于引用类型，final 使引用不变，也就不能引用其它对象，但是被引用的对象本身是可以修改的。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> x = <span class="hljs-number">1</span>;<br><span class="hljs-comment">// x = 2;  // cannot assign value to final variable &#x27;x&#x27;</span><br><span class="hljs-keyword">final</span> A y = <span class="hljs-keyword">new</span> A();<br>y.a = <span class="hljs-number">1</span>;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 方法</strong></p>
+<p>声明方法不能被子类重写。</p>
+<p>private 方法隐式地被指定为 final，如果在子类中定义的方法和基类中的一个 private 方法签名相同，此时子类的方法不是重写基类方法，而是在子类中定义了一个新的方法。</p>
+<p><strong>3. 类</strong></p>
+<p>声明类不允许被继承。</p>
+<h3 id="static"><a href="#static" class="headerlink" title="static"></a>static</h3><p><strong>1. 静态变量</strong></p>
+<p>静态变量: 又称为类变量，也就是说这个变量属于类的，类所有的实例都共享静态变量，可以直接通过类名来访问它；静态变量在内存中只存在一份。</p>
+<p>实例变量: 每创建一个实例就会产生一个实例变量，它与该实例同生共死。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> x;         <span class="hljs-comment">// 实例变量</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> y;  <span class="hljs-comment">// 静态变量</span><br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-comment">// int x = A.x;  // Non-static field &#x27;x&#x27; cannot be referenced from a static context</span><br>        A a = <span class="hljs-keyword">new</span> A();<br>        <span class="hljs-keyword">int</span> x = a.x;<br>        <span class="hljs-keyword">int</span> y = A.y;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>2. 静态方法</strong></p>
+<p>静态方法在类加载的时候就存在了，它不依赖于任何实例。所以静态方法必须有实现，也就是说它不能是抽象方法(abstract)。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span></span>&#123;<br>    &#125;<br>    <span class="hljs-comment">// public abstract static void func2();  // Illegal combination of modifiers: &#x27;abstract&#x27; and &#x27;static&#x27;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>只能访问所属类的静态字段和静态方法，方法中不能有 this 和 super 关键字。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> x;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> y;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span></span>&#123;<br>        <span class="hljs-keyword">int</span> a = x;<br>        <span class="hljs-comment">// int b = y;  // Non-static field &#x27;y&#x27; cannot be referenced from a static context</span><br>        <span class="hljs-comment">// int b = this.y;     // &#x27;A.this&#x27; cannot be referenced from a static context</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>3. 静态语句块</strong></p>
+<p>静态语句块在类初始化时运行一次。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">A</span> </span>&#123;<br>    <span class="hljs-keyword">static</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;123&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        A a1 = <span class="hljs-keyword">new</span> A();<br>        A a2 = <span class="hljs-keyword">new</span> A();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-number">123</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>4. 静态内部类</strong></p>
+<p>非静态内部类依赖于外部类的实例，而静态内部类不需要。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OuterClass</span> </span>&#123;<br>    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">InnerClass</span> </span>&#123;<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">StaticInnerClass</span> </span>&#123;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-comment">// InnerClass innerClass = new InnerClass(); // &#x27;OuterClass.this&#x27; cannot be referenced from a static context</span><br>        OuterClass outerClass = <span class="hljs-keyword">new</span> OuterClass();<br>        InnerClass innerClass = outerClass.<span class="hljs-function">new <span class="hljs-title">InnerClass</span><span class="hljs-params">()</span></span>;<br>        StaticInnerClass staticInnerClass = <span class="hljs-keyword">new</span> StaticInnerClass();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>静态内部类不能访问外部类的非静态的变量和方法。</p>
+<p><strong>5. 静态导包</strong></p>
+<p>在使用静态变量和方法时不用再指明 ClassName，从而简化代码，但可读性大大降低。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> <span class="hljs-keyword">static</span> com.xxx.ClassName.*<br></code></pre></td></tr></table></figure>
+
+<p><strong>6. 初始化顺序</strong></p>
+<p>静态变量和静态语句块优先于实例变量和普通语句块，静态变量和静态语句块的初始化顺序取决于它们在代码中的顺序。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> String staticField = <span class="hljs-string">&quot;静态变量&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> &#123;<br>    System.out.println(<span class="hljs-string">&quot;静态语句块&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String field = <span class="hljs-string">&quot;实例变量&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">&#123;<br>    System.out.println(<span class="hljs-string">&quot;普通语句块&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>最后才是构造函数的初始化。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">InitialOrderTest</span><span class="hljs-params">()</span> </span>&#123;<br>    System.out.println(<span class="hljs-string">&quot;构造函数&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>存在继承的情况下，初始化顺序为:</p>
+<ul>
+<li>父类(静态变量、静态语句块)</li>
+<li>子类(静态变量、静态语句块)</li>
+<li>父类(实例变量、普通语句块)</li>
+<li>父类(构造函数)</li>
+<li>子类(实例变量、普通语句块)</li>
+<li>子类(构造函数)</li>
+</ul>
+<p>引用自:</p>
+<hr>
+<p><a href="https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/basis/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.md">https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/basis/Java%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.md</a></p>
+<p><a href="https://www.pdai.tech/md/java/basic/java-basic-lan-basic.html">https://www.pdai.tech/md/java/basic/java-basic-lan-basic.html</a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+        <category>Java基础</category>
+      </categories>
+      <tags>
+        <tag>Java基础</tag>
       </tags>
   </entry>
 </search>
