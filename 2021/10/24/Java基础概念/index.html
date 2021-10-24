@@ -23,15 +23,15 @@
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="基础概念与常识Java语言有哪些特点 简单易学； 面向对象（封装，继承，多态）； 平台无关性(Java虚拟机实现平台无关性)； 支持多线程； 可靠性； 安全性； 支持网络编程并且很方便(Java语言诞生本身就是为简化网络编程设计的，因此Java语言不仅支持网络编程而且很方便)； 编译与解释并存；  JVM vs JDK vs JREJVMJava虚拟机(JVM)是运行Java字节码的虚拟机。JVM">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/1634221350574.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021215018133.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021222448391.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1634221350574.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211021215018133.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211021222448391.png">
 <meta property="article:published_time" content="2021-10-24T03:37:08.000Z">
-<meta property="article:modified_time" content="2021-10-24T03:37:27.230Z">
+<meta property="article:modified_time" content="2021-10-24T06:36:46.479Z">
 <meta property="article:author" content="pudewu">
 <meta property="article:tag" content="Java基础">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/1634221350574.png">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/1634221350574.png">
   
   <title>Java基础概念 - 远方</title>
 
@@ -277,7 +277,7 @@
 <p>在Java中，JVM可以理解的代码就叫做 <code>字节码</code> (即扩展名为<code>.class</code>的文件)，它不面向任何特定的处理器，只面向虚拟机。Java语言通过字节码的方式，在一定程度上解决了传统解型语言执行效率低的问题，同时又保留解释型语言可移值的特点。所以Java程序运行时比较高效，而且，由于字节码并不针对一种特定的机器，因此，Java程序无需重新编译便可在多种不同操作系统的计算机上运行。</p>
 </blockquote>
 <p> <strong>Java 程序从源代码到运行一般有下面 3 步：</strong> </p>
-<p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/1634221350574.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1634221350574.png" srcset="/img/loading.gif" lazyload></p>
 <p>我们需要格外注意的是.class -&gt; 机器码。在这一步JVM类加载器首先加载字节码文件，然后通过解释器逐行解释执行，这种方式的执行速度会相对比较慢。而且，有些方法和代码块是经常需要被调用的(也就是所谓的热点代码)，所以后面引进了JIT编译器，而JIT编译器属于运行时编译。当JIT编译器完成第一次编译之后，其会将字节码对应的机器码保存下来，下次可以直接使用。而我们知道，机器码的运行效率肯定高于Java解释器的。这也解释了我们为什么经常会说Java是编译与解释共存的语言。</p>
 <blockquote>
 <p> HotSpot 采用了惰性评估(Lazy Evaluation)的做法，根据二八定律，消耗大部分系统资源的只有那一小部分的代码（热点代码），而这也就是 JIT 所需要编译的部分。JVM 会根据代码每次被执行的情况收集信息并相应地做出一些优化，因此执行的次数越多，它的速度就越快。JDK 9 引入了一种新的编译模式 AOT(Ahead of Time Compilation)，它是直接将字节码编译成机器码，这样就避免了 JIT 预热等各方面的开销。JDK 支持分层编译和 AOT 协作使用。但是 ，AOT 编译器的编译质量是肯定比不上 JIT 编译器的。 </p>
@@ -324,7 +324,7 @@
 <li>逻辑型 boolean</li>
 <li>字符型 char</li>
 </ul>
-<h3 id="八种基本数据类型的默认值"><a href="#八种基本数据类型的默认值" class="headerlink" title="八种基本数据类型的默认值"></a>八种基本数据类型的默认值</h3><p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021215018133.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="八种基本数据类型的默认值"><a href="#八种基本数据类型的默认值" class="headerlink" title="八种基本数据类型的默认值"></a>八种基本数据类型的默认值</h3><p><img src="/img/work/image-20211021215018133.png" srcset="/img/loading.gif" lazyload></p>
 <p>基本类型都有对应的包装类型，基本类型与其对应的包装类型之间的赋值使用自动装箱与拆箱完成。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">Integer x = <span class="hljs-number">2</span>;     <span class="hljs-comment">// 装箱</span><br><span class="hljs-keyword">int</span> y = x;         <span class="hljs-comment">// 拆箱</span><br></code></pre></td></tr></table></figure>
 
@@ -366,7 +366,7 @@
 <p>因为 String 的 hash 值经常被使用，例如 String 用做 HashMap 的 key。不可变的特性可以使得 hash 值也不可变，因此只需要进行一次计算。</p>
 <p><strong>2. String Pool 的需要</strong></p>
 <p>如果一个 String 对象已经被创建过了，那么就会从 String Pool 中取得引用。只有 String 是不可变的，才可能使用 String Pool。</p>
-<p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021222448391.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/image-20211021222448391.png" srcset="/img/loading.gif" lazyload></p>
 <p><strong>3. 安全性</strong></p>
 <p>String 经常作为参数，String 不可变性可以保证参数不可变。例如在作为网络连接参数的情况下如果 String 是可变的，那么在网络连接过程中，String 被改变，改变 String 对象的那一方以为现在连接的是其它主机，而实际情况却不一定是。</p>
 <p><strong>4. 线程安全</strong></p>

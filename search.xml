@@ -188,7 +188,7 @@
 <li>子进程把数据写到一个临时的RDB文件</li>
 <li>当子进程写完新的RDB文件后，把旧的RDB文件替换掉</li>
 </ul>
-<p><img src="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png"></p>
+<p><img src="/img/work/image-20210930171854270.png"></p>
 <p>一般在主从复制中,rdb做备用在从机上</p>
 <h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
 <li>RDB文件是一个很简洁的单文件，它保存了某个时间点的Redis数据，很适合用于做备份。你可以设定一个时间点对RDB文件进行归档，这样就能在需要的时候很轻易的把数据恢复到不同的版本</li>
@@ -243,7 +243,7 @@
 <blockquote>
 <p>工作原理</p>
 </blockquote>
-<p><img src="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930180234429.png"></p>
+<p><img src="/img/work/image-20210930180234429.png"></p>
 <h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ol>
 <li>比RDB可靠。你可以制定不同的fsync策略：不进行fsync、每秒fsync一次和每次查询进行fsync。默认是每秒fsync一次。这意味着你最多丢失一秒钟的数据。</li>
 <li>AOF日志文件是一个纯追加的文件。就算是遇到突然停电的情况，也不会出现日志的定位或者损坏问题。甚至如果因为某些原因（例如磁盘满了）命令只写了一半到日志文件里，我们也可以用<code>redis-check-aof</code>这个工具很简单的进行修复</li>
@@ -338,7 +338,7 @@
 
 <p>官方文档：<a href="https://www.redis.net.cn/order/3685.html">https://www.redis.net.cn/order/3685.html</a></p>
 <p>从官网中我们可以看到此数据类型只有<strong>六个命令</strong></p>
-<p><img src="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632661034050.png"></p>
+<p><img src="/img/work/1632661034050.png"></p>
 <p>下面就分别举例来做介绍</p>
 <blockquote>
 <h4 id="GEOADD"><a href="#GEOADD" class="headerlink" title="GEOADD"></a><strong>GEOADD</strong></h4></blockquote>
@@ -446,7 +446,7 @@
 </blockquote>
 <p>使用bitmap 来记录 周一到周日的打卡！</p>
 <p>周一：1 周二：0 周三：0 周四：1 ……</p>
-<p><img src="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/1632664931110.png"></p>
+<p><img src="/img/work/1632664931110.png"></p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><code class="hljs sql"><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">0</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">1</span> <span class="hljs-number">0</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">2</span> <span class="hljs-number">0</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">3</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">4</span> <span class="hljs-number">1</span> <br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">5</span> <span class="hljs-number">1</span><br>(<span class="hljs-type">integer</span>) <span class="hljs-number">0</span><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">6379</span><span class="hljs-operator">&gt;</span> setbit sign <span class="hljs-number">6</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
 
 <p>查看某一天是否有打卡！</p>
@@ -477,13 +477,13 @@
 <p>概念  </p>
 </blockquote>
 <p>​    缓存穿透的概念很简单，用户想要查询一个数据，发现redis内存数据库没有，也就是缓存没有命中,于是向持久层数据库查询。发现也没有，于是本次查询失败。当用户很多的时候，缓存都没有命中(秒杀!)，于是都去请求了持久层数据库。这会给持久层数据库造成很大的压力，这时候就相当于出现了 缓存穿透。 </p>
-<p><img src="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/1633962251731.png"></p>
+<p><img src="/img/work/1633962251731.png"></p>
 <blockquote>
 <p>解决方案  </p>
 </blockquote>
 <p><strong>布隆过滤器</strong>  </p>
 <p>​     布隆过滤器是一种数据结构，对所有可能查询的参数以hash形式存储，在控制层先进行校验，不符合则 丢弃，从而避免了对底层存储系统的查询压力； </p>
-<p><img src="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/1633962830773.png"></p>
+<p><img src="/img/work/1633962830773.png"></p>
 <p><strong>缓存空对象</strong> </p>
 <p>​    当存储层不命中后，即使返回的空对象也将其缓存起来，同时会设置一个过期时间，之后再访问这个数 据将会从缓存中获取，保护了后端数据源；  </p>
 <p>但是这种方法会存在两个问题： </p>
@@ -501,11 +501,11 @@
 <p>​     从缓存层面来看，没有设置过期时间，所以不会出现热点 key 过期后产生的问题。  </p>
 <p> <strong>加互斥锁</strong></p>
 <p>​     分布式锁：使用分布式锁，保证对于每个key同时只有一个线程去查询后端服务，其他线程没有获得分布 式锁的权限，因此只需要等待即可。这种方式将高并发的压力转移到了分布式锁，因此对分布式锁的考 验很大。  </p>
-<p><img src="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/1633963512731.png"></p>
+<p><img src="/img/work/1633963512731.png"></p>
 <h3 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h3><p> <strong>概念</strong>  </p>
 <p>​      缓存雪崩，是指在某一个时间段，缓存集中过期失效。Redis 宕机！ </p>
 <p>​      产生雪崩的原因之一，比如双十二零点，很快就会迎来一波抢购，这波商品时间比较集中的放入了缓存，假设缓存一个小时。那么到了凌晨一点钟的时候，这批商品的缓存就都过期了。而对这批商品的访问查询，都落到了数据库上，对于数据库而言，就会产生周期性的压力波峰。于是所有的请求都会达到存储层，存储层的调用量会暴增，造成存储层也会挂掉的情况。 </p>
-<p><img src="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/1633963929642.png"></p>
+<p><img src="/img/work/1633963929642.png"></p>
 <p>​      其实集中过期，倒不是非常致命，比较致命的缓存雪崩，是缓存服务器某个节点宕机或断网。因为自然形成的缓存雪崩，一定是在某个时间段集中创建缓存，这个时候，数据库也是可以顶住压力的。无非就是对数据库产生周期性的压力而已。而缓存服务节点的宕机，对数据库服务器造成的压力是不可预知 的，很有可能瞬间就把数据库压垮。 </p>
 <blockquote>
 <p>解决方案  </p>
@@ -553,7 +553,7 @@
 <p>画流程图</p>
 </blockquote>
 <p><strong>登录之后</strong> </p>
-<p><img src="https://res.cloudinary.com/dlzf16hlo/image/upload/v1632027508/blog/1632027486_1_qqpru0.png"></p>
+<p>![](/img/work/ <a href="https://res.cloudinary.com/dlzf16hlo/image/upload/v1632027508/blog/1632027486_1_qqpru0.png">https://res.cloudinary.com/dlzf16hlo/image/upload/v1632027508/blog/1632027486_1_qqpru0.png</a> )</p>
 <p><strong>选择建模器应用程序</strong></p>
 ]]></content>
       <categories>
@@ -568,7 +568,7 @@
     <url>/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1、redis-cluter设计"><a href="#1、redis-cluter设计" class="headerlink" title="1、redis-cluter设计"></a>1、redis-cluter设计</h2><p> Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)<strong>哨兵</strong>模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-cluster集群. </p>
 <p> Redis-Cluster采用无中心结构，每个节点保存数据和整个集群状态,每个节点都和其他所有节点连接。其redis-cluster架构图如下： </p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png"></p>
+<p><img src="/img/work/1633829297415.png"></p>
 <p> 其结构特点： </p>
 <ol>
 <li> 所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。 </li>
@@ -621,15 +621,15 @@
 
 <h3 id="4-4-检查-redis-启动情况"><a href="#4-4-检查-redis-启动情况" class="headerlink" title="4.4 检查 redis 启动情况"></a>4.4 检查 redis 启动情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ps -ef | grep redis //查看redis启动情况</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850372740.png"></p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850438157.png"></p>
+<p><img src="/img/work/1633850372740.png"></p>
+<p><img src="/img/work/1633850438157.png"></p>
 <h3 id="4-5-创建集群"><a href="#4-5-创建集群" class="headerlink" title="4.5 创建集群"></a>4.5 创建集群</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# ./redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381 192.168.1.8:6382 192.168.1.8:6383 192.168.1.8:6384 --cluster-replicas 1<br></code></pre></td></tr></table></figure>
 
 <p> <strong>注意：Redis Cluster最低要求是3个主节点，如果需要集群需要认证，则在最后加入 -a xx 即可。</strong> </p>
 <p>以上命令执行完成后</p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868265946.png"></p>
+<p><img src="/img/work/1633868265946.png"></p>
 <p>输入yes之后将会出现以下信息</p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868317543.png"></p>
+<p><img src="/img/work/1633868317543.png"></p>
 <h3 id="4-6-测试"><a href="#4-6-测试" class="headerlink" title="4.6 测试"></a>4.6 测试</h3><p> 在第一台机器上连接集群的6379端口的节点，在另外一台连接6382节点，连接方式为  </p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">redis-cli -h 192.168.1.10 -c -p 6379  #-h 连接主机的ip <br>                                      #-c连接集群结点时使用，此选项可防止moved和ask异常 <br>                                      #-p 端口   <br>                                      #-a 如果设置密码 可加上-a进行密码验证登录 <br></code></pre></td></tr></table></figure>
 
@@ -637,8 +637,8 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">在节点6379上设置值</span><br>192.168.1.10:6379&gt; set k1 v1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">在6382也可以获取值</span><br>192.168.1.8:6382&gt; get k1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>&quot;v1&quot;<br></code></pre></td></tr></table></figure>
 
 <p>结果分别如下：</p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869331466.png"></p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869348246.png"></p>
+<p><img src="/img/work/1633869331466.png"></p>
+<p><img src="/img/work/1633869348246.png"></p>
 <h2 id="5-Cluster模式的优缺点"><a href="#5-Cluster模式的优缺点" class="headerlink" title="5. Cluster模式的优缺点"></a>5. Cluster模式的优缺点</h2><h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ol>
 <li>无中心架构，数据按照slot分布在多个节点。</li>
 <li>集群中的每个节点都是平等的关系，每个节点都保存各自的数据和整个集群的状态。每个节点都和其他所有节点连接，而且这些连接保持活跃，这样就保证了我们只需要连接集群中的任意一个节点，就可以获取到其他节点的数据。</li>
@@ -733,54 +733,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Redis.conf详解</title>
-    <url>/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><strong>以下将从配置文件中顺序往下讲解</strong>,<strong>涉及主从复制，持久化将会另起讲解</strong></p>
-<h4 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png"></p>
-<p>1.配置文件unit单位大小写不敏感</p>
-<h4 id="包含"><a href="#包含" class="headerlink" title="包含"></a>包含</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924269484.png"></p>
-<p>类似我们nginx中的include中的包含文件</p>
- <span id="more"></span>
-
-<h4 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">bind 127.0.0.1 # 绑定的ip<br>protected-mode yes # 保护模式<br>port 6379 #端口设置<br></code></pre></td></tr></table></figure>
-
-
-
-<h4 id="通用-GENERAL"><a href="#通用-GENERAL" class="headerlink" title="通用 GENERAL"></a>通用 GENERAL</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"> daemonize yes #以守护进程的方式运行，默认是no，当我们需要后台启动时需要我们手动设置为yes<br> <br> pidfile /var/run/redis_6379.pid  #如果我们以后台方式运行，我们就需要指定一个pid文件<br> <br><span class="hljs-meta"> </span><br><span class="hljs-meta">#</span><span class="bash">日志</span> <br><span class="hljs-meta">#</span><span class="bash"> Specify the server verbosity level.</span><br><span class="hljs-meta">#</span><span class="bash">ze yes This can be one of:</span><br><span class="hljs-meta">#</span><span class="bash"> debug (a lot of information, useful <span class="hljs-keyword">for</span> development/testing)</span><br><span class="hljs-meta">#</span><span class="bash"> verbose (many rarely useful info, but not a mess like the debug level)</span><br><span class="hljs-meta">#</span><span class="bash"> notice (moderately verbose, what you want <span class="hljs-keyword">in</span> production probably) 生产环境</span><br><span class="hljs-meta">#</span><span class="bash"> warning (only very important / critical messages are logged)</span><br>loglevel notice<br><br>logfile &quot;&quot; #日志的文件位置名<br><br>databases 16  #数据库的数量，默认是16个数据库<br><br>always-show-logo no #是否总是显示日志<br><br> <br></code></pre></td></tr></table></figure>
-
-
-
-<h4 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h4><p><strong>持久化，在规定的时间内，执行了多少次操作，则会持久化到文件.rdb.aof</strong>, <strong>redis是内存数据库,如果没有持久化，那么数据断电即丢失</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">如果3600s内，如果至少有一个key进行了修改，即进行持久化操作</span><br>save 3600 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">如果300S内，如果至少300S内，至少有10个可以进行了修改，即进行持久化操作</span><br>save 300 10<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">如果60S内，如果至少10000个进行了修改，即进行持久化操作</span><br>save 60 10000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">后续持久化配置需要用到这里</span><br><br>stop-writes-on-bgsave-error yes #持久化如果出错，是否继续持久化<br><br>rdbcompression yes #是否压缩rdb文件,会消耗一些CPU资源<br><br>rdbchecksum yes  #保存rdb文件的时候，进行错误的核查校验！<br><br>dbfilename dump.rdb # 指定本地数据库文件名，一般采用默认的 dump.rdb<br><br>dir ./  #指定本地数据库存放目录，一般也用默认配置<br><br><br><br><br><br></code></pre></td></tr></table></figure>
-
-
-
-<h4 id="SECURITY-安全"><a href="#SECURITY-安全" class="headerlink" title="SECURITY 安全"></a>SECURITY 安全</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632927510924.png"></p>
-<p> <strong>可以在这里设置redis的密码，默认是没有密码！</strong> </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">               <br>requirepass 123456  #设置密码，设置后需要重启服务才有效,这里设置的是123456<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">当我们登录之后，执行命令将会出现以下提示需要认证</span><br>(error) NOAUTH Authentication required.<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">认证即可正常操作</span><br>127.0.0.1:6379&gt; auth 123456<br>OK<br><br>127.0.0.1:6379&gt; set k1 v1<br>OK<br>127.0.0.1:6379&gt; get k1<br>&quot;v1&quot;<br><br></code></pre></td></tr></table></figure>
-
-
-
-<h4 id="限制-CLIENTS"><a href="#限制-CLIENTS" class="headerlink" title="限制 CLIENTS"></a>限制 CLIENTS</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><br>maxclients 10000  #设置能连接上redis的最大客户端的数量<br><br>maxmemory &lt;bytes&gt; #redis配置最大的内存容量<br><br><br><br>maxmemory-policy noeviction # 内存达到上限后的处理策略<br><span class="hljs-meta">#</span><span class="bash"> volatile-lru -&gt; Evict using approximated LRU, only keys with an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-lru -&gt; Evict any key using approximated LRU.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-lfu -&gt; Evict using approximated LFU, only keys with an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-lfu -&gt; Evict any key using approximated LFU.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-random -&gt; Remove a random key having an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-random -&gt; Remove a random key, any key.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-ttl -&gt; Remove the key with the nearest expire time (minor TTL)</span><br><span class="hljs-meta">#</span><span class="bash"> noeviction -&gt; Don<span class="hljs-string">&#x27;t evict anything, just return an error on write operations.</span></span><br>        1. volatile-lru: 只对设置了过期时间的key进行LRU(默认值)<br>        2. allkeys-lru： 删除lru算法的key<br>        3. volatile-random：随机删除即将过期key<br>        4. allkeys-random：随机删除<br>        5. volatile-ttl： 删除即将过期的<br>        6. noeviction ： 永不过期，返回错误<br>        7. volatile-lfu：使用近似 LFU 驱逐，只有设置过期的键<br><br></code></pre></td></tr></table></figure>
-
-
-
-<h4 id="APPEND-ONLY-模式-aof配置"><a href="#APPEND-ONLY-模式-aof配置" class="headerlink" title="APPEND ONLY 模式 aof配置"></a>APPEND ONLY 模式 aof配置</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">appendonly no #默认是不开启aof模式的，默认是使用rdb方式持久化的，在大部分所有的情况下，rdb完全够用！<br>appendfilename &quot;appendonly.aof&quot; #持久化名称<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> appendfsync always   <span class="hljs-comment">#每次修改都会sync。消耗性能</span></span><br>appendfsync everysec   #每秒执行一次sync，可能会丢失这1S的数据<br><span class="hljs-meta">#</span><span class="bash"> appendfsync no       <span class="hljs-comment">#不执行 sync，这个时候操作系统自己同步数据，速度最快！</span></span><br></code></pre></td></tr></table></figure>
-
-
-
-<p>参考：</p>
-<p>​       B站狂神说Java:<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
-<p>​      Redis.Conf配置文件</p>
-]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redis三种集群模式之主从复制</title>
     <url>/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1.概念"></a>1.概念</h2><p>主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master/leader),后者称为从节点(slave/flollower);<strong>数据的复制是单向的，只能由主节点到从节点，Master以写为主，Slave以读为主</strong>。</p>
@@ -796,9 +748,9 @@
 <li>从容量上，单个Redis服务器内存容量有限，就算一台Redis服务器内存为256G，也不能将所有内存作用于Redis存储内存，一般单台Redis最大使用内存不应该超过20G。</li>
 </ol>
 <p>一般结构架构如下：</p>
-<p><img src="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/1633523383473.png"></p>
+<p><img src="/img/work/1633523383473.png"></p>
 <h2 id="2-基本原理"><a href="#2-基本原理" class="headerlink" title="2.基本原理"></a>2.基本原理</h2><p> 主从复制模式中包含一个主数据库实例(master)与一个或多个从数据库实例(slave)，客户端可对主数据库进行读写操作，对从数据库进行读操作，主数据库写入的数据会实时自动同步给从数据库 </p>
-<h3 id="2-1复制原理图"><a href="#2-1复制原理图" class="headerlink" title="2.1复制原理图"></a>2.1复制原理图</h3><p><img src="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/1633524169754.png"></p>
+<h3 id="2-1复制原理图"><a href="#2-1复制原理图" class="headerlink" title="2.1复制原理图"></a>2.1复制原理图</h3><p><img src="/img/work/1633524169754.png"></p>
 <h3 id="2-3具体步骤"><a href="#2-3具体步骤" class="headerlink" title="2.3具体步骤"></a>2.3具体步骤</h3><ol>
 <li> 从服务器连接主服务器，发送SYNC命令 ；</li>
 <li> 主服务器接收到SYNC命名后，开始执行BGSAVE命令生成RDB文件并使用缓冲区记录此后执行的所有写命令；</li>
@@ -889,18 +841,66 @@
       </tags>
   </entry>
   <entry>
+    <title>Redis.conf详解</title>
+    <url>/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p><strong>以下将从配置文件中顺序往下讲解</strong>,<strong>涉及主从复制，持久化将会另起讲解</strong></p>
+<h4 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h4><p><img src="/img/work/1632924192904.png"></p>
+<p>1.配置文件unit单位大小写不敏感</p>
+<h4 id="包含"><a href="#包含" class="headerlink" title="包含"></a>包含</h4><p><img src="/img/work/1632924269484.png"></p>
+<p>类似我们nginx中的include中的包含文件</p>
+ <span id="more"></span>
+
+<h4 id="网络"><a href="#网络" class="headerlink" title="网络"></a>网络</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">bind 127.0.0.1 # 绑定的ip<br>protected-mode yes # 保护模式<br>port 6379 #端口设置<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="通用-GENERAL"><a href="#通用-GENERAL" class="headerlink" title="通用 GENERAL"></a>通用 GENERAL</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"> daemonize yes #以守护进程的方式运行，默认是no，当我们需要后台启动时需要我们手动设置为yes<br> <br> pidfile /var/run/redis_6379.pid  #如果我们以后台方式运行，我们就需要指定一个pid文件<br> <br><span class="hljs-meta"> </span><br><span class="hljs-meta">#</span><span class="bash">日志</span> <br><span class="hljs-meta">#</span><span class="bash"> Specify the server verbosity level.</span><br><span class="hljs-meta">#</span><span class="bash">ze yes This can be one of:</span><br><span class="hljs-meta">#</span><span class="bash"> debug (a lot of information, useful <span class="hljs-keyword">for</span> development/testing)</span><br><span class="hljs-meta">#</span><span class="bash"> verbose (many rarely useful info, but not a mess like the debug level)</span><br><span class="hljs-meta">#</span><span class="bash"> notice (moderately verbose, what you want <span class="hljs-keyword">in</span> production probably) 生产环境</span><br><span class="hljs-meta">#</span><span class="bash"> warning (only very important / critical messages are logged)</span><br>loglevel notice<br><br>logfile &quot;&quot; #日志的文件位置名<br><br>databases 16  #数据库的数量，默认是16个数据库<br><br>always-show-logo no #是否总是显示日志<br><br> <br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h4><p><strong>持久化，在规定的时间内，执行了多少次操作，则会持久化到文件.rdb.aof</strong>, <strong>redis是内存数据库,如果没有持久化，那么数据断电即丢失</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">如果3600s内，如果至少有一个key进行了修改，即进行持久化操作</span><br>save 3600 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">如果300S内，如果至少300S内，至少有10个可以进行了修改，即进行持久化操作</span><br>save 300 10<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">如果60S内，如果至少10000个进行了修改，即进行持久化操作</span><br>save 60 10000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">后续持久化配置需要用到这里</span><br><br>stop-writes-on-bgsave-error yes #持久化如果出错，是否继续持久化<br><br>rdbcompression yes #是否压缩rdb文件,会消耗一些CPU资源<br><br>rdbchecksum yes  #保存rdb文件的时候，进行错误的核查校验！<br><br>dbfilename dump.rdb # 指定本地数据库文件名，一般采用默认的 dump.rdb<br><br>dir ./  #指定本地数据库存放目录，一般也用默认配置<br><br><br><br><br><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="SECURITY-安全"><a href="#SECURITY-安全" class="headerlink" title="SECURITY 安全"></a>SECURITY 安全</h4><p><img src="/img/work/1632927510924.png"></p>
+<p> <strong>可以在这里设置redis的密码，默认是没有密码！</strong> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">               <br>requirepass 123456  #设置密码，设置后需要重启服务才有效,这里设置的是123456<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">当我们登录之后，执行命令将会出现以下提示需要认证</span><br>(error) NOAUTH Authentication required.<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">认证即可正常操作</span><br>127.0.0.1:6379&gt; auth 123456<br>OK<br><br>127.0.0.1:6379&gt; set k1 v1<br>OK<br>127.0.0.1:6379&gt; get k1<br>&quot;v1&quot;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="限制-CLIENTS"><a href="#限制-CLIENTS" class="headerlink" title="限制 CLIENTS"></a>限制 CLIENTS</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><br>maxclients 10000  #设置能连接上redis的最大客户端的数量<br><br>maxmemory &lt;bytes&gt; #redis配置最大的内存容量<br><br><br><br>maxmemory-policy noeviction # 内存达到上限后的处理策略<br><span class="hljs-meta">#</span><span class="bash"> volatile-lru -&gt; Evict using approximated LRU, only keys with an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-lru -&gt; Evict any key using approximated LRU.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-lfu -&gt; Evict using approximated LFU, only keys with an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-lfu -&gt; Evict any key using approximated LFU.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-random -&gt; Remove a random key having an expire <span class="hljs-built_in">set</span>.</span><br><span class="hljs-meta">#</span><span class="bash"> allkeys-random -&gt; Remove a random key, any key.</span><br><span class="hljs-meta">#</span><span class="bash"> volatile-ttl -&gt; Remove the key with the nearest expire time (minor TTL)</span><br><span class="hljs-meta">#</span><span class="bash"> noeviction -&gt; Don<span class="hljs-string">&#x27;t evict anything, just return an error on write operations.</span></span><br>        1. volatile-lru: 只对设置了过期时间的key进行LRU(默认值)<br>        2. allkeys-lru： 删除lru算法的key<br>        3. volatile-random：随机删除即将过期key<br>        4. allkeys-random：随机删除<br>        5. volatile-ttl： 删除即将过期的<br>        6. noeviction ： 永不过期，返回错误<br>        7. volatile-lfu：使用近似 LFU 驱逐，只有设置过期的键<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="APPEND-ONLY-模式-aof配置"><a href="#APPEND-ONLY-模式-aof配置" class="headerlink" title="APPEND ONLY 模式 aof配置"></a>APPEND ONLY 模式 aof配置</h4><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">appendonly no #默认是不开启aof模式的，默认是使用rdb方式持久化的，在大部分所有的情况下，rdb完全够用！<br>appendfilename &quot;appendonly.aof&quot; #持久化名称<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> appendfsync always   <span class="hljs-comment">#每次修改都会sync。消耗性能</span></span><br>appendfsync everysec   #每秒执行一次sync，可能会丢失这1S的数据<br><span class="hljs-meta">#</span><span class="bash"> appendfsync no       <span class="hljs-comment">#不执行 sync，这个时候操作系统自己同步数据，速度最快！</span></span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>参考：</p>
+<p>​       B站狂神说Java:<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
+<p>​      Redis.Conf配置文件</p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis三种集群模式之哨兵模式</title>
     <url>/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h3><p> 主从切换技术的方法是：当主服务器宕机后，需要手动把一台从服务器切换为主服务器，这就需要人工 干预，费事费力，还会造成一段时间内服务不可用。这不是一种推荐的方式，更多时候，我们优先考虑 哨兵模式。Redis从2.8开始正式提供了Sentinel（哨兵） 架构来解决这个问题 。</p>
 <p>哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独 立运行。其原理是<strong>哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例</strong> </p>
-<p><img src="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1633534256141.png"></p>
+<p><img src="/img/work/1633534256141.png"></p>
 <p> 这里的哨兵有两个作用:</p>
 <ul>
 <li> 通过发送命令，让Redis服务器返回监控其运行状态，包括主服务器和从服务器 </li>
 <li> 当哨兵监测到master宕机，会自动将slave切换成master，然后通过发布订阅模式通知其他的从服 务器，修改配置文件，让它们切换主机 </li>
 </ul>
 <p> 然而一个哨兵进程对Redis服务器进行监控，可能会出现问题，为此，我们可以使用多个哨兵进行监控。 各个哨兵之间还会进行监控，这样就形成了多哨兵模式。 </p>
-<p><img src="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1633534636100.png"> </p>
+<p><img src="/img/work/1633534636100.png"> </p>
 <h3 id="2-工作原理"><a href="#2-工作原理" class="headerlink" title="2.工作原理"></a>2.工作原理</h3><ol>
 <li>首先主节点的信息是配置在哨兵(Sentinel)的配置文件中</li>
 <li>哨兵节点会和配置的主节点建立起两条连接<code>命令连接</code>和<code>订阅连接</code></li>
@@ -911,7 +911,7 @@
 </ol>
 <h3 id="3-哨兵模式下的故障迁移"><a href="#3-哨兵模式下的故障迁移" class="headerlink" title="3.哨兵模式下的故障迁移"></a>3.哨兵模式下的故障迁移</h3><h4 id="3-2主观下线"><a href="#3-2主观下线" class="headerlink" title="3.2主观下线"></a><strong>3.2主观下线</strong></h4><p>哨兵(Sentinel)节点会每秒一次的频率向建立了命令连接的实例发送PING命令，如果在<code>down-after-milliseconds</code>毫秒内没有做出有效响应包括(PONG/LOADING/MASTERDOWN)以外的响应，哨兵就会将该实例在本结构体中的状态标记为<code>SRI_S_DOWN</code>主观下线</p>
 <h4 id="3-3客观下线"><a href="#3-3客观下线" class="headerlink" title="3.3客观下线"></a><strong>3.3客观下线</strong></h4><p>当一个哨兵节点发现主节点处于主观下线状态是，会向其他的哨兵节点发出询问，该节点是不是已经主观下线了。如果超过配置参数<code>quorum</code>个节点认为是主观下线时，该哨兵节点就会将自己维护的结构体中该主节点标记为<code>SRI_O_DOWN</code>客观下线<br> 询问命令<code>SENTINEL is-master-down-by-addr    </code></p>
-<p><img src="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1633535070130.png"></p>
+<p><img src="/img/work/1633535070130.png"></p>
 <h4 id="3-4-leader选举"><a href="#3-4-leader选举" class="headerlink" title="3.4 leader选举"></a>3.4 <strong>leader选举</strong></h4><p>在认为主节点<code>客观下线</code>的情况下,哨兵节点间会发起一次选举，命令还是上面的命令<code>SENTINEL is-master-down-by-addr    </code>,只是<code>run_id</code>这次会将<code>自己的run_id</code>带进去，希望接受者将自己设置为主节点。如果超过半数以上的节点返回将该节点标记为leader的情况下，会有该leader对故障进行迁移</p>
 <h4 id="3-5故障迁移"><a href="#3-5故障迁移" class="headerlink" title="3.5故障迁移"></a><strong>3.5故障迁移</strong></h4><ol>
 <li>在从节点中挑选出新的主节点<br> a. 通讯正常<br> b. 优先级排序<br> c. 优先级相同是选择offset最大的</li>
@@ -921,7 +921,7 @@
 </ol>
 <h3 id="4-部署示例"><a href="#4-部署示例" class="headerlink" title="4.部署示例"></a>4.部署示例</h3><p> 哨兵模式基于前文的主从复制模式。当前示例为一主二从模式</p>
 <p>4.1首先在reids解压后的文件中将sentinel.conf文件复制到redis.conf文件的目录下</p>
-<p><img src="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1633536145531.png"></p>
+<p><img src="/img/work/1633536145531.png"></p>
 <p>4.2在配置文件中进行如下配置</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mymaster定义一个master数据库的名称，后面是master的ip， port，1表示至少需要一个Sentinel进程同意才能将master判断为失效，如果不满足这个条件，则自动故障转移（failover）不会执行</span><br>sentinel monitor mymaster 127.0.0.1 6379 1 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> master的密码</span><br>sentinel auth-pass mymaster 123456 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 5s未回复PING，则认为master主观下线，默认为30s</span><br>sentinel down-after-milliseconds mymaster 5000 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 指定在执行故障转移时，最多可以有多少个slave实例在同步新的master实例，在slave实例较多的情况下这个数字越小，同步的时间越长，完成故障转移所需的时间就越长</span><br>sentinel parallel-syncs mymaster 2  <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 如果在该时间（ms）内未能完成故障转移操作，则认为故障转移失败，生产环境需要根据数据量设置该值</span><br>sentinel failover-timeout mymaster 300000 <br></code></pre></td></tr></table></figure>
 
@@ -934,7 +934,7 @@
 
 
 <p>4.4测试Master挂掉场景</p>
-<p><img src="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/1633537126366.png"></p>
+<p><img src="/img/work/1633537126366.png"></p>
 <p> 执行 <code>kill -9 4965</code> 将master进程干掉，进入slave中执行 <code>info replication</code>查看 </p>
 <p><strong>哨兵服务输出信息</strong></p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">12292:X 07 Oct 2021 18:56:28.858 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.<br>12292:X 07 Oct 2021 18:56:28.858 # Sentinel ID is 0d12a3731fac0690b3cf55d7a424b8a5c0bb2889<br>12292:X 07 Oct 2021 18:56:28.858 # +monitor master mymaster 127.0.0.1 6380 quorum 1<br>12292:X 07 Oct 2021 18:56:38.924 * +convert-to-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 18:59:29.468 * +fix-slave-config slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.021 # +sdown master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.021 # +odown master mymaster 127.0.0.1 6380 #quorum 1/1<br>12292:X 07 Oct 2021 19:01:59.021 # +new-epoch 2<br>12292:X 07 Oct 2021 19:01:59.021 # +try-failover master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.023 # +vote-for-leader 0d12a3731fac0690b3cf55d7a424b8a5c0bb2889 2<br>12292:X 07 Oct 2021 19:01:59.023 # +elected-leader master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.023 # +failover-state-select-slave master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.078 # +selected-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.078 * +failover-state-send-slaveof-noone slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.140 * +failover-state-wait-promotion slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.090 # +promoted-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.090 # +failover-state-reconf-slaves master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.157 * +slave-reconf-sent slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.134 * +slave-reconf-inprog slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.134 * +slave-reconf-done slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.220 # +failover-end master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.220 # +switch-master mymaster 127.0.0.1 6380 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:01.221 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:01.221 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:06.230 # +sdown slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379<br></code></pre></td></tr></table></figure>
@@ -1005,24 +1005,24 @@
 <p>Linux安装</p>
 </blockquote>
 <p>Redis官网地址: <a href="https://redis.io/">https://redis.io/</a></p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632572684797.png"></p>
+<p><img src="/img/work/1632572684797.png"></p>
 <p>1.下载后,可获得一个tar压缩，我这里放到了 /opt目录下</p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632573739375.png"></p>
+<p><img src="/img/work/1632573739375.png"></p>
 <p>2.解压Redis安装包 解压命令: tar zxvf redis-6.2.5.tar.gz</p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632574069385.png"></p>
+<p><img src="/img/work/1632574069385.png"></p>
 <p>3.解压之后可以看到一个redis目录,进入Redis目录可以看到redis.conf的一个文件</p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632574182949.png"></p>
+<p><img src="/img/work/1632574182949.png"></p>
 <p>4.在redis下我们首先进行基本安装及编译安装</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">基础环境安装</span><br>yum install gcc-c++<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">编译</span><br>make<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">安装 redis安装之后默认安装在 /usr/<span class="hljs-built_in">local</span>/bin 下</span><br>make install<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">make PREFIX=/data/redis install  指定目录安装</span><br><br></code></pre></td></tr></table></figure>
 
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632575400027.png"></p>
+<p><img src="/img/work/1632575400027.png"></p>
 <p>5.在安装目录下复制redis.conf文件复制到安装目录下即：/usr/local/bin</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">cp redis.conf /usr/local/bin/<br></code></pre></td></tr></table></figure>
 
 
 
 <p>6.修改redis启动方式，因为redis默认启动方式不是后台启动，因此我们需要进入redis.conf中修改为yes</p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632575702117.png"></p>
+<p><img src="/img/work/1632575702117.png"></p>
 <p>7.启动redis服务</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">启动redis服务</span><br>redis-server etc/redis.conf   #在bin目录下创建了etc目录  redis启动需要将配置文件一同操作<br><br></code></pre></td></tr></table></figure>
 
@@ -1032,11 +1032,11 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">连接客户端命令 -p 指定端口</span><br>redis-cli -p 6379<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">可以看到连接并ping通</span><br>127.0.0.1:6379&gt; ping<br>PONG<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">连接之后如何正常退出？</span><br>127.0.0.1:6379&gt; shutdown #先关闭，防止有数据被中断<br>not connected&gt; exit  #退出<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">此时通过查看进程是否存在</span><br>ps -ef | grep redis<br><br></code></pre></td></tr></table></figure>
 
 <p>9.查看redis进程</p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632576417517.png"></p>
+<p><img src="/img/work/1632576417517.png"></p>
 <p>当客户端连接退出后，任务进程将会不存在</p>
 <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="redis默认数据库"><a href="#redis默认数据库" class="headerlink" title="redis默认数据库"></a>redis默认数据库</h3><p>通过查看配置文件</p>
 <p><strong>redis默认有16个数据库，默认使用第0个数据库</strong> </p>
-<p><img src="/2021/09/25/redis%E5%9F%BA%E7%A1%80/1632576644195.png"></p>
+<p><img src="/img/work/1632576644195.png"></p>
 <p>我们可以对数据库进行选择</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">数据使用选择，redis默认界面，我们可以使用table键进行命令补全</span><br>127.0.0.1:6379&gt; SELECT 2<br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看库大小</span><br>127.0.0.1:6379[2]&gt; DBSIZE<br>(integer) 0<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看所有key</span><br>127.0.0.1:6379[2]&gt; KEYS *<br></code></pre></td></tr></table></figure>
 
@@ -1198,7 +1198,7 @@
 <p>在Java中，JVM可以理解的代码就叫做 <code>字节码</code> (即扩展名为<code>.class</code>的文件)，它不面向任何特定的处理器，只面向虚拟机。Java语言通过字节码的方式，在一定程度上解决了传统解型语言执行效率低的问题，同时又保留解释型语言可移值的特点。所以Java程序运行时比较高效，而且，由于字节码并不针对一种特定的机器，因此，Java程序无需重新编译便可在多种不同操作系统的计算机上运行。</p>
 </blockquote>
 <p> <strong>Java 程序从源代码到运行一般有下面 3 步：</strong> </p>
-<p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/1634221350574.png"></p>
+<p><img src="/img/work/1634221350574.png"></p>
 <p>我们需要格外注意的是.class -&gt; 机器码。在这一步JVM类加载器首先加载字节码文件，然后通过解释器逐行解释执行，这种方式的执行速度会相对比较慢。而且，有些方法和代码块是经常需要被调用的(也就是所谓的热点代码)，所以后面引进了JIT编译器，而JIT编译器属于运行时编译。当JIT编译器完成第一次编译之后，其会将字节码对应的机器码保存下来，下次可以直接使用。而我们知道，机器码的运行效率肯定高于Java解释器的。这也解释了我们为什么经常会说Java是编译与解释共存的语言。</p>
 <blockquote>
 <p> HotSpot 采用了惰性评估(Lazy Evaluation)的做法，根据二八定律，消耗大部分系统资源的只有那一小部分的代码（热点代码），而这也就是 JIT 所需要编译的部分。JVM 会根据代码每次被执行的情况收集信息并相应地做出一些优化，因此执行的次数越多，它的速度就越快。JDK 9 引入了一种新的编译模式 AOT(Ahead of Time Compilation)，它是直接将字节码编译成机器码，这样就避免了 JIT 预热等各方面的开销。JDK 支持分层编译和 AOT 协作使用。但是 ，AOT 编译器的编译质量是肯定比不上 JIT 编译器的。 </p>
@@ -1245,7 +1245,7 @@
 <li>逻辑型 boolean</li>
 <li>字符型 char</li>
 </ul>
-<h3 id="八种基本数据类型的默认值"><a href="#八种基本数据类型的默认值" class="headerlink" title="八种基本数据类型的默认值"></a>八种基本数据类型的默认值</h3><p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021215018133.png"></p>
+<h3 id="八种基本数据类型的默认值"><a href="#八种基本数据类型的默认值" class="headerlink" title="八种基本数据类型的默认值"></a>八种基本数据类型的默认值</h3><p><img src="/img/work/image-20211021215018133.png"></p>
 <p>基本类型都有对应的包装类型，基本类型与其对应的包装类型之间的赋值使用自动装箱与拆箱完成。</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">Integer x = <span class="hljs-number">2</span>;     <span class="hljs-comment">// 装箱</span><br><span class="hljs-keyword">int</span> y = x;         <span class="hljs-comment">// 拆箱</span><br></code></pre></td></tr></table></figure>
 
@@ -1287,7 +1287,7 @@
 <p>因为 String 的 hash 值经常被使用，例如 String 用做 HashMap 的 key。不可变的特性可以使得 hash 值也不可变，因此只需要进行一次计算。</p>
 <p><strong>2. String Pool 的需要</strong></p>
 <p>如果一个 String 对象已经被创建过了，那么就会从 String Pool 中取得引用。只有 String 是不可变的，才可能使用 String Pool。</p>
-<p><img src="/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/image-20211021222448391.png"></p>
+<p><img src="/img/work/image-20211021222448391.png"></p>
 <p><strong>3. 安全性</strong></p>
 <p>String 经常作为参数，String 不可变性可以保证参数不可变。例如在作为网络连接参数的情况下如果 String 是可变的，那么在网络连接过程中，String 被改变，改变 String 对象的那一方以为现在连接的是其它主机，而实际情况却不一定是。</p>
 <p><strong>4. 线程安全</strong></p>

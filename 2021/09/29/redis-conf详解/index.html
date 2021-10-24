@@ -27,15 +27,15 @@
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="以下将从配置文件中顺序往下讲解,涉及主从复制，持久化将会另起讲解 单位 1.配置文件unit单位大小写不敏感 包含 类似我们nginx中的include中的包含文件">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924269484.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632927510924.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1632924192904.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1632924269484.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1632927510924.png">
 <meta property="article:published_time" content="2021-09-29T14:00:50.000Z">
-<meta property="article:modified_time" content="2021-10-11T01:30:45.721Z">
+<meta property="article:modified_time" content="2021-10-24T06:34:59.478Z">
 <meta property="article:author" content="pudewu">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/1632924192904.png">
   
   <title>Redis.conf详解 - 远方</title>
 
@@ -267,9 +267,9 @@
             
             <div class="markdown-body">
               <p><strong>以下将从配置文件中顺序往下讲解</strong>,<strong>涉及主从复制，持久化将会另起讲解</strong></p>
-<h4 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h4><p><img src="/img/work/1632924192904.png" srcset="/img/loading.gif" lazyload></p>
 <p>1.配置文件unit单位大小写不敏感</p>
-<h4 id="包含"><a href="#包含" class="headerlink" title="包含"></a>包含</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924269484.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="包含"><a href="#包含" class="headerlink" title="包含"></a>包含</h4><p><img src="/img/work/1632924269484.png" srcset="/img/loading.gif" lazyload></p>
 <p>类似我们nginx中的include中的包含文件</p>
  <span id="more"></span>
 
@@ -286,7 +286,7 @@
 
 
 
-<h4 id="SECURITY-安全"><a href="#SECURITY-安全" class="headerlink" title="SECURITY 安全"></a>SECURITY 安全</h4><p><img src="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632927510924.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="SECURITY-安全"><a href="#SECURITY-安全" class="headerlink" title="SECURITY 安全"></a>SECURITY 安全</h4><p><img src="/img/work/1632927510924.png" srcset="/img/loading.gif" lazyload></p>
 <p> <strong>可以在这里设置redis的密码，默认是没有密码！</strong> </p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell">               <br>requirepass 123456  #设置密码，设置后需要重启服务才有效,这里设置的是123456<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">当我们登录之后，执行命令将会出现以下提示需要认证</span><br>(error) NOAUTH Authentication required.<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">认证即可正常操作</span><br>127.0.0.1:6379&gt; auth 123456<br>OK<br><br>127.0.0.1:6379&gt; set k1 v1<br>OK<br>127.0.0.1:6379&gt; get k1<br>&quot;v1&quot;<br><br></code></pre></td></tr></table></figure>
 

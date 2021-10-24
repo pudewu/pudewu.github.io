@@ -23,14 +23,14 @@
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="Redis有两种持久化的方式：快照（RDB文件）和追加式文件（AOF文件）：  RDB持久化方式会在一个特定的间隔保存那个时间点的一个数据快照。 AOF持久化方式则会记录每一个服务器收到的写操作。在服务启动时，这些记录的操作会逐条执行从而重建出原来的数据。写操作命令记录的格式跟Redis协议一致，以追加的方式进行保存。 Redis的持久化是可以禁用的，就是说你可以让数据的生命周期只存在于服务器的运">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930180234429.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20210930171854270.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20210930180234429.png">
 <meta property="article:published_time" content="2021-09-30T08:47:08.000Z">
-<meta property="article:modified_time" content="2021-10-08T02:54:23.064Z">
+<meta property="article:modified_time" content="2021-10-24T06:35:11.649Z">
 <meta property="article:author" content="pudewu">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/image-20210930171854270.png">
   
   <title>Redis持久化 - 远方</title>
 
@@ -276,7 +276,7 @@
 <li>子进程把数据写到一个临时的RDB文件</li>
 <li>当子进程写完新的RDB文件后，把旧的RDB文件替换掉</li>
 </ul>
-<p><img src="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930171854270.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/image-20210930171854270.png" srcset="/img/loading.gif" lazyload></p>
 <p>一般在主从复制中,rdb做备用在从机上</p>
 <h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
 <li>RDB文件是一个很简洁的单文件，它保存了某个时间点的Redis数据，很适合用于做备份。你可以设定一个时间点对RDB文件进行归档，这样就能在需要的时候很轻易的把数据恢复到不同的版本</li>
@@ -331,7 +331,7 @@
 <blockquote>
 <p>工作原理</p>
 </blockquote>
-<p><img src="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/image-20210930180234429.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/image-20210930180234429.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h3><ol>
 <li>比RDB可靠。你可以制定不同的fsync策略：不进行fsync、每秒fsync一次和每次查询进行fsync。默认是每秒fsync一次。这意味着你最多丢失一秒钟的数据。</li>
 <li>AOF日志文件是一个纯追加的文件。就算是遇到突然停电的情况，也不会出现日志的定位或者损坏问题。甚至如果因为某些原因（例如磁盘满了）命令只写了一半到日志文件里，我们也可以用<code>redis-check-aof</code>这个工具很简单的进行修复</li>

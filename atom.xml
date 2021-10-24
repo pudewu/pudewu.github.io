@@ -6,7 +6,7 @@
   <link href="https://pudewu.github.io/atom.xml" rel="self"/>
   
   <link href="https://pudewu.github.io/"/>
-  <updated>2021-10-24T03:37:27.230Z</updated>
+  <updated>2021-10-24T06:36:46.479Z</updated>
   <id>https://pudewu.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/"/>
     <id>https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</id>
     <published>2021-10-24T03:37:08.000Z</published>
-    <updated>2021-10-24T03:37:27.230Z</updated>
+    <updated>2021-10-24T06:36:46.479Z</updated>
     
     
       
@@ -75,7 +75,7 @@
     <link href="https://pudewu.github.io/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/"/>
     <id>https://pudewu.github.io/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/</id>
     <published>2021-10-11T06:26:24.000Z</published>
-    <updated>2021-10-14T01:10:56.133Z</updated>
+    <updated>2021-10-24T06:35:32.026Z</updated>
     
     
       
@@ -100,7 +100,7 @@
     <link href="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/"/>
     <id>https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/</id>
     <published>2021-10-07T07:56:51.000Z</published>
-    <updated>2021-10-11T01:30:45.715Z</updated>
+    <updated>2021-10-24T06:34:48.320Z</updated>
     
     
       
@@ -125,7 +125,7 @@
     <link href="https://pudewu.github.io/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/"/>
     <id>https://pudewu.github.io/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/</id>
     <published>2021-10-06T15:12:10.000Z</published>
-    <updated>2021-10-08T02:54:32.785Z</updated>
+    <updated>2021-10-24T06:35:55.391Z</updated>
     
     
       
@@ -150,7 +150,7 @@
     <link href="https://pudewu.github.io/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/"/>
     <id>https://pudewu.github.io/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</id>
     <published>2021-10-06T10:35:12.000Z</published>
-    <updated>2021-10-08T02:54:43.397Z</updated>
+    <updated>2021-10-24T06:36:35.429Z</updated>
     
     
       
@@ -175,7 +175,7 @@
     <link href="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/"/>
     <id>https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</id>
     <published>2021-09-30T08:47:08.000Z</published>
-    <updated>2021-10-08T02:54:23.064Z</updated>
+    <updated>2021-10-24T06:35:11.649Z</updated>
     
     
       
@@ -200,13 +200,13 @@
     <link href="https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/"/>
     <id>https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</id>
     <published>2021-09-29T14:00:50.000Z</published>
-    <updated>2021-10-11T01:30:45.721Z</updated>
+    <updated>2021-10-24T06:34:59.478Z</updated>
     
     
     <summary type="html">&lt;p&gt;&lt;strong&gt;以下将从配置文件中顺序往下讲解&lt;/strong&gt;,&lt;strong&gt;涉及主从复制，持久化将会另起讲解&lt;/strong&gt;&lt;/p&gt;
-&lt;h4 id=&quot;单位&quot;&gt;&lt;a href=&quot;#单位&quot; class=&quot;headerlink&quot; title=&quot;单位&quot;&gt;&lt;/a&gt;单位&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924192904.png&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;单位&quot;&gt;&lt;a href=&quot;#单位&quot; class=&quot;headerlink&quot; title=&quot;单位&quot;&gt;&lt;/a&gt;单位&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;/img/work/1632924192904.png&quot;&gt;&lt;/p&gt;
 &lt;p&gt;1.配置文件unit单位大小写不敏感&lt;/p&gt;
-&lt;h4 id=&quot;包含&quot;&gt;&lt;a href=&quot;#包含&quot; class=&quot;headerlink&quot; title=&quot;包含&quot;&gt;&lt;/a&gt;包含&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/1632924269484.png&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;包含&quot;&gt;&lt;a href=&quot;#包含&quot; class=&quot;headerlink&quot; title=&quot;包含&quot;&gt;&lt;/a&gt;包含&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;/img/work/1632924269484.png&quot;&gt;&lt;/p&gt;
 &lt;p&gt;类似我们nginx中的include中的包含文件&lt;/p&gt;</summary>
     
     
@@ -260,7 +260,7 @@
     <link href="https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/"/>
     <id>https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/</id>
     <published>2021-09-26T12:50:39.000Z</published>
-    <updated>2021-10-08T02:54:27.835Z</updated>
+    <updated>2021-10-24T06:35:22.401Z</updated>
     
     
     <summary type="html">&lt;h2 id=&quot;三种特殊数据类型&quot;&gt;&lt;a href=&quot;#三种特殊数据类型&quot; class=&quot;headerlink&quot; title=&quot;三种特殊数据类型&quot;&gt;&lt;/a&gt;三种特殊数据类型&lt;/h2&gt;&lt;h3 id=&quot;Geospatial-地理位置&quot;&gt;&lt;a href=&quot;#Geospatial-地理位置&quot; class=&quot;headerlink&quot; title=&quot;Geospatial 地理位置&quot;&gt;&lt;/a&gt;Geospatial 地理位置&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！&lt;/strong&gt; &lt;/p&gt;</summary>
@@ -279,7 +279,7 @@
     <link href="https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/"/>
     <id>https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/</id>
     <published>2021-09-25T12:08:22.000Z</published>
-    <updated>2021-10-11T01:30:45.721Z</updated>
+    <updated>2021-10-24T06:35:45.443Z</updated>
     
     
     <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;blockquote&gt;
@@ -302,7 +302,7 @@
     <link href="https://pudewu.github.io/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/"/>
     <id>https://pudewu.github.io/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/</id>
     <published>2021-09-17T08:36:57.000Z</published>
-    <updated>2021-10-08T02:56:58.591Z</updated>
+    <updated>2021-10-24T06:36:31.778Z</updated>
     
     
     <summary type="html">&lt;h1 id=&quot;Flowable流程图&quot;&gt;&lt;a href=&quot;#Flowable流程图&quot; class=&quot;headerlink&quot; title=&quot;Flowable流程图&quot;&gt;&lt;/a&gt;Flowable流程图&lt;/h1&gt;&lt;h3 id=&quot;Flowable是什么？&quot;&gt;&lt;a href=&quot;#Flowable是什么？&quot; class=&quot;headerlink&quot; title=&quot;Flowable是什么？&quot;&gt;&lt;/a&gt;Flowable是什么？&lt;/h3&gt;&lt;p&gt; Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。&lt;/p&gt;

@@ -23,19 +23,19 @@
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="1、redis-cluter设计 Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)哨兵模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-clus">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850372740.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850438157.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868265946.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868317543.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869331466.png">
-<meta property="og:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869348246.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633829297415.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633850372740.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633850438157.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633868265946.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633868317543.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633869331466.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1633869348246.png">
 <meta property="article:published_time" content="2021-10-07T07:56:51.000Z">
-<meta property="article:modified_time" content="2021-10-11T01:30:45.715Z">
+<meta property="article:modified_time" content="2021-10-24T06:34:48.320Z">
 <meta property="article:author" content="pudewu">
 <meta property="article:tag" content="Redis">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/1633829297415.png">
   
   <title>Redis三种集群模式之Cluster模式 - 远方</title>
 
@@ -268,7 +268,7 @@
             <div class="markdown-body">
               <h2 id="1、redis-cluter设计"><a href="#1、redis-cluter设计" class="headerlink" title="1、redis-cluter设计"></a>1、redis-cluter设计</h2><p> Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)<strong>哨兵</strong>模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-cluster集群. </p>
 <p> Redis-Cluster采用无中心结构，每个节点保存数据和整个集群状态,每个节点都和其他所有节点连接。其redis-cluster架构图如下： </p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633829297415.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633829297415.png" srcset="/img/loading.gif" lazyload></p>
 <p> 其结构特点： </p>
 <ol>
 <li> 所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。 </li>
@@ -321,15 +321,15 @@
 
 <h3 id="4-4-检查-redis-启动情况"><a href="#4-4-检查-redis-启动情况" class="headerlink" title="4.4 检查 redis 启动情况"></a>4.4 检查 redis 启动情况</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ps -ef | grep redis //查看redis启动情况</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850372740.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633850438157.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633850372740.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633850438157.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="4-5-创建集群"><a href="#4-5-创建集群" class="headerlink" title="4.5 创建集群"></a>4.5 创建集群</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# ./redis-cli --cluster create 192.168.1.10:6379 192.168.1.10:6380 192.168.1.10:6381 192.168.1.8:6382 192.168.1.8:6383 192.168.1.8:6384 --cluster-replicas 1<br></code></pre></td></tr></table></figure>
 
 <p> <strong>注意：Redis Cluster最低要求是3个主节点，如果需要集群需要认证，则在最后加入 -a xx 即可。</strong> </p>
 <p>以上命令执行完成后</p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868265946.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633868265946.png" srcset="/img/loading.gif" lazyload></p>
 <p>输入yes之后将会出现以下信息</p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633868317543.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633868317543.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="4-6-测试"><a href="#4-6-测试" class="headerlink" title="4.6 测试"></a>4.6 测试</h3><p> 在第一台机器上连接集群的6379端口的节点，在另外一台连接6382节点，连接方式为  </p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">redis-cli -h 192.168.1.10 -c -p 6379  #-h 连接主机的ip <br>                                      #-c连接集群结点时使用，此选项可防止moved和ask异常 <br>                                      #-p 端口   <br>                                      #-a 如果设置密码 可加上-a进行密码验证登录 <br></code></pre></td></tr></table></figure>
 
@@ -337,8 +337,8 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">在节点6379上设置值</span><br>192.168.1.10:6379&gt; set k1 v1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">在6382也可以获取值</span><br>192.168.1.8:6382&gt; get k1<br><span class="hljs-meta">-&gt;</span><span class="bash"> Redirected to slot [12706] located at 192.168.1.10:6380</span><br>&quot;v1&quot;<br></code></pre></td></tr></table></figure>
 
 <p>结果分别如下：</p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869331466.png" srcset="/img/loading.gif" lazyload></p>
-<p><img src="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/1633869348246.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633869331466.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1633869348246.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="5-Cluster模式的优缺点"><a href="#5-Cluster模式的优缺点" class="headerlink" title="5. Cluster模式的优缺点"></a>5. Cluster模式的优缺点</h2><h3 id="优点："><a href="#优点：" class="headerlink" title="优点："></a>优点：</h3><ol>
 <li>无中心架构，数据按照slot分布在多个节点。</li>
 <li>集群中的每个节点都是平等的关系，每个节点都保存各自的数据和整个集群的状态。每个节点都和其他所有节点连接，而且这些连接保持活跃，这样就保证了我们只需要连接集群中的任意一个节点，就可以获取到其他节点的数据。</li>
