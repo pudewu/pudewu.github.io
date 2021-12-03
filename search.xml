@@ -875,6 +875,197 @@
       </tags>
   </entry>
   <entry>
+    <title>Redis三种集群模式之主从复制</title>
+    <url>/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1.概念"></a>1.概念</h2><p>主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master/leader),后者称为从节点(slave/flollower);<strong>数据的复制是单向的，只能由主节点到从节点，Master以写为主，Slave以读为主</strong>。</p>
+<h3 id="1-1主从复制的作用主要包括："><a href="#1-1主从复制的作用主要包括：" class="headerlink" title="1.1主从复制的作用主要包括："></a>1.1主从复制的作用主要包括：</h3><ol>
+<li>数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。</li>
+<li>故障恢复：当主节点出现问题时，可以由从节点提供服务，实现快速的故障恢复；实际上是一种服务的冗余。</li>
+<li>负载均衡：在主从复制的基础上，配合读写分离，可以由主节点提供写服务，由从节点提供读服务 （即写Redis数据时应用连接主节点，读Redis数据时应用连接从节点），分担服务器负载；尤其是在写 少读多的场景下，通过多个从节点分担读负载，可以大大提高Redis服务器的并发量。</li>
+<li>高可用(集群)基石： 除了上述作用以外，主从复制还是哨兵和集群能够实施的基础，因此说主从复 制是Redis高可用的基础 </li>
+</ol>
+<p><strong>注意：如redis运用于工程项目中，不能使用单机redis，原因如下：</strong></p>
+<ol>
+<li> 从结构上，单个Redis服务器会发生单点故障，并且一台服务器需要处理所有的请求负载，压力较大。</li>
+<li>从容量上，单个Redis服务器内存容量有限，就算一台Redis服务器内存为256G，也不能将所有内存作用于Redis存储内存，一般单台Redis最大使用内存不应该超过20G。</li>
+</ol>
+<p>一般结构架构如下：</p>
+<p><img src="/img/work/1633523383473.png"></p>
+<h2 id="2-基本原理"><a href="#2-基本原理" class="headerlink" title="2.基本原理"></a>2.基本原理</h2><p> 主从复制模式中包含一个主数据库实例(master)与一个或多个从数据库实例(slave)，客户端可对主数据库进行读写操作，对从数据库进行读操作，主数据库写入的数据会实时自动同步给从数据库 </p>
+<h3 id="2-1复制原理图"><a href="#2-1复制原理图" class="headerlink" title="2.1复制原理图"></a>2.1复制原理图</h3><p><img src="/img/work/1633524169754.png"></p>
+<h3 id="2-3具体步骤"><a href="#2-3具体步骤" class="headerlink" title="2.3具体步骤"></a>2.3具体步骤</h3><ol>
+<li> 从服务器连接主服务器，发送SYNC命令 ；</li>
+<li> 主服务器接收到SYNC命名后，开始执行BGSAVE命令生成RDB文件并使用缓冲区记录此后执行的所有写命令；</li>
+<li> 主服务器BGSAVE执行完后，向所有从服务器发送快照文件，并在发送期间继续记录被执行的写命令；  </li>
+<li>  从服务器收到快照文件后丢弃所有旧数据，载入收到的快照； </li>
+<li> 主服务器快照发送完毕后开始向从服务器发送缓冲区中的写命令； </li>
+<li>  从服务器完成对快照的载入，开始接收命令请求，并执行来自主服务器缓冲区的写命令； </li>
+</ol>
+<h2 id="3-部署示例"><a href="#3-部署示例" class="headerlink" title="3.部署示例"></a>3.部署示例</h2><p>只配置从库，不用配置主库，主库具体配置，可以参考前面文章《Redis.Conf详解》及《Redis持久化》,我这里配置的是<strong>一主两从</strong></p>
+<h3 id="3-1-查看主库信息"><a href="#3-1-查看主库信息" class="headerlink" title="3.1 查看主库信息"></a>3.1 查看主库信息</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">查看当前库的信息</span><br>127.0.0.1:6379&gt;info replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:master  #角色<br>connected_slaves:0  #从机信息<br>master_failover_state:no-failover<br>master_replid:e3d0ce67427f5c928650af42bc66dd0c294f5dbe<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:0<br>second_repl_offset:-1<br>repl_backlog_active:0<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:0<br>repl_backlog_histlen:0<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-2-配置文件"><a href="#2-2-配置文件" class="headerlink" title="2.2 配置文件"></a>2.2 配置文件</h3><ol>
+<li><p>复制三个redis.conf文件，然后修改对应信息，例如slave1.conf,slave2.conf</p>
+</li>
+<li><p>分别修改端口信息</p>
+</li>
+<li><p>分别修改配置文件中pid名称</p>
+</li>
+<li><p>分别修改log文件名称</p>
+</li>
+<li><p>分别修改dump.rdb名称</p>
+</li>
+</ol>
+<h3 id="3-3-启动服务"><a href="#3-3-启动服务" class="headerlink" title="3.3 启动服务"></a>3.3 启动服务</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server etc/slave1.conf #启动从库1<br>[root@centos7 bin]# redis-server etc/slave2.conf #启动从库2<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看redis服务信息</span><br>[root@centos7 bin]# ps -ef | grep redis<br>root       2766      1  0 05:33 ?        00:00:02 redis-server 127.0.0.1:6379 <br>root       3250      1  0 06:05 ?        00:00:00 redis-server 127.0.0.1:6380<br>root       3263      1  0 06:05 ?        00:00:00 redis-server 127.0.0.1:6381<br>root       3293   2715  0 06:09 pts/1    00:00:00 grep --color=auto redis<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-4-一主两从命令方式设置"><a href="#3-4-一主两从命令方式设置" class="headerlink" title="3.4 一主两从命令方式设置"></a>3.4 一主两从命令方式设置</h3><p> 默认情况下，每台Redis服务器都是主节点 ，一般我们配置从机即可</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">分别登录从服务器</span><br>[root@centos7 bin]# redis-cli -p 6380<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">设置主master,也就找那一台当主节点</span><br>127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379  #寻找主节点，找谁当老大<br>OK<br><br>127.0.0.1:6380&gt; INFO replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:slave  # 当前角色是从机<br>master_host:127.0.0.1 # 可以的看到主机的信息<br>master_port:6379  #主机端口<br>master_link_status:down<br>master_last_io_seconds_ago:-1<br>master_sync_in_progress:0<br>slave_repl_offset:1<br>master_link_down_since_seconds:-1<br>slave_priority:100<br>slave_read_only:1<br>replica_announced:1<br>connected_slaves:0<br>master_failover_state:no-failover<br>master_replid:449ba98d5fcd3c32154dfd049716ce5ca3ee4d4b<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:0<br>second_repl_offset:-1<br>repl_backlog_active:0<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:0<br>repl_backlog_histlen:0<br></code></pre></td></tr></table></figure>
+
+<p>回到6379中查看</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:master<br>connected_slaves:1 #一个从节点<br>slave0:ip=127.0.0.1,port=6380,state=online,offset=28,lag=0  #从节点信息<br>master_failover_state:no-failover<br>master_replid:b717806873adac0ac99646e873b92a744d2406df<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:28<br>second_repl_offset:-1<br>repl_backlog_active:1<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:1<br>repl_backlog_histlen:28<br></code></pre></td></tr></table></figure>
+
+<p>第二个从节点根据上面配置即可</p>
+<p><strong>注意：使用命令方式配置只是暂时的，重启服务即失效，推荐在配置文件中配置</strong></p>
+<h3 id="3-5-一主两从配置文件方式设置（推荐）"><a href="#3-5-一主两从配置文件方式设置（推荐）" class="headerlink" title="3.5 一主两从配置文件方式设置（推荐）"></a>3.5 一主两从配置文件方式设置（推荐）</h3><p>在从数据配置文件中添加</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">replicaof 127.0.0.1 6379 # master的ip，port<br>masterauth 123456 # master的密码<br>replica-serve-stale-data no # 如果slave无法与master同步，设置成slave不可读，方便监控脚本发现问题<br></code></pre></td></tr></table></figure>
+
+
+
+<p>分别启动两个从服务器</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server etc/slave1.conf <br>[root@centos7 bin]# redis-server etc/slave2.conf <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">然后再在主服务器输入以下信息即可查看到两个从服务器信息</span><br>127.0.0.1:6379&gt; INFO replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:master<br>connected_slaves:2  #两个从数据库<br>slave0:ip=127.0.0.1,port=6380,state=online,offset=1008,lag=1<br>slave1:ip=127.0.0.1,port=6381,state=online,offset=1008,lag=1<br>master_failover_state:no-failover<br>master_replid:b717806873adac0ac99646e873b92a744d2406df<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:1008<br>second_repl_offset:-1<br>repl_backlog_active:1<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:1<br>repl_backlog_histlen:1008<br></code></pre></td></tr></table></figure>
+
+
+
+<blockquote>
+<p>数据测试</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">主数据库写</span><br>127.0.0.1:6379&gt; set k1 v1<br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">从数据读</span><br>127.0.0.1:6380&gt; get k1<br>&quot;v1&quot;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<blockquote>
+<p>细节</p>
+</blockquote>
+<p> 主机可以写，从机不能写只能读！主机中的所有信息和数据，都会自动被从机保存！ </p>
+<p>主机写：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 v1<br>OK<br></code></pre></td></tr></table></figure>
+
+<p>从机写：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6380&gt; set k1 v1<br>(error) READONLY You can&#x27;t write against a read only replica. #不能写入<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-优缺点"><a href="#4-优缺点" class="headerlink" title="4.优缺点"></a>4.优缺点</h2><h3 id="4-1优点"><a href="#4-1优点" class="headerlink" title="4.1优点"></a>4.1优点</h3><ul>
+<li>master能自动将数据同步到slave，可以进行读写分离，分担master的读压力</li>
+<li>master、slave之间的同步是以非阻塞的方式进行的，同步期间，客户端仍然可以提交查询或更新请求</li>
+</ul>
+<h3 id="4-2缺点"><a href="#4-2缺点" class="headerlink" title="4.2缺点"></a>4.2缺点</h3><ul>
+<li>不具备自动容错与恢复功能，master或slave的宕机都可能导致客户端请求失败，需要等待机器重启或手动切换客户端IP才能恢复</li>
+<li>master宕机，如果宕机前数据没有同步完，则切换IP后会存在数据不一致的问题</li>
+<li>难以支持在线扩容，Redis的容量受限于单机配置</li>
+</ul>
+<p>参考：</p>
+<hr>
+<p>狂神说Java：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
+<p>半路雨歌：<a href="https://juejin.cn/post/6844904097116585991#heading-1">https://juejin.cn/post/6844904097116585991#heading-1</a></p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis三种集群模式之哨兵模式</title>
+    <url>/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h3><p> 主从切换技术的方法是：当主服务器宕机后，需要手动把一台从服务器切换为主服务器，这就需要人工 干预，费事费力，还会造成一段时间内服务不可用。这不是一种推荐的方式，更多时候，我们优先考虑 哨兵模式。Redis从2.8开始正式提供了Sentinel（哨兵） 架构来解决这个问题 。</p>
+<p>哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独 立运行。其原理是<strong>哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例</strong> </p>
+<p><img src="/img/work/1633534256141.png"></p>
+<p> 这里的哨兵有两个作用:</p>
+<ul>
+<li> 通过发送命令，让Redis服务器返回监控其运行状态，包括主服务器和从服务器 </li>
+<li> 当哨兵监测到master宕机，会自动将slave切换成master，然后通过发布订阅模式通知其他的从服 务器，修改配置文件，让它们切换主机 </li>
+</ul>
+<p> 然而一个哨兵进程对Redis服务器进行监控，可能会出现问题，为此，我们可以使用多个哨兵进行监控。 各个哨兵之间还会进行监控，这样就形成了多哨兵模式。 </p>
+<p><img src="/img/work/1633534636100.png"> </p>
+<h3 id="2-工作原理"><a href="#2-工作原理" class="headerlink" title="2.工作原理"></a>2.工作原理</h3><ol>
+<li>首先主节点的信息是配置在哨兵(Sentinel)的配置文件中</li>
+<li>哨兵节点会和配置的主节点建立起两条连接<code>命令连接</code>和<code>订阅连接</code></li>
+<li>哨兵会通过<code>命令连接</code>每10s发送一次<code>INFO</code>命令，通过<code>INFO命令</code>，主节点会返回自己的run_id和自己的<code>从节点信息</code></li>
+<li>哨兵会对这些从节点也建立两条连接<code>命令连接</code>和<code>订阅连接</code></li>
+<li>哨兵通过<code>命令连接</code>向从节点发送<code>INFO</code>命令，获取到他的一些信息<br>a. run_id<br>b. role<br>c. 从服务器的复制偏移量 offset等</li>
+<li>因为哨兵对与集群中的其他节点(主从节点)当前都有两条连接，<code>命令连接</code>和<code>订阅连接</code><br> a. 通过<code>命令连接</code>向服务器的<code>_sentinel:hello</code>频道发送一条消息，内容包括自己的ip端口、run_id、配置纪元(后续投票的时候会用到)等<br> b. 通过<code>订阅连接</code>对服务器的<code>_sentinel:hello</code>频道做了监听，所以所有的向该频道发送的哨兵的消息都能被接受到<br> c. 解析监听到的消息，进行分析提取，就可以知道还有那些别的哨兵服务节点也在监听这些主从节点了，更新结构体将这些哨兵节点记录下来<br> d. 向观察到的其他的哨兵节点建立<code>命令连接</code>—-没有<code>订阅连接</code></li>
+</ol>
+<h3 id="3-哨兵模式下的故障迁移"><a href="#3-哨兵模式下的故障迁移" class="headerlink" title="3.哨兵模式下的故障迁移"></a>3.哨兵模式下的故障迁移</h3><h4 id="3-2主观下线"><a href="#3-2主观下线" class="headerlink" title="3.2主观下线"></a><strong>3.2主观下线</strong></h4><p>哨兵(Sentinel)节点会每秒一次的频率向建立了命令连接的实例发送PING命令，如果在<code>down-after-milliseconds</code>毫秒内没有做出有效响应包括(PONG/LOADING/MASTERDOWN)以外的响应，哨兵就会将该实例在本结构体中的状态标记为<code>SRI_S_DOWN</code>主观下线</p>
+<h4 id="3-3客观下线"><a href="#3-3客观下线" class="headerlink" title="3.3客观下线"></a><strong>3.3客观下线</strong></h4><p>当一个哨兵节点发现主节点处于主观下线状态是，会向其他的哨兵节点发出询问，该节点是不是已经主观下线了。如果超过配置参数<code>quorum</code>个节点认为是主观下线时，该哨兵节点就会将自己维护的结构体中该主节点标记为<code>SRI_O_DOWN</code>客观下线<br> 询问命令<code>SENTINEL is-master-down-by-addr    </code></p>
+<p><img src="/img/work/1633535070130.png"></p>
+<h4 id="3-4-leader选举"><a href="#3-4-leader选举" class="headerlink" title="3.4 leader选举"></a>3.4 <strong>leader选举</strong></h4><p>在认为主节点<code>客观下线</code>的情况下,哨兵节点间会发起一次选举，命令还是上面的命令<code>SENTINEL is-master-down-by-addr    </code>,只是<code>run_id</code>这次会将<code>自己的run_id</code>带进去，希望接受者将自己设置为主节点。如果超过半数以上的节点返回将该节点标记为leader的情况下，会有该leader对故障进行迁移</p>
+<h4 id="3-5故障迁移"><a href="#3-5故障迁移" class="headerlink" title="3.5故障迁移"></a><strong>3.5故障迁移</strong></h4><ol>
+<li>在从节点中挑选出新的主节点<br> a. 通讯正常<br> b. 优先级排序<br> c. 优先级相同是选择offset最大的</li>
+<li>将该节点设置成新的主节点 <code>SLAVEOF no one</code>,并确保在后续的INGO命令时，该节点返回状态为master</li>
+<li>将其他的从节点设置成从新的主节点复制, <code>SLAVEOF命令</code> </li>
+<li>将旧的主节点变成新的主节点的从节点</li>
+</ol>
+<h3 id="4-部署示例"><a href="#4-部署示例" class="headerlink" title="4.部署示例"></a>4.部署示例</h3><p> 哨兵模式基于前文的主从复制模式。当前示例为一主二从模式</p>
+<p>4.1首先在reids解压后的文件中将sentinel.conf文件复制到redis.conf文件的目录下</p>
+<p><img src="/img/work/1633536145531.png"></p>
+<p>4.2在配置文件中进行如下配置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mymaster定义一个master数据库的名称，后面是master的ip， port，1表示至少需要一个Sentinel进程同意才能将master判断为失效，如果不满足这个条件，则自动故障转移（failover）不会执行</span><br>sentinel monitor mymaster 127.0.0.1 6379 1 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> master的密码</span><br>sentinel auth-pass mymaster 123456 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 5s未回复PING，则认为master主观下线，默认为30s</span><br>sentinel down-after-milliseconds mymaster 5000 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 指定在执行故障转移时，最多可以有多少个slave实例在同步新的master实例，在slave实例较多的情况下这个数字越小，同步的时间越长，完成故障转移所需的时间就越长</span><br>sentinel parallel-syncs mymaster 2  <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 如果在该时间（ms）内未能完成故障转移操作，则认为故障转移失败，生产环境需要根据数据量设置该值</span><br>sentinel failover-timeout mymaster 300000 <br></code></pre></td></tr></table></figure>
+
+
+
+<p> <strong>一个哨兵可以监控多个master数据库，只需按上述配置添加多套</strong> </p>
+<p>4.3 分别以26379,36379,46379端口启动三个sentinel </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-sentinel etc/sentinel1.conf <br>[root@centos7 bin]# redis-sentinel etc/sentinel2.conf <br>[root@centos7 bin]# redis-sentinel etc/sentinel3.conf <br></code></pre></td></tr></table></figure>
+
+
+
+<p>4.4测试Master挂掉场景</p>
+<p><img src="/img/work/1633537126366.png"></p>
+<p> 执行 <code>kill -9 4965</code> 将master进程干掉，进入slave中执行 <code>info replication</code>查看 </p>
+<p><strong>哨兵服务输出信息</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">12292:X 07 Oct 2021 18:56:28.858 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.<br>12292:X 07 Oct 2021 18:56:28.858 # Sentinel ID is 0d12a3731fac0690b3cf55d7a424b8a5c0bb2889<br>12292:X 07 Oct 2021 18:56:28.858 # +monitor master mymaster 127.0.0.1 6380 quorum 1<br>12292:X 07 Oct 2021 18:56:38.924 * +convert-to-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 18:59:29.468 * +fix-slave-config slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.021 # +sdown master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.021 # +odown master mymaster 127.0.0.1 6380 #quorum 1/1<br>12292:X 07 Oct 2021 19:01:59.021 # +new-epoch 2<br>12292:X 07 Oct 2021 19:01:59.021 # +try-failover master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.023 # +vote-for-leader 0d12a3731fac0690b3cf55d7a424b8a5c0bb2889 2<br>12292:X 07 Oct 2021 19:01:59.023 # +elected-leader master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.023 # +failover-state-select-slave master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.078 # +selected-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.078 * +failover-state-send-slaveof-noone slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.140 * +failover-state-wait-promotion slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.090 # +promoted-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.090 # +failover-state-reconf-slaves master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.157 * +slave-reconf-sent slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.134 * +slave-reconf-inprog slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.134 * +slave-reconf-done slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.220 # +failover-end master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.220 # +switch-master mymaster 127.0.0.1 6380 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:01.221 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:01.221 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:06.230 # +sdown slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379<br></code></pre></td></tr></table></figure>
+
+<p>从以上信息，可以看出6380的master已经被移除，选举出了6379为master。</p>
+<p><strong>如果当我们再次启动6380服务，已经变为从节点</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6380&gt; info replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:slave #从节点角色<br>master_host:127.0.0.1<br>master_port:6379<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-优缺点"><a href="#5-优缺点" class="headerlink" title="5.优缺点"></a>5.优缺点</h3><h4 id="5-1优点"><a href="#5-1优点" class="headerlink" title="5.1优点"></a>5.1优点</h4><ol>
+<li> 哨兵集群，基于主从复制模式，所有的主从配置优点，它全有 </li>
+<li> 主从可以切换，故障可以转移，系统的可用性就会更好 </li>
+<li> 哨兵模式就是主从模式的升级，手动到自动，更加健壮！ </li>
+</ol>
+<h4 id="5-2缺点"><a href="#5-2缺点" class="headerlink" title="5.2缺点"></a>5.2缺点</h4><ol>
+<li>同样也继承了主从模式难以在线扩容的缺点，Redis的容量受限于单机配置</li>
+<li>需要额外的资源来启动sentinel进程，实现相对复杂一点，同时slave节点作为备份节点不提供服务</li>
+</ol>
+<h3 id="6-哨兵模式全部配置"><a href="#6-哨兵模式全部配置" class="headerlink" title="6.哨兵模式全部配置"></a>6.哨兵模式全部配置</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> Example sentinel.conf</span><br><span class="hljs-meta">#</span><span class="bash"> 哨兵sentinel实例运行的端口 默认26379</span><br>port 26379<br><span class="hljs-meta">#</span><span class="bash"> 哨兵sentinel的工作目录</span><br>dir /tmp<br><span class="hljs-meta">#</span><span class="bash"> 哨兵sentinel监控的redis主节点的 ip port</span><br><span class="hljs-meta">#</span><span class="bash"> master-name 可以自己命名的主节点名字 只能由字母A-z、数字0-9 、这三个字符<span class="hljs-string">&quot;.-_&quot;</span>组成。</span><br><span class="hljs-meta">#</span><span class="bash"> quorum 配置多少个sentinel哨兵统一认为master主节点失联 那么这时客观上认为主节点失联了</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;redis-port&gt; &lt;quorum&gt;</span><br>sentinel monitor mymaster 127.0.0.1 6379 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 当在Redis实例中开启了requirepass foobared 授权密码 这样所有连接Redis实例的客户端都要提供密码</span><br><span class="hljs-meta">#</span><span class="bash"> 设置哨兵sentinel 连接主从的密码 注意必须为主从设置一样的验证密码</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel auth-pass &lt;master-name&gt; &lt;password&gt;</span><br>sentinel auth-pass mymaster MySUPER--secret-0123passw0rd<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 指定多少毫秒之后 主节点没有应答哨兵sentinel 此时 哨兵主观上认为主节点下线 默认30秒</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel down-after-milliseconds &lt;master-name&gt; &lt;milliseconds&gt;</span><br>sentinel down-after-milliseconds mymaster 30000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 这个配置项指定了在发生failover主备切换时最多可以有多少个slave同时对新的master进行 同步，这个数字越小，完成failover所需的时间就越长，但是如果这个数字越大，就意味着越 多的slave因为replication而不可用。可以通过将这个值设为 1 来保证每次只有一个slave 处于不能处理命令请求的状态。</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel parallel-syncs &lt;master-name&gt; &lt;numslaves&gt;</span><br>sentinel parallel-syncs mymaster 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 故障转移的超时时间 failover-timeout 可以用在以下这些方面：</span><br><span class="hljs-meta">#</span><span class="bash">1. 同一个sentinel对同一个master两次failover之间的间隔时间。</span><br><span class="hljs-meta">#</span><span class="bash">2. 当一个slave从一个错误的master那里同步数据开始计算时间。直到slave被纠正为向正确的master那里同步数据时。</span><br><span class="hljs-meta">#</span><span class="bash">3.当想要取消一个正在进行的failover所需要的时间。</span><br><span class="hljs-meta">#</span><span class="bash">4.当进行failover时，配置所有slaves指向新的master所需的最大时间。不过，即使过了这个超时，slaves依然会被正确配置为指向master，但是就不按parallel-syncs所配置的规则来了</span><br><span class="hljs-meta">#</span><span class="bash"> 默认三分钟</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel failover-timeout &lt;master-name&gt; &lt;milliseconds&gt;</span><br>sentinel failover-timeout mymaster 180000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> SCRIPTS EXECUTION</span><br><span class="hljs-meta">#</span><span class="bash">配置当某一事件发生时所需要执行的脚本，可以通过脚本来通知管理员，例如当系统运行不正常时发邮件通知相关人员。</span><br><span class="hljs-meta">#</span><span class="bash">对于脚本的运行结果有以下规则：</span><br><span class="hljs-meta">#</span><span class="bash">若脚本执行后返回1，那么该脚本稍后将会被再次执行，重复次数目前默认为10</span><br><span class="hljs-meta">#</span><span class="bash">若脚本执行后返回2，或者比2更高的一个返回值，脚本将不会重复执行。</span><br><span class="hljs-meta">#</span><span class="bash">如果脚本在执行过程中由于收到系统中断信号被终止了，则同返回值为1时的行为相同。</span><br><span class="hljs-meta">#</span><span class="bash">一个脚本的最大执行时间为60s，如果超过这个时间，脚本将会被一个SIGKILL信号终止，之后重新执行。</span><br><span class="hljs-meta">#</span><span class="bash">通知型脚本:当sentinel有任何警告级别的事件发生时（比如说redis实例的主观失效和客观失效等等），将会去调用这个脚本，这时这个脚本应该通过邮件，SMS等方式去通知系统管理员关于系统不正常运行的信息。调用该脚本时，将传给脚本两个参数，一个是事件的类型，一个是事件的描述。如果sentinel.conf配置文件中配置了这个脚本路径，那么必须保证这个脚本存在于这个路径，并且是可执行的，否则sentinel无法正常启动成功。</span><br><span class="hljs-meta">#</span><span class="bash">通知脚本</span><br><span class="hljs-meta">#</span><span class="bash"> shell编程</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel notification-script &lt;master-name&gt; &lt;script-path&gt;</span><br>sentinel notification-script mymaster /var/redis/notify.sh<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 客户端重新配置主节点参数脚本</span><br><span class="hljs-meta">#</span><span class="bash"> 当一个master由于failover而发生改变时，这个脚本将会被调用，通知相关的客户端关于master地址已经发生改变的信息。</span><br><span class="hljs-meta">#</span><span class="bash"> 以下参数将会在调用脚本时传给脚本:</span><br><span class="hljs-meta">#</span><span class="bash"> &lt;master-name&gt; &lt;role&gt; &lt;state&gt; &lt;from-ip&gt; &lt;from-port&gt; &lt;to-ip&gt; &lt;to-port&gt;</span><br><span class="hljs-meta">#</span><span class="bash"> 目前&lt;state&gt;总是“failover”,</span><br><span class="hljs-meta">#</span><span class="bash"> &lt;role&gt;是“leader”或者“observer”中的一个。</span><br><span class="hljs-meta">#</span><span class="bash"> 参数 from-ip, from-port, to-ip, to-port是用来和旧的master和新的master(即旧的slave)通信的</span><br><span class="hljs-meta">#</span><span class="bash"> 这个脚本应该是通用的，能被多次调用，不是针对性的。</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel client-reconfig-script &lt;master-name&gt; &lt;script-path&gt;</span><br>sentinel client-reconfig-script mymaster /var/redis/reconfig.sh # 一般都是由运维来配置！<br></code></pre></td></tr></table></figure>
+
+
+
+<p>参考：</p>
+<hr>
+<p>狂神说Java：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
+<p>半路雨歌：<a href="https://juejin.cn/post/6844904097116585991#heading-1">https://juejin.cn/post/6844904097116585991#heading-1</a></p>
+<p><a href="https://www.jianshu.com/p/d6d2325a5ec7">https://www.jianshu.com/p/d6d2325a5ec7</a></p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Redis基础</title>
     <url>/2021/09/25/redis%E5%9F%BA%E7%A1%80/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
@@ -1075,197 +1266,6 @@
 
 
 <p>参考：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=8440565446323209776&amp;spm_id_from=333.337.0.0</a></p>
-]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis三种集群模式之主从复制</title>
-    <url>/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1.概念"></a>1.概念</h2><p>主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master/leader),后者称为从节点(slave/flollower);<strong>数据的复制是单向的，只能由主节点到从节点，Master以写为主，Slave以读为主</strong>。</p>
-<h3 id="1-1主从复制的作用主要包括："><a href="#1-1主从复制的作用主要包括：" class="headerlink" title="1.1主从复制的作用主要包括："></a>1.1主从复制的作用主要包括：</h3><ol>
-<li>数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。</li>
-<li>故障恢复：当主节点出现问题时，可以由从节点提供服务，实现快速的故障恢复；实际上是一种服务的冗余。</li>
-<li>负载均衡：在主从复制的基础上，配合读写分离，可以由主节点提供写服务，由从节点提供读服务 （即写Redis数据时应用连接主节点，读Redis数据时应用连接从节点），分担服务器负载；尤其是在写 少读多的场景下，通过多个从节点分担读负载，可以大大提高Redis服务器的并发量。</li>
-<li>高可用(集群)基石： 除了上述作用以外，主从复制还是哨兵和集群能够实施的基础，因此说主从复 制是Redis高可用的基础 </li>
-</ol>
-<p><strong>注意：如redis运用于工程项目中，不能使用单机redis，原因如下：</strong></p>
-<ol>
-<li> 从结构上，单个Redis服务器会发生单点故障，并且一台服务器需要处理所有的请求负载，压力较大。</li>
-<li>从容量上，单个Redis服务器内存容量有限，就算一台Redis服务器内存为256G，也不能将所有内存作用于Redis存储内存，一般单台Redis最大使用内存不应该超过20G。</li>
-</ol>
-<p>一般结构架构如下：</p>
-<p><img src="/img/work/1633523383473.png"></p>
-<h2 id="2-基本原理"><a href="#2-基本原理" class="headerlink" title="2.基本原理"></a>2.基本原理</h2><p> 主从复制模式中包含一个主数据库实例(master)与一个或多个从数据库实例(slave)，客户端可对主数据库进行读写操作，对从数据库进行读操作，主数据库写入的数据会实时自动同步给从数据库 </p>
-<h3 id="2-1复制原理图"><a href="#2-1复制原理图" class="headerlink" title="2.1复制原理图"></a>2.1复制原理图</h3><p><img src="/img/work/1633524169754.png"></p>
-<h3 id="2-3具体步骤"><a href="#2-3具体步骤" class="headerlink" title="2.3具体步骤"></a>2.3具体步骤</h3><ol>
-<li> 从服务器连接主服务器，发送SYNC命令 ；</li>
-<li> 主服务器接收到SYNC命名后，开始执行BGSAVE命令生成RDB文件并使用缓冲区记录此后执行的所有写命令；</li>
-<li> 主服务器BGSAVE执行完后，向所有从服务器发送快照文件，并在发送期间继续记录被执行的写命令；  </li>
-<li>  从服务器收到快照文件后丢弃所有旧数据，载入收到的快照； </li>
-<li> 主服务器快照发送完毕后开始向从服务器发送缓冲区中的写命令； </li>
-<li>  从服务器完成对快照的载入，开始接收命令请求，并执行来自主服务器缓冲区的写命令； </li>
-</ol>
-<h2 id="3-部署示例"><a href="#3-部署示例" class="headerlink" title="3.部署示例"></a>3.部署示例</h2><p>只配置从库，不用配置主库，主库具体配置，可以参考前面文章《Redis.Conf详解》及《Redis持久化》,我这里配置的是<strong>一主两从</strong></p>
-<h3 id="3-1-查看主库信息"><a href="#3-1-查看主库信息" class="headerlink" title="3.1 查看主库信息"></a>3.1 查看主库信息</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">查看当前库的信息</span><br>127.0.0.1:6379&gt;info replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:master  #角色<br>connected_slaves:0  #从机信息<br>master_failover_state:no-failover<br>master_replid:e3d0ce67427f5c928650af42bc66dd0c294f5dbe<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:0<br>second_repl_offset:-1<br>repl_backlog_active:0<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:0<br>repl_backlog_histlen:0<br><br></code></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-2-配置文件"><a href="#2-2-配置文件" class="headerlink" title="2.2 配置文件"></a>2.2 配置文件</h3><ol>
-<li><p>复制三个redis.conf文件，然后修改对应信息，例如slave1.conf,slave2.conf</p>
-</li>
-<li><p>分别修改端口信息</p>
-</li>
-<li><p>分别修改配置文件中pid名称</p>
-</li>
-<li><p>分别修改log文件名称</p>
-</li>
-<li><p>分别修改dump.rdb名称</p>
-</li>
-</ol>
-<h3 id="3-3-启动服务"><a href="#3-3-启动服务" class="headerlink" title="3.3 启动服务"></a>3.3 启动服务</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server etc/slave1.conf #启动从库1<br>[root@centos7 bin]# redis-server etc/slave2.conf #启动从库2<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看redis服务信息</span><br>[root@centos7 bin]# ps -ef | grep redis<br>root       2766      1  0 05:33 ?        00:00:02 redis-server 127.0.0.1:6379 <br>root       3250      1  0 06:05 ?        00:00:00 redis-server 127.0.0.1:6380<br>root       3263      1  0 06:05 ?        00:00:00 redis-server 127.0.0.1:6381<br>root       3293   2715  0 06:09 pts/1    00:00:00 grep --color=auto redis<br><br></code></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-4-一主两从命令方式设置"><a href="#3-4-一主两从命令方式设置" class="headerlink" title="3.4 一主两从命令方式设置"></a>3.4 一主两从命令方式设置</h3><p> 默认情况下，每台Redis服务器都是主节点 ，一般我们配置从机即可</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">分别登录从服务器</span><br>[root@centos7 bin]# redis-cli -p 6380<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">设置主master,也就找那一台当主节点</span><br>127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379  #寻找主节点，找谁当老大<br>OK<br><br>127.0.0.1:6380&gt; INFO replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:slave  # 当前角色是从机<br>master_host:127.0.0.1 # 可以的看到主机的信息<br>master_port:6379  #主机端口<br>master_link_status:down<br>master_last_io_seconds_ago:-1<br>master_sync_in_progress:0<br>slave_repl_offset:1<br>master_link_down_since_seconds:-1<br>slave_priority:100<br>slave_read_only:1<br>replica_announced:1<br>connected_slaves:0<br>master_failover_state:no-failover<br>master_replid:449ba98d5fcd3c32154dfd049716ce5ca3ee4d4b<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:0<br>second_repl_offset:-1<br>repl_backlog_active:0<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:0<br>repl_backlog_histlen:0<br></code></pre></td></tr></table></figure>
-
-<p>回到6379中查看</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:master<br>connected_slaves:1 #一个从节点<br>slave0:ip=127.0.0.1,port=6380,state=online,offset=28,lag=0  #从节点信息<br>master_failover_state:no-failover<br>master_replid:b717806873adac0ac99646e873b92a744d2406df<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:28<br>second_repl_offset:-1<br>repl_backlog_active:1<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:1<br>repl_backlog_histlen:28<br></code></pre></td></tr></table></figure>
-
-<p>第二个从节点根据上面配置即可</p>
-<p><strong>注意：使用命令方式配置只是暂时的，重启服务即失效，推荐在配置文件中配置</strong></p>
-<h3 id="3-5-一主两从配置文件方式设置（推荐）"><a href="#3-5-一主两从配置文件方式设置（推荐）" class="headerlink" title="3.5 一主两从配置文件方式设置（推荐）"></a>3.5 一主两从配置文件方式设置（推荐）</h3><p>在从数据配置文件中添加</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">replicaof 127.0.0.1 6379 # master的ip，port<br>masterauth 123456 # master的密码<br>replica-serve-stale-data no # 如果slave无法与master同步，设置成slave不可读，方便监控脚本发现问题<br></code></pre></td></tr></table></figure>
-
-
-
-<p>分别启动两个从服务器</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-server etc/slave1.conf <br>[root@centos7 bin]# redis-server etc/slave2.conf <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">然后再在主服务器输入以下信息即可查看到两个从服务器信息</span><br>127.0.0.1:6379&gt; INFO replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:master<br>connected_slaves:2  #两个从数据库<br>slave0:ip=127.0.0.1,port=6380,state=online,offset=1008,lag=1<br>slave1:ip=127.0.0.1,port=6381,state=online,offset=1008,lag=1<br>master_failover_state:no-failover<br>master_replid:b717806873adac0ac99646e873b92a744d2406df<br>master_replid2:0000000000000000000000000000000000000000<br>master_repl_offset:1008<br>second_repl_offset:-1<br>repl_backlog_active:1<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:1<br>repl_backlog_histlen:1008<br></code></pre></td></tr></table></figure>
-
-
-
-<blockquote>
-<p>数据测试</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">主数据库写</span><br>127.0.0.1:6379&gt; set k1 v1<br>OK<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">从数据读</span><br>127.0.0.1:6380&gt; get k1<br>&quot;v1&quot;<br></code></pre></td></tr></table></figure>
-
-
-
-
-
-<blockquote>
-<p>细节</p>
-</blockquote>
-<p> 主机可以写，从机不能写只能读！主机中的所有信息和数据，都会自动被从机保存！ </p>
-<p>主机写：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6379&gt; set k1 v1<br>OK<br></code></pre></td></tr></table></figure>
-
-<p>从机写：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6380&gt; set k1 v1<br>(error) READONLY You can&#x27;t write against a read only replica. #不能写入<br><br></code></pre></td></tr></table></figure>
-
-
-
-<h2 id="4-优缺点"><a href="#4-优缺点" class="headerlink" title="4.优缺点"></a>4.优缺点</h2><h3 id="4-1优点"><a href="#4-1优点" class="headerlink" title="4.1优点"></a>4.1优点</h3><ul>
-<li>master能自动将数据同步到slave，可以进行读写分离，分担master的读压力</li>
-<li>master、slave之间的同步是以非阻塞的方式进行的，同步期间，客户端仍然可以提交查询或更新请求</li>
-</ul>
-<h3 id="4-2缺点"><a href="#4-2缺点" class="headerlink" title="4.2缺点"></a>4.2缺点</h3><ul>
-<li>不具备自动容错与恢复功能，master或slave的宕机都可能导致客户端请求失败，需要等待机器重启或手动切换客户端IP才能恢复</li>
-<li>master宕机，如果宕机前数据没有同步完，则切换IP后会存在数据不一致的问题</li>
-<li>难以支持在线扩容，Redis的容量受限于单机配置</li>
-</ul>
-<p>参考：</p>
-<hr>
-<p>狂神说Java：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
-<p>半路雨歌：<a href="https://juejin.cn/post/6844904097116585991#heading-1">https://juejin.cn/post/6844904097116585991#heading-1</a></p>
-]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis三种集群模式之哨兵模式</title>
-    <url>/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1.概述"></a>1.概述</h3><p> 主从切换技术的方法是：当主服务器宕机后，需要手动把一台从服务器切换为主服务器，这就需要人工 干预，费事费力，还会造成一段时间内服务不可用。这不是一种推荐的方式，更多时候，我们优先考虑 哨兵模式。Redis从2.8开始正式提供了Sentinel（哨兵） 架构来解决这个问题 。</p>
-<p>哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独 立运行。其原理是<strong>哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例</strong> </p>
-<p><img src="/img/work/1633534256141.png"></p>
-<p> 这里的哨兵有两个作用:</p>
-<ul>
-<li> 通过发送命令，让Redis服务器返回监控其运行状态，包括主服务器和从服务器 </li>
-<li> 当哨兵监测到master宕机，会自动将slave切换成master，然后通过发布订阅模式通知其他的从服 务器，修改配置文件，让它们切换主机 </li>
-</ul>
-<p> 然而一个哨兵进程对Redis服务器进行监控，可能会出现问题，为此，我们可以使用多个哨兵进行监控。 各个哨兵之间还会进行监控，这样就形成了多哨兵模式。 </p>
-<p><img src="/img/work/1633534636100.png"> </p>
-<h3 id="2-工作原理"><a href="#2-工作原理" class="headerlink" title="2.工作原理"></a>2.工作原理</h3><ol>
-<li>首先主节点的信息是配置在哨兵(Sentinel)的配置文件中</li>
-<li>哨兵节点会和配置的主节点建立起两条连接<code>命令连接</code>和<code>订阅连接</code></li>
-<li>哨兵会通过<code>命令连接</code>每10s发送一次<code>INFO</code>命令，通过<code>INFO命令</code>，主节点会返回自己的run_id和自己的<code>从节点信息</code></li>
-<li>哨兵会对这些从节点也建立两条连接<code>命令连接</code>和<code>订阅连接</code></li>
-<li>哨兵通过<code>命令连接</code>向从节点发送<code>INFO</code>命令，获取到他的一些信息<br>a. run_id<br>b. role<br>c. 从服务器的复制偏移量 offset等</li>
-<li>因为哨兵对与集群中的其他节点(主从节点)当前都有两条连接，<code>命令连接</code>和<code>订阅连接</code><br> a. 通过<code>命令连接</code>向服务器的<code>_sentinel:hello</code>频道发送一条消息，内容包括自己的ip端口、run_id、配置纪元(后续投票的时候会用到)等<br> b. 通过<code>订阅连接</code>对服务器的<code>_sentinel:hello</code>频道做了监听，所以所有的向该频道发送的哨兵的消息都能被接受到<br> c. 解析监听到的消息，进行分析提取，就可以知道还有那些别的哨兵服务节点也在监听这些主从节点了，更新结构体将这些哨兵节点记录下来<br> d. 向观察到的其他的哨兵节点建立<code>命令连接</code>—-没有<code>订阅连接</code></li>
-</ol>
-<h3 id="3-哨兵模式下的故障迁移"><a href="#3-哨兵模式下的故障迁移" class="headerlink" title="3.哨兵模式下的故障迁移"></a>3.哨兵模式下的故障迁移</h3><h4 id="3-2主观下线"><a href="#3-2主观下线" class="headerlink" title="3.2主观下线"></a><strong>3.2主观下线</strong></h4><p>哨兵(Sentinel)节点会每秒一次的频率向建立了命令连接的实例发送PING命令，如果在<code>down-after-milliseconds</code>毫秒内没有做出有效响应包括(PONG/LOADING/MASTERDOWN)以外的响应，哨兵就会将该实例在本结构体中的状态标记为<code>SRI_S_DOWN</code>主观下线</p>
-<h4 id="3-3客观下线"><a href="#3-3客观下线" class="headerlink" title="3.3客观下线"></a><strong>3.3客观下线</strong></h4><p>当一个哨兵节点发现主节点处于主观下线状态是，会向其他的哨兵节点发出询问，该节点是不是已经主观下线了。如果超过配置参数<code>quorum</code>个节点认为是主观下线时，该哨兵节点就会将自己维护的结构体中该主节点标记为<code>SRI_O_DOWN</code>客观下线<br> 询问命令<code>SENTINEL is-master-down-by-addr    </code></p>
-<p><img src="/img/work/1633535070130.png"></p>
-<h4 id="3-4-leader选举"><a href="#3-4-leader选举" class="headerlink" title="3.4 leader选举"></a>3.4 <strong>leader选举</strong></h4><p>在认为主节点<code>客观下线</code>的情况下,哨兵节点间会发起一次选举，命令还是上面的命令<code>SENTINEL is-master-down-by-addr    </code>,只是<code>run_id</code>这次会将<code>自己的run_id</code>带进去，希望接受者将自己设置为主节点。如果超过半数以上的节点返回将该节点标记为leader的情况下，会有该leader对故障进行迁移</p>
-<h4 id="3-5故障迁移"><a href="#3-5故障迁移" class="headerlink" title="3.5故障迁移"></a><strong>3.5故障迁移</strong></h4><ol>
-<li>在从节点中挑选出新的主节点<br> a. 通讯正常<br> b. 优先级排序<br> c. 优先级相同是选择offset最大的</li>
-<li>将该节点设置成新的主节点 <code>SLAVEOF no one</code>,并确保在后续的INGO命令时，该节点返回状态为master</li>
-<li>将其他的从节点设置成从新的主节点复制, <code>SLAVEOF命令</code> </li>
-<li>将旧的主节点变成新的主节点的从节点</li>
-</ol>
-<h3 id="4-部署示例"><a href="#4-部署示例" class="headerlink" title="4.部署示例"></a>4.部署示例</h3><p> 哨兵模式基于前文的主从复制模式。当前示例为一主二从模式</p>
-<p>4.1首先在reids解压后的文件中将sentinel.conf文件复制到redis.conf文件的目录下</p>
-<p><img src="/img/work/1633536145531.png"></p>
-<p>4.2在配置文件中进行如下配置</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mymaster定义一个master数据库的名称，后面是master的ip， port，1表示至少需要一个Sentinel进程同意才能将master判断为失效，如果不满足这个条件，则自动故障转移（failover）不会执行</span><br>sentinel monitor mymaster 127.0.0.1 6379 1 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> master的密码</span><br>sentinel auth-pass mymaster 123456 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 5s未回复PING，则认为master主观下线，默认为30s</span><br>sentinel down-after-milliseconds mymaster 5000 <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 指定在执行故障转移时，最多可以有多少个slave实例在同步新的master实例，在slave实例较多的情况下这个数字越小，同步的时间越长，完成故障转移所需的时间就越长</span><br>sentinel parallel-syncs mymaster 2  <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 如果在该时间（ms）内未能完成故障转移操作，则认为故障转移失败，生产环境需要根据数据量设置该值</span><br>sentinel failover-timeout mymaster 300000 <br></code></pre></td></tr></table></figure>
-
-
-
-<p> <strong>一个哨兵可以监控多个master数据库，只需按上述配置添加多套</strong> </p>
-<p>4.3 分别以26379,36379,46379端口启动三个sentinel </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">[root@centos7 bin]# redis-sentinel etc/sentinel1.conf <br>[root@centos7 bin]# redis-sentinel etc/sentinel2.conf <br>[root@centos7 bin]# redis-sentinel etc/sentinel3.conf <br></code></pre></td></tr></table></figure>
-
-
-
-<p>4.4测试Master挂掉场景</p>
-<p><img src="/img/work/1633537126366.png"></p>
-<p> 执行 <code>kill -9 4965</code> 将master进程干掉，进入slave中执行 <code>info replication</code>查看 </p>
-<p><strong>哨兵服务输出信息</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">12292:X 07 Oct 2021 18:56:28.858 # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.<br>12292:X 07 Oct 2021 18:56:28.858 # Sentinel ID is 0d12a3731fac0690b3cf55d7a424b8a5c0bb2889<br>12292:X 07 Oct 2021 18:56:28.858 # +monitor master mymaster 127.0.0.1 6380 quorum 1<br>12292:X 07 Oct 2021 18:56:38.924 * +convert-to-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 18:59:29.468 * +fix-slave-config slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.021 # +sdown master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.021 # +odown master mymaster 127.0.0.1 6380 #quorum 1/1<br>12292:X 07 Oct 2021 19:01:59.021 # +new-epoch 2<br>12292:X 07 Oct 2021 19:01:59.021 # +try-failover master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.023 # +vote-for-leader 0d12a3731fac0690b3cf55d7a424b8a5c0bb2889 2<br>12292:X 07 Oct 2021 19:01:59.023 # +elected-leader master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.023 # +failover-state-select-slave master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.078 # +selected-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.078 * +failover-state-send-slaveof-noone slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:01:59.140 * +failover-state-wait-promotion slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.090 # +promoted-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.090 # +failover-state-reconf-slaves master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:00.157 * +slave-reconf-sent slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.134 * +slave-reconf-inprog slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.134 * +slave-reconf-done slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.220 # +failover-end master mymaster 127.0.0.1 6380<br>12292:X 07 Oct 2021 19:02:01.220 # +switch-master mymaster 127.0.0.1 6380 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:01.221 * +slave slave 127.0.0.1:6381 127.0.0.1 6381 @ mymaster 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:01.221 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379<br>12292:X 07 Oct 2021 19:02:06.230 # +sdown slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379<br></code></pre></td></tr></table></figure>
-
-<p>从以上信息，可以看出6380的master已经被移除，选举出了6379为master。</p>
-<p><strong>如果当我们再次启动6380服务，已经变为从节点</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell">127.0.0.1:6380&gt; info replication<br><span class="hljs-meta">#</span><span class="bash"> Replication</span><br>role:slave #从节点角色<br>master_host:127.0.0.1<br>master_port:6379<br></code></pre></td></tr></table></figure>
-
-
-
-<h3 id="5-优缺点"><a href="#5-优缺点" class="headerlink" title="5.优缺点"></a>5.优缺点</h3><h4 id="5-1优点"><a href="#5-1优点" class="headerlink" title="5.1优点"></a>5.1优点</h4><ol>
-<li> 哨兵集群，基于主从复制模式，所有的主从配置优点，它全有 </li>
-<li> 主从可以切换，故障可以转移，系统的可用性就会更好 </li>
-<li> 哨兵模式就是主从模式的升级，手动到自动，更加健壮！ </li>
-</ol>
-<h4 id="5-2缺点"><a href="#5-2缺点" class="headerlink" title="5.2缺点"></a>5.2缺点</h4><ol>
-<li>同样也继承了主从模式难以在线扩容的缺点，Redis的容量受限于单机配置</li>
-<li>需要额外的资源来启动sentinel进程，实现相对复杂一点，同时slave节点作为备份节点不提供服务</li>
-</ol>
-<h3 id="6-哨兵模式全部配置"><a href="#6-哨兵模式全部配置" class="headerlink" title="6.哨兵模式全部配置"></a>6.哨兵模式全部配置</h3><figure class="highlight shell"><table><tr><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> Example sentinel.conf</span><br><span class="hljs-meta">#</span><span class="bash"> 哨兵sentinel实例运行的端口 默认26379</span><br>port 26379<br><span class="hljs-meta">#</span><span class="bash"> 哨兵sentinel的工作目录</span><br>dir /tmp<br><span class="hljs-meta">#</span><span class="bash"> 哨兵sentinel监控的redis主节点的 ip port</span><br><span class="hljs-meta">#</span><span class="bash"> master-name 可以自己命名的主节点名字 只能由字母A-z、数字0-9 、这三个字符<span class="hljs-string">&quot;.-_&quot;</span>组成。</span><br><span class="hljs-meta">#</span><span class="bash"> quorum 配置多少个sentinel哨兵统一认为master主节点失联 那么这时客观上认为主节点失联了</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;redis-port&gt; &lt;quorum&gt;</span><br>sentinel monitor mymaster 127.0.0.1 6379 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 当在Redis实例中开启了requirepass foobared 授权密码 这样所有连接Redis实例的客户端都要提供密码</span><br><span class="hljs-meta">#</span><span class="bash"> 设置哨兵sentinel 连接主从的密码 注意必须为主从设置一样的验证密码</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel auth-pass &lt;master-name&gt; &lt;password&gt;</span><br>sentinel auth-pass mymaster MySUPER--secret-0123passw0rd<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 指定多少毫秒之后 主节点没有应答哨兵sentinel 此时 哨兵主观上认为主节点下线 默认30秒</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel down-after-milliseconds &lt;master-name&gt; &lt;milliseconds&gt;</span><br>sentinel down-after-milliseconds mymaster 30000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 这个配置项指定了在发生failover主备切换时最多可以有多少个slave同时对新的master进行 同步，这个数字越小，完成failover所需的时间就越长，但是如果这个数字越大，就意味着越 多的slave因为replication而不可用。可以通过将这个值设为 1 来保证每次只有一个slave 处于不能处理命令请求的状态。</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel parallel-syncs &lt;master-name&gt; &lt;numslaves&gt;</span><br>sentinel parallel-syncs mymaster 1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 故障转移的超时时间 failover-timeout 可以用在以下这些方面：</span><br><span class="hljs-meta">#</span><span class="bash">1. 同一个sentinel对同一个master两次failover之间的间隔时间。</span><br><span class="hljs-meta">#</span><span class="bash">2. 当一个slave从一个错误的master那里同步数据开始计算时间。直到slave被纠正为向正确的master那里同步数据时。</span><br><span class="hljs-meta">#</span><span class="bash">3.当想要取消一个正在进行的failover所需要的时间。</span><br><span class="hljs-meta">#</span><span class="bash">4.当进行failover时，配置所有slaves指向新的master所需的最大时间。不过，即使过了这个超时，slaves依然会被正确配置为指向master，但是就不按parallel-syncs所配置的规则来了</span><br><span class="hljs-meta">#</span><span class="bash"> 默认三分钟</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel failover-timeout &lt;master-name&gt; &lt;milliseconds&gt;</span><br>sentinel failover-timeout mymaster 180000<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> SCRIPTS EXECUTION</span><br><span class="hljs-meta">#</span><span class="bash">配置当某一事件发生时所需要执行的脚本，可以通过脚本来通知管理员，例如当系统运行不正常时发邮件通知相关人员。</span><br><span class="hljs-meta">#</span><span class="bash">对于脚本的运行结果有以下规则：</span><br><span class="hljs-meta">#</span><span class="bash">若脚本执行后返回1，那么该脚本稍后将会被再次执行，重复次数目前默认为10</span><br><span class="hljs-meta">#</span><span class="bash">若脚本执行后返回2，或者比2更高的一个返回值，脚本将不会重复执行。</span><br><span class="hljs-meta">#</span><span class="bash">如果脚本在执行过程中由于收到系统中断信号被终止了，则同返回值为1时的行为相同。</span><br><span class="hljs-meta">#</span><span class="bash">一个脚本的最大执行时间为60s，如果超过这个时间，脚本将会被一个SIGKILL信号终止，之后重新执行。</span><br><span class="hljs-meta">#</span><span class="bash">通知型脚本:当sentinel有任何警告级别的事件发生时（比如说redis实例的主观失效和客观失效等等），将会去调用这个脚本，这时这个脚本应该通过邮件，SMS等方式去通知系统管理员关于系统不正常运行的信息。调用该脚本时，将传给脚本两个参数，一个是事件的类型，一个是事件的描述。如果sentinel.conf配置文件中配置了这个脚本路径，那么必须保证这个脚本存在于这个路径，并且是可执行的，否则sentinel无法正常启动成功。</span><br><span class="hljs-meta">#</span><span class="bash">通知脚本</span><br><span class="hljs-meta">#</span><span class="bash"> shell编程</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel notification-script &lt;master-name&gt; &lt;script-path&gt;</span><br>sentinel notification-script mymaster /var/redis/notify.sh<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 客户端重新配置主节点参数脚本</span><br><span class="hljs-meta">#</span><span class="bash"> 当一个master由于failover而发生改变时，这个脚本将会被调用，通知相关的客户端关于master地址已经发生改变的信息。</span><br><span class="hljs-meta">#</span><span class="bash"> 以下参数将会在调用脚本时传给脚本:</span><br><span class="hljs-meta">#</span><span class="bash"> &lt;master-name&gt; &lt;role&gt; &lt;state&gt; &lt;from-ip&gt; &lt;from-port&gt; &lt;to-ip&gt; &lt;to-port&gt;</span><br><span class="hljs-meta">#</span><span class="bash"> 目前&lt;state&gt;总是“failover”,</span><br><span class="hljs-meta">#</span><span class="bash"> &lt;role&gt;是“leader”或者“observer”中的一个。</span><br><span class="hljs-meta">#</span><span class="bash"> 参数 from-ip, from-port, to-ip, to-port是用来和旧的master和新的master(即旧的slave)通信的</span><br><span class="hljs-meta">#</span><span class="bash"> 这个脚本应该是通用的，能被多次调用，不是针对性的。</span><br><span class="hljs-meta">#</span><span class="bash"> sentinel client-reconfig-script &lt;master-name&gt; &lt;script-path&gt;</span><br>sentinel client-reconfig-script mymaster /var/redis/reconfig.sh # 一般都是由运维来配置！<br></code></pre></td></tr></table></figure>
-
-
-
-<p>参考：</p>
-<hr>
-<p>狂神说Java：<a href="https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0">https://www.bilibili.com/video/BV1S54y1R7SB?from=search&amp;seid=18051804489571055526&amp;spm_id_from=333.337.0.0</a></p>
-<p>半路雨歌：<a href="https://juejin.cn/post/6844904097116585991#heading-1">https://juejin.cn/post/6844904097116585991#heading-1</a></p>
-<p><a href="https://www.jianshu.com/p/d6d2325a5ec7">https://www.jianshu.com/p/d6d2325a5ec7</a></p>
 ]]></content>
       <categories>
         <category>Redis</category>
@@ -1645,6 +1645,451 @@
       </categories>
       <tags>
         <tag>Java基础</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java-容器之List</title>
+    <url>/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1-List-简介"><a href="#1-List-简介" class="headerlink" title="1. List 简介"></a>1. List 简介</h2><p><img src="/img/work/image-20211124142643473.png" alt="ArrayList关系图"></p>
+<p><code>List</code> 是一个接口，它继承于 <code>Collection</code> 的接口。它代表着有序的队列。</p>
+<p><code>AbstractList</code> 是一个抽象类，它继承于 <code>AbstractCollection</code>。<code>AbstractList</code> 实现了 <code>List</code> 接口中除 <code>size()</code>、<code>get(int location)</code> 之外的函数。</p>
+<p><code>AbstractSequentialList</code> 是一个抽象类，它继承于 <code>AbstractList</code>。<code>AbstractSequentialList</code> 实现了“链表中，根据 index 索引值操作链表的全部函数”。</p>
+<h3 id="1-1-ArrayList-和-LinkedList"><a href="#1-1-ArrayList-和-LinkedList" class="headerlink" title="1.1. ArrayList 和 LinkedList"></a>1.1. ArrayList 和 LinkedList</h3><p><strong><code>ArrayList</code>、<code>LinkedList</code> 是 <code>List</code> 最常用的实现。</strong></p>
+<ul>
+<li><code>ArrayList</code> 基于动态数组实现，存在容量限制，当元素数超过最大容量时，会自动扩容；<code>LinkedList</code> 基于双向链表实现，不存在容量限制。</li>
+<li><code>ArrayList</code> 随机访问速度较快，随机插入、删除速度较慢；<code>LinkedList</code> 随机插入、删除速度较快，随机访问速度较慢。</li>
+<li><code>ArrayList</code> 和 <code>LinkedList</code> 都不是线程安全的。</li>
+</ul>
+<h3 id="1-2-Vector-和-Stack"><a href="#1-2-Vector-和-Stack" class="headerlink" title="1.2. Vector 和 Stack"></a>1.2. Vector 和 Stack</h3><p><img src="/img/work/image-20211124143305652.png" alt="Stack关系图"></p>
+<p><code>Vector</code> 和 <code>Stack</code> 的设计目标是作为线程安全的 <code>List</code> 实现，替代 <code>ArrayList</code>。</p>
+<ul>
+<li><code>Vector</code> - <code>Vector</code> 和 <code>ArrayList</code> 类似，也实现了 <code>List</code> 接口。但是， <code>Vector</code> 中的主要方法都是 <code>synchronized</code> 方法，即通过互斥同步方式保证操作的线程安全。</li>
+<li><code>Stack</code> - <code>Stack</code> 也是一个同步容器，它的方法也用 <code>synchronized</code> 进行了同步，它实际上是继承于 <code>Vector</code> 类。</li>
+</ul>
+<h2 id="2-ArrayList"><a href="#2-ArrayList" class="headerlink" title="2. ArrayList"></a>2. ArrayList</h2><blockquote>
+<p>ArrayList 从数据结构角度来看，可以视为支持动态扩容的线性表。ArrayList可以存放空元素 arrayList.add(null);且可以存放多个空值，底层是用数组实现的，线程不安全，效率高。</p>
+</blockquote>
+<h3 id="2-1-ArrayList-要点"><a href="#2-1-ArrayList-要点" class="headerlink" title="2.1. ArrayList 要点"></a>2.1. ArrayList 要点</h3><p><code>ArrayList</code> 是一个数组队列，相当于<strong>动态数组</strong>。**<code>ArrayList</code> 默认初始容量大小为 <code>10</code> ，添加元素时，如果发现容量已满，会自动扩容为原始大小的 1.5 倍**。因此，应该尽量在初始化 <code>ArrayList</code> 时，为其指定合适的初始化容量大小，减少扩容操作产生的性能开销。</p>
+<p><code>ArrayList</code> 定义：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ArrayList</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractList</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">        <span class="hljs-keyword">implements</span> <span class="hljs-title">List</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">RandomAccess</span>, <span class="hljs-title">Cloneable</span>, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span> </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从 ArrayList 的定义，不难看出 ArrayList 的一些基本特性：</p>
+<ul>
+<li><code>ArrayList</code> 实现了 <code>List</code> 接口，并继承了 <code>AbstractList</code>，它支持所有 <code>List</code> 的操作。</li>
+<li><code>ArrayList</code> 实现了 <code>RandomAccess</code> 接口，<strong>支持随机访问</strong>。<code>RandomAccess</code> 是一个标志接口，它意味着“只要实现该接口的 <code>List</code> 类，都支持快速随机访问”。在 <code>ArrayList</code> 中，我们即可以<strong>通过元素的序号快速获取元素对象</strong>；这就是快速随机访问。</li>
+<li><code>ArrayList</code> 实现了 <code>Cloneable</code> 接口，默认为<strong>浅拷贝</strong>。</li>
+<li><code>ArrayList</code> 实现了 <code>Serializable</code> 接口，<strong>支持序列化</strong>，能通过序列化方式传输。</li>
+<li><code>ArrayList</code> 是<strong>非线程安全</strong>的。</li>
+</ul>
+<h3 id="2-2-ArrayList-原理"><a href="#2-2-ArrayList-原理" class="headerlink" title="2.2. ArrayList 原理"></a>2.2. ArrayList 原理</h3><p><strong>ArrayList 的数据结构</strong></p>
+<p>ArrayList 包含了两个重要的元素：<code>elementData</code> 和 <code>size</code>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 默认初始化容量</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> DEFAULT_CAPACITY = <span class="hljs-number">10</span>;<br><span class="hljs-comment">// 对象数组</span><br><span class="hljs-keyword">transient</span> Object[] elementData;<br><span class="hljs-comment">// 数组长度</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">int</span> size;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>size</code> - 是动态数组的实际大小。</li>
+<li><code>elementData</code> - 是一个 <code>Object</code> 数组，用于保存添加到 <code>ArrayList</code> 中的元素。</li>
+</ul>
+<p> <strong>ArrayList 的序列化</strong></p>
+<p><code>ArrayList</code> 具有动态扩容特性，因此保存元素的数组不一定都会被使用，那么就没必要全部进行序列化。为此，<code>ArrayList</code> 定制了其序列化方式。具体做法是：</p>
+<ul>
+<li>存储元素的 <code>Object</code> 数组（即 <code>elementData</code>）使用 <code>transient</code> 修饰，使得它可以被 Java 序列化所忽略。</li>
+<li><code>ArrayList</code> 重写了 <code>writeObject()</code> 和 <code>readObject()</code> 来控制序列化数组中有元素填充那部分内容。</li>
+</ul>
+<p><strong>ArrayList 构造方法</strong></p>
+<p>ArrayList 类实现了三个构造函数：</p>
+<ul>
+<li>第一个是默认构造方法，ArrayList 会创建一个空数组；</li>
+<li>第二个是创建 ArrayList 对象时，传入一个初始化值；</li>
+<li>第三个是传入一个集合类型进行初始化。</li>
+</ul>
+<p>当 ArrayList 新增元素时，如果所存储的元素已经超过其当前容量，它会计算容量后再进行动态扩容。数组的动态扩容会导致整个数组进行一次内存复制。因此，<strong>初始化 ArrayList 时，指定数组初始大小，有助于减少数组的扩容次数，从而提高系统性能</strong>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ArrayList</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 创建一个空数组</span><br>	<span class="hljs-keyword">this</span>.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ArrayList</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity)</span> </span>&#123;<br>	<span class="hljs-keyword">if</span> (initialCapacity &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">// 根据初始化值创建数组大小</span><br>		<span class="hljs-keyword">this</span>.elementData = <span class="hljs-keyword">new</span> Object[initialCapacity];<br>	&#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (initialCapacity == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">// 初始化值为 0 时，创建一个空数组</span><br>		<span class="hljs-keyword">this</span>.elementData = EMPTY_ELEMENTDATA;<br>	&#125; <span class="hljs-keyword">else</span> &#123;<br>		<span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;Illegal Capacity: &quot;</span>+<br>										   initialCapacity);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>ArrayList 访问元素</strong></p>
+<p><code>ArrayList</code> 访问元素的实现主要基于以下关键性源码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 获取第 index 个元素</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    rangeCheck(index);<br>    <span class="hljs-keyword">return</span> elementData(index);<br>&#125;<br><br><span class="hljs-function">E <span class="hljs-title">elementData</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> (E) elementData[index];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>实现非常简单，其实就是**通过数组下标访问数组元素，其时间复杂度为 O(1)**，所以很快。</p>
+<p><strong>ArrayList 添加元素</strong></p>
+<p><code>ArrayList</code> 添加元素有两种方法：一种是添加元素到数组末尾，另外一种是添加元素到任意位置。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 添加元素到数组末尾</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    ensureCapacityInternal(size + <span class="hljs-number">1</span>);  <span class="hljs-comment">// Increments modCount!!</span><br>    elementData[size++] = e;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>&#125;<br><br><span class="hljs-comment">// 添加元素到任意位置</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, E element)</span> </span>&#123;<br>	rangeCheckForAdd(index);<br><br>	ensureCapacityInternal(size + <span class="hljs-number">1</span>);  <span class="hljs-comment">// Increments modCount!!</span><br>	System.arraycopy(elementData, index, elementData, index + <span class="hljs-number">1</span>,<br>					 size - index);<br>	elementData[index] = element;<br>	size++;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>两种添加元素方法的<strong>不同点</strong>是：</p>
+<ul>
+<li>添加元素到任意位置，会导致在<strong>该位置后的所有元素都需要重新排列</strong>；</li>
+<li>而添加元素到数组末尾，在没有发生扩容的前提下，是不会有元素复制排序过程的。</li>
+</ul>
+<p>两种添加元素方法的<strong>共同点</strong>是：添加元素时，会先检查容量大小，<strong>如果发现容量不足，会自动扩容为原始大小的 1.5 倍</strong>。</p>
+<p><code>ArrayList</code> 添加元素的实现主要基于以下关键性源码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">ensureCapacityInternal</span><span class="hljs-params">(<span class="hljs-keyword">int</span> minCapacity)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) &#123;<br>        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);<br>    &#125;<br><br>    ensureExplicitCapacity(minCapacity);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">ensureExplicitCapacity</span><span class="hljs-params">(<span class="hljs-keyword">int</span> minCapacity)</span> </span>&#123;<br>    modCount++;<br><br>    <span class="hljs-comment">// overflow-conscious code</span><br>    <span class="hljs-keyword">if</span> (minCapacity - elementData.length &gt; <span class="hljs-number">0</span>)<br>        grow(minCapacity);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">grow</span><span class="hljs-params">(<span class="hljs-keyword">int</span> minCapacity)</span> </span>&#123;<br>    <span class="hljs-comment">// overflow-conscious code</span><br>    <span class="hljs-keyword">int</span> oldCapacity = elementData.length;<br>    <span class="hljs-keyword">int</span> newCapacity = oldCapacity + (oldCapacity &gt;&gt; <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">if</span> (newCapacity - minCapacity &lt; <span class="hljs-number">0</span>)<br>        newCapacity = minCapacity;<br>    <span class="hljs-keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="hljs-number">0</span>)<br>        newCapacity = hugeCapacity(minCapacity);<br>    <span class="hljs-comment">// minCapacity is usually close to size, so this is a win:</span><br>    elementData = Arrays.copyOf(elementData, newCapacity);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>ArrayList</code> 执行添加元素动作（<code>add</code> 方法）时，调用 <code>ensureCapacityInternal</code> 方法来保证容量足够。</p>
+<ul>
+<li>如果容量足够时，将数据作为数组中 <code>size+1</code> 位置上的元素写入，并将 <code>size</code> 自增 1。</li>
+<li>如果容量不够时，需要使用 <code>grow</code> 方法进行扩容数组，新容量的大小为 <code>oldCapacity + (oldCapacity &gt;&gt; 1)</code>，也就是旧容量的 1.5 倍。扩容操作实际上是<strong>调用 <code>Arrays.copyOf()</code> 把原数组拷贝为一个新数组</strong>，因此最好在创建 <code>ArrayList</code> 对象时就指定大概的容量大小，减少扩容操作的次数。</li>
+</ul>
+<p><strong>ArrayList 删除元素</strong></p>
+<p><code>ArrayList</code> 的删除方法和添加元素到任意位置方法有些相似。</p>
+<p><code>ArrayList</code> 在每一次有效的删除操作后，都要进行数组的重组，并且删除的元素位置越靠前，数组重组的开销就越大。具体来说，<code>ArrayList</code> 会调用 <code>System.arraycopy()</code> 将 <code>index+1</code> 后面的元素都复制到 <code>index</code> 位置上。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">remove</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    rangeCheck(index);<br><br>    modCount++;<br>    E oldValue = elementData(index);<br><br>    <span class="hljs-keyword">int</span> numMoved = size - index - <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">if</span> (numMoved &gt; <span class="hljs-number">0</span>)<br>        System.arraycopy(elementData, index+<span class="hljs-number">1</span>, elementData, index, numMoved);<br>    elementData[--size] = <span class="hljs-keyword">null</span>; <span class="hljs-comment">// clear to let GC do its work</span><br><br>    <span class="hljs-keyword">return</span> oldValue;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>ArrayList 的 Fail-Fast</strong></p>
+<p><code>ArrayList</code> 使用 <code>modCount</code> 来记录结构发生变化的次数。结构发生变化是指添加或者删除至少一个元素的所有操作，或者是调整内部数组的大小，仅仅只是设置元素的值不算结构发生变化。</p>
+<p>在进行序列化或者迭代等操作时，需要比较操作前后 <code>modCount</code> 是否改变，如果发生改变，<code>ArrayList</code> 会抛出 <code>ConcurrentModificationException</code>。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">writeObject</span><span class="hljs-params">(java.io.ObjectOutputStream s)</span></span><br><span class="hljs-function">    <span class="hljs-keyword">throws</span> java.io.IOException</span>&#123;<br>    <span class="hljs-comment">// Write out element count, and any hidden stuff</span><br>    <span class="hljs-keyword">int</span> expectedModCount = modCount;<br>    s.defaultWriteObject();<br><br>    <span class="hljs-comment">// Write out size as capacity for behavioural compatibility with clone()</span><br>    s.writeInt(size);<br><br>    <span class="hljs-comment">// Write out all elements in the proper order.</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>; i&lt;size; i++) &#123;<br>        s.writeObject(elementData[i]);<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (modCount != expectedModCount) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> ConcurrentModificationException();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-3-vector底层结构和源码剖析"><a href="#2-3-vector底层结构和源码剖析" class="headerlink" title="2.3 vector底层结构和源码剖析"></a>2.3 vector底层结构和源码剖析</h3><p><img src="/%5Cimg%5Cwork%5CSnipaste_2021-11-24_21-56-07.png" alt="Vector与ArrayList对比图"></p>
+<p> 可以看到，如果是无参构造，那么默认初始容量是10 </p>
+<p>示例代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Vector_</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-comment">//无参构造器</span><br>        <span class="hljs-comment">//有参数的构造</span><br>        Vector vector = <span class="hljs-keyword">new</span> Vector(<span class="hljs-number">8</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;<br>            vector.add(i);<br>        &#125;<br>        vector.add(<span class="hljs-number">100</span>);<br>        System.out.println(<span class="hljs-string">&quot;vector=&quot;</span> + vector);<br>      <br>        <span class="hljs-comment">//1. new Vector() 底层</span><br>        <span class="hljs-comment">/*</span><br><span class="hljs-comment">            public Vector() &#123;</span><br><span class="hljs-comment">                this(10);</span><br><span class="hljs-comment">            &#125;</span><br><span class="hljs-comment">         补充：如果是  Vector vector = new Vector(8);</span><br><span class="hljs-comment">            走的方法:</span><br><span class="hljs-comment">            public Vector(int initialCapacity) &#123;</span><br><span class="hljs-comment">                this(initialCapacity, 0);</span><br><span class="hljs-comment">            &#125;</span><br><span class="hljs-comment">         2. vector.add(i)</span><br><span class="hljs-comment">         2.1  //下面这个方法就添加数据到vector集合</span><br><span class="hljs-comment">            public synchronized boolean add(E e) &#123;</span><br><span class="hljs-comment">                modCount++;</span><br><span class="hljs-comment">                ensureCapacityHelper(elementCount + 1);</span><br><span class="hljs-comment">                elementData[elementCount++] = e;</span><br><span class="hljs-comment">                return true;</span><br><span class="hljs-comment">            &#125;</span><br><span class="hljs-comment">          2.2  //确定是否需要扩容 条件 ： minCapacity - elementData.length&gt;0</span><br><span class="hljs-comment">            private void ensureCapacityHelper(int minCapacity) &#123;</span><br><span class="hljs-comment">                // overflow-conscious code</span><br><span class="hljs-comment">                if (minCapacity - elementData.length &gt; 0)</span><br><span class="hljs-comment">                    grow(minCapacity);</span><br><span class="hljs-comment">            &#125;</span><br><span class="hljs-comment">          2.3 //如果 需要的数组大小 不够用，就扩容 , 扩容的算法</span><br><span class="hljs-comment">              //newCapacity = oldCapacity + ((capacityIncrement &gt; 0) ?</span><br><span class="hljs-comment">              //                             capacityIncrement : oldCapacity);</span><br><span class="hljs-comment">              //就是扩容两倍.</span><br><span class="hljs-comment">            private void grow(int minCapacity) &#123;</span><br><span class="hljs-comment">                // overflow-conscious code</span><br><span class="hljs-comment">                int oldCapacity = elementData.length;</span><br><span class="hljs-comment">                int newCapacity = oldCapacity + ((capacityIncrement &gt; 0) ?</span><br><span class="hljs-comment">                                                 capacityIncrement : oldCapacity);</span><br><span class="hljs-comment">                if (newCapacity - minCapacity &lt; 0)</span><br><span class="hljs-comment">                    newCapacity = minCapacity;</span><br><span class="hljs-comment">                if (newCapacity - MAX_ARRAY_SIZE &gt; 0)</span><br><span class="hljs-comment">                    newCapacity = hugeCapacity(minCapacity);</span><br><span class="hljs-comment">                elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="hljs-comment">            &#125;</span><br><span class="hljs-comment">         */</span><br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h2 id="3-LinkedList"><a href="#3-LinkedList" class="headerlink" title="3. LinkedList"></a>3. LinkedList</h2><blockquote>
+<p>LinkedList 从数据结构角度来看，可以视为双链表。</p>
+</blockquote>
+<h3 id="3-1-LinkedList-要点"><a href="#3-1-LinkedList-要点" class="headerlink" title="3.1. LinkedList 要点"></a>3.1. LinkedList 要点</h3><p><code>LinkedList</code> 基于双链表结构实现。由于是双链表，所以<strong>顺序访问会非常高效，而随机访问效率比较低。</strong></p>
+<p><code>LinkedList</code> 定义：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedList</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractSequentialList</span>&lt;<span class="hljs-title">E</span>&gt; </span><br><span class="hljs-class">                           <span class="hljs-keyword">implements</span> <span class="hljs-title">List</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">Deque</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">Cloneable</span>, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span> </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从 <code>LinkedList</code> 的定义，可以得出 <code>LinkedList</code> 的一些基本特性：</p>
+<ul>
+<li><code>LinkedList</code> 实现了 <code>List</code> 接口，并继承了 <code>AbstractSequentialList</code> ，它支持所有 <code>List</code> 的操作。</li>
+<li><code>LinkedList</code> 实现了 <code>Deque</code> 接口，也可以被当作队列（<code>Queue</code>）或双端队列（<code>Deque</code>）进行操作，此外，也可以用来实现栈。</li>
+<li><code>LinkedList</code> 实现了 <code>Cloneable</code> 接口，默认为<strong>浅拷贝</strong>。</li>
+<li><code>LinkedList</code> 实现了 <code>Serializable</code> 接口，<strong>支持序列化</strong>。</li>
+<li><code>LinkedList</code> 是<strong>非线程安全</strong>的。</li>
+</ul>
+<h3 id="3-2-LinkedList-原理"><a href="#3-2-LinkedList-原理" class="headerlink" title="3.2. LinkedList 原理"></a>3.2. LinkedList 原理</h3><h4 id="LinkedList-的数据结构"><a href="#LinkedList-的数据结构" class="headerlink" title="LinkedList 的数据结构"></a>LinkedList 的数据结构</h4><p><strong><code>LinkedList</code> 内部维护了一个双链表</strong></p>
+<p><code>LinkedList</code> 通过 <code>Node</code> 类型的头尾指针（<code>first</code> 和 <code>last</code>）来访问数据。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 链表长度</span><br><span class="hljs-keyword">transient</span> <span class="hljs-keyword">int</span> size = <span class="hljs-number">0</span>;<br><span class="hljs-comment">// 链表头节点</span><br><span class="hljs-keyword">transient</span> Node&lt;E&gt; first;<br><span class="hljs-comment">// 链表尾节点</span><br><span class="hljs-keyword">transient</span> Node&lt;E&gt; last;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>size</code> - <strong>表示双链表中节点的个数，初始为 0</strong>。</li>
+<li><code>first</code> 和 <code>last</code> - <strong>分别是双链表的头节点和尾节点</strong>。</li>
+</ul>
+<p> <code>Node</code> 是 <code>LinkedList</code> 的内部类，它表示链表中的元素实例。Node 中包含三个元素： </p>
+<ul>
+<li><code>prev</code> 是该节点的上一个节点；</li>
+<li><code>next</code> 是该节点的下一个节点；</li>
+<li><code>item</code> 是该节点所包含的值。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Node</span>&lt;<span class="hljs-title">E</span>&gt; </span>&#123;<br>        E item;<br>        Node&lt;E&gt; next;<br>        Node&lt;E&gt; prev;<br><br>        Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;<br>            <span class="hljs-keyword">this</span>.item = element;<br>            <span class="hljs-keyword">this</span>.next = next;<br>            <span class="hljs-keyword">this</span>.prev = prev;<br>        &#125;<br>    &#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h4 id="LinkedList-的序列化"><a href="#LinkedList-的序列化" class="headerlink" title="LinkedList 的序列化"></a>LinkedList 的序列化</h4><p> <code>LinkedList</code> 与 <code>ArrayList</code> 一样也定制了自身的序列化方式。具体做法是： </p>
+<ul>
+<li>将 <code>size</code> （双链表容量大小）、<code>first</code> 和<code>last</code> （双链表的头尾节点）修饰为 <code>transient</code>，使得它们可以被 Java 序列化所忽略。</li>
+<li>重写了 <code>writeObject()</code> 和 <code>readObject()</code> 来控制序列化时，只处理双链表中能被头节点链式引用的节点元素。</li>
+</ul>
+<h4 id="LinkedList-访问元素"><a href="#LinkedList-访问元素" class="headerlink" title="LinkedList 访问元素"></a>LinkedList 访问元素</h4><p> <code>LinkedList</code> 访问元素的实现主要基于以下关键性源码： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>	checkElementIndex(index);<br>	<span class="hljs-keyword">return</span> node(index).item;<br>&#125;<br><br><span class="hljs-function">Node&lt;E&gt; <span class="hljs-title">node</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    <span class="hljs-comment">// assert isElementIndex(index);</span><br><br>    <span class="hljs-keyword">if</span> (index &lt; (size &gt;&gt; <span class="hljs-number">1</span>)) &#123;<br>        Node&lt;E&gt; x = first;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; index; i++)<br>            x = x.next;<br>        <span class="hljs-keyword">return</span> x;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        Node&lt;E&gt; x = last;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = size - <span class="hljs-number">1</span>; i &gt; index; i--)<br>            x = x.prev;<br>        <span class="hljs-keyword">return</span> x;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 获取 <code>LinkedList</code> 第 index 个元素的算法是： </p>
+<ul>
+<li>判断 index 在链表前半部分，还是后半部分。</li>
+<li>如果是前半部分，从头节点开始查找；如果是后半部分，从尾结点开始查找。</li>
+</ul>
+<p> <code>LinkedList</code> 这种访问元素的性能是 <code>O(N)</code> 级别的（极端情况下，扫描 N/2 个元素）；相比于 <code>ArrayList</code> 的 <code>O(1)</code>，显然要慢不少。</p>
+<p> <strong>推荐使用迭代器遍历 <code>LinkedList</code> ，不要使用传统的 <code>for</code> 循环</strong>。注：foreach 语法会被编译器转换成迭代器遍历，但是它的遍历过程中不允许修改 <code>List</code> 长度，即不能进行增删操作。  </p>
+<h4 id="LinkedList-添加元素"><a href="#LinkedList-添加元素" class="headerlink" title="LinkedList 添加元素"></a>LinkedList 添加元素</h4><p> <code>LinkedList</code> 有多种添加元素方法： </p>
+<ul>
+<li><code>add(E e)</code>：默认添加元素方法（插入尾部）</li>
+<li><code>add(int index, E element)</code>：添加元素到任意位置</li>
+<li><code>addFirst(E e)</code>：在头部添加元素</li>
+<li><code>addLast(E e)</code>：在尾部添加元素</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(E e)</span> </span>&#123;<br>	linkLast(e);<br>	<span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, E element)</span> </span>&#123;<br>	checkPositionIndex(index);<br><br>	<span class="hljs-keyword">if</span> (index == size)<br>		linkLast(element);<br>	<span class="hljs-keyword">else</span><br>		linkBefore(element, node(index));<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addFirst</span><span class="hljs-params">(E e)</span> </span>&#123;<br>	linkFirst(e);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addLast</span><span class="hljs-params">(E e)</span> </span>&#123;<br>	linkLast(e);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <code>LinkedList</code> 添加元素的实现主要基于以下关键性源码： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">linkFirst</span><span class="hljs-params">(E e)</span> </span>&#123;<br>	<span class="hljs-keyword">final</span> Node&lt;E&gt; f = first;<br>	<span class="hljs-keyword">final</span> Node&lt;E&gt; newNode = <span class="hljs-keyword">new</span> Node&lt;&gt;(<span class="hljs-keyword">null</span>, e, f);<br>	first = newNode;<br>	<span class="hljs-keyword">if</span> (f == <span class="hljs-keyword">null</span>)<br>		last = newNode;<br>	<span class="hljs-keyword">else</span><br>		f.prev = newNode;<br>	size++;<br>	modCount++;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">linkLast</span><span class="hljs-params">(E e)</span> </span>&#123;<br>	<span class="hljs-keyword">final</span> Node&lt;E&gt; l = last;<br>	<span class="hljs-keyword">final</span> Node&lt;E&gt; newNode = <span class="hljs-keyword">new</span> Node&lt;&gt;(l, e, <span class="hljs-keyword">null</span>);<br>	last = newNode;<br>	<span class="hljs-keyword">if</span> (l == <span class="hljs-keyword">null</span>)<br>		first = newNode;<br>	<span class="hljs-keyword">else</span><br>		l.next = newNode;<br>	size++;<br>	modCount++;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">linkBefore</span><span class="hljs-params">(E e, Node&lt;E&gt; succ)</span> </span>&#123;<br>	<span class="hljs-comment">// assert succ != null;</span><br>	<span class="hljs-keyword">final</span> Node&lt;E&gt; pred = succ.prev;<br>	<span class="hljs-keyword">final</span> Node&lt;E&gt; newNode = <span class="hljs-keyword">new</span> Node&lt;&gt;(pred, e, succ);<br>	succ.prev = newNode;<br>	<span class="hljs-keyword">if</span> (pred == <span class="hljs-keyword">null</span>)<br>		first = newNode;<br>	<span class="hljs-keyword">else</span><br>		pred.next = newNode;<br>	size++;<br>	modCount++;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 算法如下： </p>
+<ul>
+<li>将新添加的数据包装为 <code>Node</code>；</li>
+<li>如果往头部添加元素，将头指针 <code>first</code> 指向新的 <code>Node</code>，之前的 <code>first</code> 对象的 <code>prev</code> 指向新的 <code>Node</code>。</li>
+<li>如果是向尾部添加元素，则将尾指针 <code>last</code> 指向新的 <code>Node</code>，之前的 <code>last</code> 对象的 <code>next</code> 指向新的 <code>Node</code>。</li>
+</ul>
+<h4 id="LinkedList-删除元素"><a href="#LinkedList-删除元素" class="headerlink" title="LinkedList 删除元素"></a>LinkedList 删除元素</h4><p> <code>LinkedList</code> 删除元素的实现主要基于以下关键性源码： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">remove</span><span class="hljs-params">(Object o)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (o == <span class="hljs-keyword">null</span>) &#123;<br>        <span class="hljs-comment">// 遍历找到要删除的元素节点</span><br>        <span class="hljs-keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="hljs-keyword">null</span>; x = x.next) &#123;<br>            <span class="hljs-keyword">if</span> (x.item == <span class="hljs-keyword">null</span>) &#123;<br>                unlink(x);<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>            &#125;<br>        &#125;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-comment">// 遍历找到要删除的元素节点</span><br>        <span class="hljs-keyword">for</span> (Node&lt;E&gt; x = first; x != <span class="hljs-keyword">null</span>; x = x.next) &#123;<br>            <span class="hljs-keyword">if</span> (o.equals(x.item)) &#123;<br>                unlink(x);<br>                <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>&#125;<br><br><br><span class="hljs-function">E <span class="hljs-title">unlink</span><span class="hljs-params">(Node&lt;E&gt; x)</span> </span>&#123;<br>    <span class="hljs-comment">// assert x != null;</span><br>    <span class="hljs-keyword">final</span> E element = x.item;<br>    <span class="hljs-keyword">final</span> Node&lt;E&gt; next = x.next;<br>    <span class="hljs-keyword">final</span> Node&lt;E&gt; prev = x.prev;<br><br>    <span class="hljs-keyword">if</span> (prev == <span class="hljs-keyword">null</span>) &#123;<br>        first = next;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        prev.next = next;<br>        x.prev = <span class="hljs-keyword">null</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">if</span> (next == <span class="hljs-keyword">null</span>) &#123;<br>        last = prev;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        next.prev = prev;<br>        x.next = <span class="hljs-keyword">null</span>;<br>    &#125;<br><br>    x.item = <span class="hljs-keyword">null</span>;<br>    size--;<br>    modCount++;<br>    <span class="hljs-keyword">return</span> element;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 算法说明： </p>
+<ul>
+<li>遍历找到要删除的元素节点，然后调用 <code>unlink</code> 方法删除节点；</li>
+<li> <code>unlink</code> 删除节点的方法： </li>
+<li>如果当前节点有前驱节点，则让前驱节点指向当前节点的下一个节点；否则，让双链表头指针指向下一个节点。</li>
+<li>如果当前节点有后继节点，则让后继节点指向当前节点的前一个节点；否则，让双链表尾指针指向上一个节点。</li>
+</ul>
+<h2 id="4-List-常见问题"><a href="#4-List-常见问题" class="headerlink" title="4. List 常见问题"></a>4. List 常见问题</h2><h3 id="4-1-Arrays-asList-问题点"><a href="#4-1-Arrays-asList-问题点" class="headerlink" title="4.1. Arrays.asList 问题点"></a>4.1. Arrays.asList 问题点</h3><p> 在业务开发中，我们常常会把原始的数组转换为 <code>List</code> 类数据结构，来继续展开各种 <code>Stream</code> 操作。通常，我们会使用 <code>Arrays.asList</code> 方法可以把数组一键转换为 <code>List</code>。 </p>
+<p> 【示例】Arrays.asList 转换基本类型数组 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">int</span>[] arr = &#123; <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span> &#125;;<br>List list = Arrays.asList(arr);<br>log.info(<span class="hljs-string">&quot;list:&#123;&#125; size:&#123;&#125; class:&#123;&#125;&quot;</span>, list, list.size(), list.get(<span class="hljs-number">0</span>).getClass());<br></code></pre></td></tr></table></figure>
+
+<p> 【输出】 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><code class="hljs text">list:[[I@ae45eb6] size:1 class:class [I<br></code></pre></td></tr></table></figure>
+
+<p> 数组元素个数为 3，但转换后的列表个数为 1。 </p>
+<p> 由此可知， <code>Arrays.asList</code> 第一个问题点：<strong>不能直接使用 <code>Arrays.asList</code> 来转换基本类型数组</strong>。 </p>
+<p> 其原因是：<code>Arrays.asList</code> 方法传入的是一个泛型 T 类型可变参数，最终 <code>int</code> 数组整体作为了一个对象成为了泛型类型 T： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;T&gt; <span class="hljs-function">List&lt;T&gt; <span class="hljs-title">asList</span><span class="hljs-params">(T... a)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> ArrayList&lt;&gt;(a);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 直接遍历这样的 <code>List</code> 必然会出现 Bug，修复方式有两种，如果使用 Java8 以上版本可以使用 <code>Arrays.stream</code> 方法来转换，否则可以把 <code>int</code> 数组声明为包装类型 <code>Integer</code> 数组： </p>
+<p> 【示例】转换整型数组为 List 的正确方式 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">int</span>[] arr1 = &#123; <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span> &#125;;<br>List list1 = Arrays.stream(arr1).boxed().collect(Collectors.toList());<br><br>Integer[] arr2 = &#123; <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span> &#125;;<br>List list2 = Arrays.asList(arr2);<br></code></pre></td></tr></table></figure>
+
+<p> 【示例】Arrays.asList 转换引用类型数组 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">String[] arr = &#123; <span class="hljs-string">&quot;1&quot;</span>, <span class="hljs-string">&quot;2&quot;</span>, <span class="hljs-string">&quot;3&quot;</span> &#125;;<br>List list = Arrays.asList(arr);<br>arr[<span class="hljs-number">1</span>] = <span class="hljs-string">&quot;4&quot;</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    list.add(<span class="hljs-string">&quot;5&quot;</span>);<br>&#125; <span class="hljs-keyword">catch</span> (Exception ex) &#123;<br>    ex.printStackTrace();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 抛出 <code>java.lang.UnsupportedOperationException</code>。 </p>
+<p> 抛出异常的原因在于 <code>Arrays.asList</code> 第二个问题点：**<code>Arrays.asList</code> 返回的 <code>List</code> 不支持增删操作**。 </p>
+<p> <code>Arrays.asList</code> 返回的 List 并不是我们期望的 <code>java.util.ArrayList</code>，而是 <code>Arrays</code> 的内部类 <code>ArrayList</code>。 </p>
+<p> 查看源码，我们可以发现 <code>Arrays.asList</code> 返回的 <code>ArrayList</code> 继承了 <code>AbstractList</code>，但是并没有覆写 <code>add</code> 和 <code>remove</code> 方法。 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ArrayList</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractList</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">RandomAccess</span>, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> serialVersionUID = -<span class="hljs-number">2764017481108945198L</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> E[] a;<br><br>    ArrayList(E[] array) &#123;<br>        a = Objects.requireNonNull(array);<br>    &#125;<br><br>    <span class="hljs-comment">// ...</span><br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, E element)</span> </span>&#123;<br>        E oldValue = a[index];<br>        a[index] = element;<br>        <span class="hljs-keyword">return</span> oldValue;<br>    &#125;<br><br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AbstractList</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractCollection</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title">List</span>&lt;<span class="hljs-title">E</span>&gt; </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index, E element)</span> </span>&#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UnsupportedOperationException();<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">remove</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> UnsupportedOperationException();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <code>Arrays.asList</code> 第三个问题点：**对原始数组的修改会影响到我们获得的那个 <code>List</code>**。<code>ArrayList</code> 其实是直接使用了原始的数组。 </p>
+<p> 解决方法很简单，重新 <code>new</code> 一个 <code>ArrayList</code> 初始化 <code>Arrays.asList</code> 返回的 <code>List</code> 即可： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">String[] arr = &#123; <span class="hljs-string">&quot;1&quot;</span>, <span class="hljs-string">&quot;2&quot;</span>, <span class="hljs-string">&quot;3&quot;</span> &#125;;<br>List list = <span class="hljs-keyword">new</span> ArrayList(Arrays.asList(arr));<br>arr[<span class="hljs-number">1</span>] = <span class="hljs-string">&quot;4&quot;</span>;<br><span class="hljs-keyword">try</span> &#123;<br>    list.add(<span class="hljs-string">&quot;5&quot;</span>);<br>&#125; <span class="hljs-keyword">catch</span> (Exception ex) &#123;<br>    ex.printStackTrace();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-2-List-subList-问题点"><a href="#4-2-List-subList-问题点" class="headerlink" title="4.2. List.subList 问题点"></a>4.2. List.subList 问题点</h3><p> List.subList 直接引用了原始的 List，也可以认为是共享“存储”，而且对原始 List 直接进行结构性修改会导致 SubList 出现异常。 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> List&lt;List&lt;Integer&gt;&gt; data = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;();<br><br><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">oom</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;<br>        List&lt;Integer&gt; rawList = IntStream.rangeClosed(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>).boxed().collect(Collectors.toList());<br>        data.add(rawList.subList(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 出现 OOM 的原因是，循环中的 1000 个具有 10 万个元素的 List 始终得不到回收，因为它始终被 subList 方法返回的 List 强引用。 </p>
+<p> 解决方法是： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">oomfix</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;<br>        List&lt;Integer&gt; rawList = IntStream.rangeClosed(<span class="hljs-number">1</span>, <span class="hljs-number">100000</span>).boxed().collect(Collectors.toList());<br>        data.add(<span class="hljs-keyword">new</span> ArrayList&lt;&gt;(rawList.subList(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>)));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 【示例】子 List 强引用原始的 List </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">wrong</span><span class="hljs-params">()</span> </span>&#123;<br>    List&lt;Integer&gt; list = IntStream.rangeClosed(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>).boxed().collect(Collectors.toList());<br>    List&lt;Integer&gt; subList = list.subList(<span class="hljs-number">1</span>, <span class="hljs-number">4</span>);<br>    System.out.println(subList);<br>    subList.remove(<span class="hljs-number">1</span>);<br>    System.out.println(list);<br>    list.add(<span class="hljs-number">0</span>);<br>    <span class="hljs-keyword">try</span> &#123;<br>        subList.forEach(System.out::println);<br>    &#125; <span class="hljs-keyword">catch</span> (Exception ex) &#123;<br>        ex.printStackTrace();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 抛出 <code>java.util.ConcurrentModificationException</code>。 </p>
+<p> 解决方法： </p>
+<p> 一种是，不直接使用 subList 方法返回的 SubList，而是重新使用 new ArrayList，在构造方法传入 SubList，来构建一个独立的 ArrayList； </p>
+<p>另一种是，对于 Java 8 使用 Stream 的 skip 和 limit API 来跳过流中的元素，以及限制流中元素的个数，同样可以达到 SubList 切片的目的。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//方式一：</span><br>List&lt;Integer&gt; subList = <span class="hljs-keyword">new</span> ArrayList&lt;&gt;(list.subList(<span class="hljs-number">1</span>, <span class="hljs-number">4</span>));<br><span class="hljs-comment">//方式二：</span><br>List&lt;Integer&gt; subList = list.stream().skip(<span class="hljs-number">1</span>).limit(<span class="hljs-number">3</span>).collect(Collectors.toList());<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-参考资料"><a href="#5-参考资料" class="headerlink" title="5. 参考资料"></a>5. 参考资料</h2><p> <a href="https://item.jd.com/10058164.html">Java 编程思想（第 4 版）</a> </p>
+<p><a href="https://dunwu.github.io/javacore/container/java-container-list.html#_1-list-%E7%AE%80%E4%BB%8B">java-容器之List</a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+        <category>Java-容器</category>
+      </categories>
+      <tags>
+        <tag>Java容器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java容器之Map</title>
+    <url>/2021/11/26/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="1-Map集合概述"><a href="#1-Map集合概述" class="headerlink" title="1.Map集合概述"></a>1.Map集合概述</h2><h3 id="1-1概述"><a href="#1-1概述" class="headerlink" title="1.1概述"></a>1.1概述</h3><blockquote>
+<p>如果程序中存储了几百万个学生，而且经常需要使用学号来搜索某个学生，那么这个需求有效的数据结构就是Map。Map是一种依照键（key）存储元素的容器，键（key）很像下标，在List中下标是整数。在Map中键（key）可以使任意类型的对象。Map中不能有重复的键（Key），每个键（key）都有一个对应的值（value）。一个键（key）和它对应的值构成map集合中的一个元素。Map中的元素是两个对象，一个对象作为键，一个对象作为值。键不可以重复，但是值可以重复。</p>
+</blockquote>
+<h3 id="1-2-Map架构"><a href="#1-2-Map架构" class="headerlink" title="1.2 Map架构"></a>1.2 Map架构</h3><p><img src="/img/work/image-20211129105948926.png" alt="map集合关系图"></p>
+<p>Map 家族主要成员功能如下：</p>
+<ul>
+<li><p><code>Map</code> 是 Map 容器家族的祖先，Map 是一个用于保存键值对(key-value)的接口。<strong>Map 中不能包含重复的键；每个键最多只能映射到一个值。</strong></p>
+</li>
+<li><p><code>AbstractMap</code> 继承了 <code>Map</code> 的抽象类，它实现了 <code>Map</code> 中的核心 API。其它 <code>Map</code> 的实现类可以通过继承 <code>AbstractMap</code> 来减少重复编码。</p>
+</li>
+<li><p><code>SortedMap</code> 继承了 <code>Map</code> 的接口。<code>SortedMap</code> 中的内容是排序的键值对，排序的方法是通过实现比较器(<code>Comparator</code>)完成的。</p>
+</li>
+<li><p><code>NavigableMap</code> 继承了 <code>SortedMap</code> 的接口。相比于 <code>SortedMap</code>，<code>NavigableMap</code> 有一系列的“导航”方法；如”获取大于/等于某对象的键值对”、“获取小于/等于某对象的键值对”等等。</p>
+</li>
+<li><p><code>HashMap</code> 继承了 <code>AbstractMap</code>，但没实现 <code>NavigableMap</code> 接口。<code>HashMap</code> 的主要作用是储存无序的键值对，而 <code>Hash</code> 也体现了它的查找效率很高。<code>HashMap</code> 是使用最广泛的 <code>Map</code>。</p>
+</li>
+<li><p><code>Hashtable</code> 虽然没有继承 <code>AbstractMap</code>，但它继承了 <code>Dictionary</code>（<code>Dictionary</code> 也是键值对的接口），而且也实现 <code>Map</code> 接口。因此，<code>Hashtable</code> 的主要作用是储存无序的键值对。和 HashMap 相比，<code>Hashtable</code> 在它的主要方法中使用 <code>synchronized</code> 关键字修饰，来保证线程安全。但是，由于它的锁粒度太大，非常影响读写速度，所以，现代 Java 程序几乎不会使用 <code>Hashtable</code> ，如果需要保证线程安全，一般会用 <code>ConcurrentHashMap</code> 来替代。</p>
+</li>
+<li><p><code>TreeMap</code> 继承了 <code>AbstractMap</code>，且实现了 <code>NavigableMap</code> 接口。<code>TreeMap</code> 的主要作用是储存有序的键值对，排序依据根据元素类型的 <code>Comparator</code> 而定。</p>
+</li>
+<li><p><code>WeakHashMap</code> 继承了 <code>AbstractMap</code>。<code>WeakHashMap</code> 的键是<strong>弱引用</strong> （即 <code>WeakReference</code>），它的主要作用是当 GC 内存不足时，会自动将 <code>WeakHashMap</code> 中的 key 回收，这避免了 <code>WeakHashMap</code> 的内存空间无限膨胀。很明显，<code>WeakHashMap</code> 适用于作为缓存。</p>
+</li>
+<li><p><code>LinkedHashMap</code>继承了HashMap,HashMap是无序的，当我们希望有顺序地去存储key-value时，就需要使用LinkedHashMap了。</p>
+</li>
+</ul>
+<h3 id="1-3-Map集合与Collection集合的区别"><a href="#1-3-Map集合与Collection集合的区别" class="headerlink" title="1.3 Map集合与Collection集合的区别"></a>1.3 Map集合与Collection集合的区别</h3><ul>
+<li>collection中的集合，元素是孤立存在的(单身狗)，向集合中存储元素采用一个个元素的方式存储。</li>
+<li>map中的集合，元素是成对存在的(情侣、夫妻)，每个元素由键(key)与值(value)两个部分组成，通过键可以找到其所对应的值。</li>
+<li>collection中的集合成为单列集合，map中的集合称为双列集合。</li>
+<li>Collection接口的底层是由哈希表或哈希表+链表实现的。</li>
+<li>Map接口的底层是由哈希表和链接列表实现的。</li>
+</ul>
+<h3 id="1-4-Map集合特点"><a href="#1-4-Map集合特点" class="headerlink" title="1.4 Map集合特点"></a>1.4 Map集合特点</h3><ul>
+<li><p>Map集合是一个双列集合，一个元素包含两个值（一个key，一个value）。</p>
+</li>
+<li><p>Map集合中的元素，key和value的数据类型可以相同，也可以不同。</p>
+</li>
+<li><p>Map集合中的元素，key是不允许重复的， value是可以重复的。</p>
+</li>
+<li><p>Map集合中的元素，key和 value是一一对应的。</p>
+</li>
+</ul>
+<h3 id="1-4-Map-接口"><a href="#1-4-Map-接口" class="headerlink" title="1.4 Map 接口"></a>1.4 Map 接口</h3><p>Map 的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Map</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Map 是一个用于保存键值对(key-value)的接口。<strong>Map 中不能包含重复的键；每个键最多只能映射到一个值。</strong></p>
+<p>Map 接口提供三种 <code>Collection</code> 视图，允许以<strong>键集</strong>、<strong>值集</strong>或<strong>键-值映射关系集</strong>的形式访问数据。</p>
+<p>Map 有些实现类，可以有序的保存元素，如 <code>TreeMap</code>；另一些实现类则不保证顺序，如 <code>HashMap</code> 类。</p>
+<p>Map 的实现类应该提供 2 个“标准的”构造方法：</p>
+<ul>
+<li>void（无参数）构造方法，用于创建空 Map；</li>
+<li>带有单个 Map 类型参数的构造方法，用于创建一个与其参数具有相同键-值映射关系的新 Map。</li>
+</ul>
+<p>实际上，后一个构造方法允许用户复制任意 Map，生成所需类的一个等价 Map。尽管无法强制执行此建议（因为接口不能包含构造方法），但是 JDK 中所有通用的 Map 实现都遵从它。</p>
+<p><strong>Map.Entry 接口:</strong></p>
+<p><code>Map.Entry</code> 一般用于通过迭代器（<code>Iterator</code>）访问问 <code>Map</code>。</p>
+<p><code>Map.Entry</code> 是 Map 中内部的一个接口，<code>Map.Entry</code> 代表了 <strong>键值对</strong> 实体，Map 通过 <code>entrySet()</code> 获取 <code>Map.Entry</code> 集合，从而通过该集合实现对键值对的操作。</p>
+<h3 id="1-5-Map接口常用的方法"><a href="#1-5-Map接口常用的方法" class="headerlink" title="1.5 Map接口常用的方法"></a>1.5 Map接口常用的方法</h3><figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> V <span class="hljs-title">put</span><span class="hljs-params">(K key, V value)</span></span><br><span class="hljs-function"><span class="hljs-comment">// 把指定的键与指定的值添加到Map集合中。</span></span><br><span class="hljs-function"> </span><br><span class="hljs-function"><span class="hljs-keyword">public</span> V <span class="hljs-title">remove</span><span class="hljs-params">(Object key)</span></span><br><span class="hljs-function"><span class="hljs-comment">// 把指定的键所对应的键值对元素在Map集合中删除,返回被删除元素的值</span></span><br><span class="hljs-function"> </span><br><span class="hljs-function"><span class="hljs-keyword">public</span> V <span class="hljs-title">get</span><span class="hljs-params">(Object key)</span></span><br><span class="hljs-function"><span class="hljs-comment">// 根据指定的键,在Map集合中获取对应的值。</span></span><br><span class="hljs-function"> </span><br><span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">containsKey</span><span class="hljs-params">(Object key)</span></span><br><span class="hljs-function"><span class="hljs-comment">// 判断集合中是否包含指定的键。</span></span><br><span class="hljs-function"> </span><br><span class="hljs-function"><span class="hljs-keyword">public</span> Set&lt;K&gt; <span class="hljs-title">keySet</span><span class="hljs-params">()</span></span><br><span class="hljs-function"><span class="hljs-comment">// 获取Map集合中所有的键,存储到Set集合中。</span></span><br><span class="hljs-function"> </span><br><span class="hljs-function"><span class="hljs-keyword">public</span> Set&lt;Map. Entry&lt;K,V&gt; <span class="hljs-title">entrySet</span><span class="hljs-params">()</span></span><br><span class="hljs-function"><span class="hljs-comment">// 获取到Map集合中所有的键值对对象的集合(Set集合)。</span></span><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-HashMap"><a href="#2-HashMap" class="headerlink" title="2.HashMap"></a>2.HashMap</h2><blockquote>
+<p> 底层是哈希表数据结构，线程是不同步的，可以存入null键，null值。要保证键的唯一性，需要覆盖hashCode方法，和equals方法。 </p>
+</blockquote>
+<h3 id="2-1-HashMap要点"><a href="#2-1-HashMap要点" class="headerlink" title="2.1 HashMap要点"></a>2.1 HashMap要点</h3><p>从 <code>HashMap</code> 的命名，也可以看出：**<code>HashMap</code> 以散列方式存储键值对**。 </p>
+<p><strong><code>HashMap</code> 允许使用空值和空键</strong>。（<code>HashMap</code> 类大致等同于 <code>Hashtable</code>，除了它是不同步的并且允许为空值。）这个类不保序；特别是，它的元素顺序可能会随着时间的推移变化。 </p>
+<p><strong><code>HashMap</code> 有两个影响其性能的参数：初始容量和负载因子</strong>。 </p>
+<ul>
+<li>容量是哈希表中桶的数量，初始容量就是哈希表创建时的容量。</li>
+<li>加载因子是散列表在其容量自动扩容之前被允许的最大饱和量。当哈希表中的 entry 数量超过负载因子和当前容量的乘积时，散列表就会被重新映射（即重建内部数据结构），一般散列表大约是存储桶数量的两倍。</li>
+</ul>
+<p>通常，默认加载因子（0.75）在时间和空间成本之间提供了良好的平衡。较高的值会减少空间开销，但会增加查找成本（反映在大部分 <code>HashMap</code> 类的操作中，包括 <code>get</code> 和 <code>put</code>）。在设置初始容量时，应考虑映射中的条目数量及其负载因子，以尽量减少重新运行操作的次数。如果初始容量大于最大入口数除以负载因子，则不会发生重新刷新操作。 </p>
+<p>如果许多映射要存储在 <code>HashMap</code> 实例中，使用足够大的容量创建映射将允许映射存储的效率高于根据需要执行自动重新散列以增长表。请注意，使用多个具有相同 <code>hashCode()</code> 的密钥是降低任何散列表性能的一个可靠方法。为了改善影响，当键是 <code>Comparable</code> 时，该类可以使用键之间的比较顺序来帮助断开关系。 </p>
+<p> <code>HashMap</code> 不是线程安全的。 </p>
+<h3 id="2-2-HashMap-原理"><a href="#2-2-HashMap-原理" class="headerlink" title="2.2. HashMap 原理"></a>2.2. HashMap 原理</h3><p><strong>HashMap 数据结构</strong></p>
+<p><code>HashMap</code> 的核心字段 </p>
+<ul>
+<li><code>table</code> - <code>HashMap</code> 使用一个 <code>Node[]</code> 类型的数组 <code>table</code> 来储存元素。</li>
+<li><code>size</code> - 初始容量。 初始为 16，每次容量不够自动扩容</li>
+<li><code>loadFactor</code> - 负载因子。自动扩容之前被允许的最大饱和量，默认 0.75。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">Map</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt;, <span class="hljs-title">Cloneable</span>, <span class="hljs-title">Serializable</span> </span>&#123;<br><br>    <span class="hljs-comment">// 该表在初次使用时初始化，并根据需要调整大小。分配时，长度总是2的幂。</span><br>    <span class="hljs-keyword">transient</span> Node&lt;K,V&gt;[] table;<br>    <span class="hljs-comment">// 保存缓存的 entrySet()。请注意，AbstractMap 字段用于 keySet() 和 values()。</span><br>    <span class="hljs-keyword">transient</span> Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet;<br>    <span class="hljs-comment">// map 中的键值对数</span><br>    <span class="hljs-keyword">transient</span> <span class="hljs-keyword">int</span> size;<br>    <span class="hljs-comment">// 这个HashMap被结构修改的次数结构修改是那些改变HashMap中的映射数量或者修改其内部结构（例如，重新散列）的修改。</span><br>    <span class="hljs-keyword">transient</span> <span class="hljs-keyword">int</span> modCount;<br>    <span class="hljs-comment">// 下一个调整大小的值（容量*加载因子）。</span><br>    <span class="hljs-keyword">int</span> threshold;<br>    <span class="hljs-comment">// 散列表的加载因子</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-keyword">float</span> loadFactor;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>HashMap 构造方法</strong></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashMap</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// 默认加载因子0.75</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashMap</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity)</span></span>; <span class="hljs-comment">// 默认加载因子0.75；以 initialCapacity 初始化容量</span><br><span class="hljs-comment">// 以 initialCapacity 初始化容量；以 loadFactor 初始化加载因子</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashMap</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity, <span class="hljs-keyword">float</span> loadFactor)</span></span>; <br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashMap</span><span class="hljs-params">(Map&lt;? extends K, ? extends V&gt; m)</span> <span class="hljs-comment">// 默认加载因子0.75</span></span><br></code></pre></td></tr></table></figure>
+
+<p> <strong>put 方法的实现</strong></p>
+<p> put 方法大致的思路为： </p>
+<ul>
+<li>对 key 的 <code>hashCode()</code> 做 hash 计算，然后根据 hash 值再计算 Node 的存储位置;</li>
+<li>如果没有哈希碰撞，直接放到桶里；如果有哈希碰撞，以链表的形式存在桶后。</li>
+<li>如果哈希碰撞导致链表过长(大于等于 <code>TREEIFY_THRESHOLD</code>，数值为 8)，就把链表转换成红黑树；</li>
+<li>如果节点已经存在就替换旧值</li>
+<li>桶数量超过容量*负载因子（即 load factor * current capacity），HashMap 调用 <code>resize</code> 自动扩容一倍</li>
+</ul>
+<p> 具体代码的实现如下： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> V <span class="hljs-title">put</span><span class="hljs-params">(K key, V value)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> putVal(hash(key), key, value, <span class="hljs-keyword">false</span>, <span class="hljs-keyword">true</span>);<br>&#125;<br><br><span class="hljs-comment">// hashcode 无符号位移 16 位</span><br><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hash</span><span class="hljs-params">(Object key)</span> </span>&#123;<br>    <span class="hljs-keyword">int</span> h;<br>    <span class="hljs-keyword">return</span> (key == <span class="hljs-keyword">null</span>) ? <span class="hljs-number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="hljs-number">16</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">final</span> V <span class="hljs-title">putVal</span><span class="hljs-params">(<span class="hljs-keyword">int</span> hash, K key, V value, <span class="hljs-keyword">boolean</span> onlyIfAbsent,</span></span><br><span class="hljs-params"><span class="hljs-function">                   <span class="hljs-keyword">boolean</span> evict)</span> </span>&#123;<br>    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="hljs-keyword">int</span> n, i;<br>    <span class="hljs-comment">// tab 为空则创建</span><br>    <span class="hljs-keyword">if</span> ((tab = table) == <span class="hljs-keyword">null</span> || (n = tab.length) == <span class="hljs-number">0</span>)<br>        n = (tab = resize()).length;<br>    <span class="hljs-comment">// 计算 index，并对 null 做处理</span><br>    <span class="hljs-keyword">if</span> ((p = tab[i = (n - <span class="hljs-number">1</span>) &amp; hash]) == <span class="hljs-keyword">null</span>)<br>        tab[i] = newNode(hash, key, value, <span class="hljs-keyword">null</span>);<br>    <span class="hljs-keyword">else</span> &#123;<br>        Node&lt;K,V&gt; e; K k;<br>        <span class="hljs-comment">// 节点存在</span><br>        <span class="hljs-keyword">if</span> (p.hash == hash &amp;&amp;<br>            ((k = p.key) == key || (key != <span class="hljs-keyword">null</span> &amp;&amp; key.equals(k))))<br>            e = p;<br>        <span class="hljs-comment">// 该链为树</span><br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (p <span class="hljs-keyword">instanceof</span> TreeNode)<br>            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="hljs-keyword">this</span>, tab, hash, key, value);<br>        <span class="hljs-comment">// 该链为链表</span><br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> binCount = <span class="hljs-number">0</span>; ; ++binCount) &#123;<br>                <span class="hljs-keyword">if</span> ((e = p.next) == <span class="hljs-keyword">null</span>) &#123;<br>                    p.next = newNode(hash, key, value, <span class="hljs-keyword">null</span>);<br>                    <span class="hljs-keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="hljs-number">1</span>) <span class="hljs-comment">// -1 for 1st</span><br>                        treeifyBin(tab, hash);<br>                    <span class="hljs-keyword">break</span>;<br>                &#125;<br>                <span class="hljs-keyword">if</span> (e.hash == hash &amp;&amp;<br>                    ((k = e.key) == key || (key != <span class="hljs-keyword">null</span> &amp;&amp; key.equals(k))))<br>                    <span class="hljs-keyword">break</span>;<br>                p = e;<br>            &#125;<br>        &#125;<br>        <span class="hljs-comment">// 写入</span><br>        <span class="hljs-keyword">if</span> (e != <span class="hljs-keyword">null</span>) &#123; <span class="hljs-comment">// existing mapping for key</span><br>            V oldValue = e.value;<br>            <span class="hljs-keyword">if</span> (!onlyIfAbsent || oldValue == <span class="hljs-keyword">null</span>)<br>                e.value = value;<br>            afterNodeAccess(e);<br>            <span class="hljs-keyword">return</span> oldValue;<br>        &#125;<br>    &#125;<br>    ++modCount;<br>    <span class="hljs-keyword">if</span> (++size &gt; threshold)<br>        resize();<br>    afterNodeInsertion(evict);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>为什么计算 hash 使用 hashcode 无符号位移 16 位? </p>
+<p>假设要添加两个对象 a 和 b，如果数组长度是 16，这时对象 a 和 b 通过公式 (n - 1) &amp; hash 运算，也就是 (16-1)＆a.hashCode 和 (16-1)＆b.hashCode，15 的二进制为 0000000000000000000000000001111，假设对象 A 的 hashCode 为 1000010001110001000001111000000，对象 B 的 hashCode 为 0111011100111000101000010100000，你会发现上述与运算结果都是 0。这样的哈希结果就太让人失望了，很明显不是一个好的哈希算法。</p>
+<p>但如果我们将 hashCode 值右移 16 位（h &gt;&gt;&gt; 16 代表无符号右移 16 位），也就是取 int 类型的一半，刚好可以将该二进制数对半切开，并且使用位异或运算（如果两个数对应的位置相反，则结果为 1，反之为 0），这样的话，就能避免上面的情况发生。这就是 hash() 方法的具体实现方式。<strong>简而言之，就是尽量打乱 hashCode 真正参与运算的低 16 位。</strong></p>
+<p><strong>get 方法的实现</strong> </p>
+<p> 在理解了 put 之后，get 就很简单了。大致思路如下： </p>
+<ul>
+<li>对 key 的 hashCode() 做 hash 计算，然后根据 hash 值再计算桶的 index</li>
+<li>如果桶中的第一个节点命中，直接返回；</li>
+<li> 如果有冲突，则通过 <code>key.equals(k)</code> 去查找对应的 entry </li>
+<li>若为树，则在红黑树中通过 key.equals(k) 查找，O(logn)；</li>
+<li>若为链表，则在链表中通过 key.equals(k) 查找，O(n)。</li>
+</ul>
+<p> 具体代码的实现如下： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> V <span class="hljs-title">get</span><span class="hljs-params">(Object key)</span> </span>&#123;<br>    Node&lt;K,V&gt; e;<br>    <span class="hljs-keyword">return</span> (e = getNode(hash(key), key)) == <span class="hljs-keyword">null</span> ? <span class="hljs-keyword">null</span> : e.value;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">final</span> Node&lt;K,V&gt; <span class="hljs-title">getNode</span><span class="hljs-params">(<span class="hljs-keyword">int</span> hash, Object key)</span> </span>&#123;<br>        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; <span class="hljs-keyword">int</span> n; K k;<br>    <span class="hljs-keyword">if</span> ((tab = table) != <span class="hljs-keyword">null</span> &amp;&amp; (n = tab.length) &gt; <span class="hljs-number">0</span> &amp;&amp;<br>        (first = tab[(n - <span class="hljs-number">1</span>) &amp; hash]) != <span class="hljs-keyword">null</span>) &#123;<br>        <span class="hljs-comment">// 直接命中</span><br>        <span class="hljs-keyword">if</span> (first.hash == hash &amp;&amp; <span class="hljs-comment">// always check first node</span><br>            ((k = first.key) == key || (key != <span class="hljs-keyword">null</span> &amp;&amp; key.equals(k))))<br>            <span class="hljs-keyword">return</span> first;<br>        <span class="hljs-comment">// 未命中</span><br>        <span class="hljs-keyword">if</span> ((e = first.next) != <span class="hljs-keyword">null</span>) &#123;<br>            <span class="hljs-comment">// 在树中 get</span><br>            <span class="hljs-keyword">if</span> (first <span class="hljs-keyword">instanceof</span> TreeNode)<br>                <span class="hljs-keyword">return</span> ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);<br>            <span class="hljs-comment">// 在链表中 get</span><br>            <span class="hljs-keyword">do</span> &#123;<br>                <span class="hljs-keyword">if</span> (e.hash == hash &amp;&amp;<br>                    ((k = e.key) == key || (key != <span class="hljs-keyword">null</span> &amp;&amp; key.equals(k))))<br>                    <span class="hljs-keyword">return</span> e;<br>            &#125; <span class="hljs-keyword">while</span> ((e = e.next) != <span class="hljs-keyword">null</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>hash 方法的实现:</strong></p>
+<p> HashMap **计算桶下标（index）公式：<code>key.hashCode() ^ (h &gt;&gt;&gt; 16)</code>**。 </p>
+<p> 下面针对这个公式来详细讲解。 </p>
+<p> 在 <code>get</code> 和 <code>put</code> 的过程中，计算下标时，先对 <code>hashCode</code> 进行 <code>hash</code> 操作，然后再通过 <code>hash</code> 值进一步计算下标，如下图所示： </p>
+<p><img src="/img/work/1638192040292.png"></p>
+<p> 在对 <code>hashCode()</code> 计算 hash 时具体实现是这样的： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hash</span><span class="hljs-params">(Object key)</span> </span>&#123;<br>    <span class="hljs-keyword">int</span> h;<br>    <span class="hljs-keyword">return</span> (key == <span class="hljs-keyword">null</span>) ? <span class="hljs-number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="hljs-number">16</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到这个方法大概的作用就是：高 16bit 不变，低 16bit 和高 16bit 做了一个异或。 </p>
+<p>在设计 hash 方法时，因为目前的 table 长度 n 为 2 的幂，而计算下标的时候，是这样实现的(使用 <code>&amp;</code> 位操作，而非 <code>%</code> 求余)： </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java">(n - <span class="hljs-number">1</span>) &amp; hash<br></code></pre></td></tr></table></figure>
+
+<p>设计者认为这方法很容易发生碰撞。为什么这么说呢？不妨思考一下，在 n - 1 为 15(0x1111) 时，其实散列真正生效的只是低 4bit 的有效位，当然容易碰撞了。 </p>
+<p>因此，设计者想了一个顾全大局的方法(综合考虑了速度、作用、质量)，就是把高 16bit 和低 16bit 异或了一下。设计者还解释到因为现在大多数的 hashCode 的分布已经很不错了，就算是发生了碰撞也用 O(logn)的 tree 去做了。仅仅异或一下，既减少了系统的开销，也不会造成的因为高位没有参与下标的计算(table 长度比较小时)，从而引起的碰撞。 </p>
+<p>如果还是产生了频繁的碰撞，会发生什么问题呢？作者注释说，他们使用树来处理频繁的碰撞(we use trees to handle large sets of collisions in bins)，在 <a href="http://openjdk.java.net/jeps/180">JEP-180 (opens new window)</a>中，描述了这个问题： </p>
+<blockquote>
+<p> Improve the performance of java.util.HashMap under high hash-collision conditions by using balanced trees rather than linked lists to store map entries. Implement the same improvement in the LinkedHashMap class. </p>
+</blockquote>
+<p>之前已经提过，在获取 HashMap 的元素时，基本分两步： </p>
+<ol>
+<li>首先根据 hashCode()做 hash，然后确定 bucket 的 index；</li>
+<li>如果 bucket 的节点的 key 不是我们需要的，则通过 keys.equals()在链中找。</li>
+</ol>
+<p>在 JDK8 之前的实现中是用链表解决冲突的，在产生碰撞的情况下，进行 get 时，两步的时间复杂度是 O(1)+O(n)。因此，当碰撞很厉害的时候 n 很大，O(n)的速度显然是影响速度的。 </p>
+<p>因此在 JDK8 中，利用红黑树替换链表，这样复杂度就变成了 O(1)+O(logn)了，这样在 n 很大的时候，能够比较理想的解决这个问题，在 JDK8：HashMap 的性能提升一文中有性能测试的结果。 </p>
+<p> <strong>resize 的实现</strong></p>
+<p>当 <code>put</code> 时，如果发现目前的 bucket 占用程度已经超过了 Load Factor 所希望的比例，那么就会发生 resize。在 resize 的过程，简单的说就是把 bucket 扩充为 2 倍，之后重新计算 index，把节点再放到新的 bucket 中。 </p>
+<p>当超过限制的时候会 resize，然而又因为我们使用的是 2 次幂的扩展(指长度扩为原来 2 倍)，所以，元素的位置要么是在原位置，要么是在原位置再移动 2 次幂的位置。 </p>
+<p>怎么理解呢？例如我们从 16 扩展为 32 时，具体的变化如下所示： </p>
+<p> <img src="/img/work/HashMap-resize-01.png"> </p>
+<p>因此元素在重新计算 hash 之后，因为 n 变为 2 倍，那么 n-1 的 mask 范围在高位多 1bit(红色)，因此新的 index 就会发生这样的变化： </p>
+<p> <img src="/img/work/HashMap-resize-02.png"> </p>
+<p>因此，我们在扩充 HashMap 的时候，不需要重新计算 hash，只需要看看原来的 hash 值新增的那个 bit 是 1 还是 0 就好了，是 0 的话索引没变，是 1 的话索引变成“原索引+oldCap”。可以看看下图为 16 扩充为 32 的 resize 示意图： </p>
+<p> <img src="/img/work/HashMap-resize-03.png"> </p>
+<p>这个设计确实非常的巧妙，既省去了重新计算 hash 值的时间，而且同时，由于新增的 1bit 是 0 还是 1 可以认为是随机的，因此 resize 的过程，均匀的把之前的冲突的节点分散到新的 bucket 了。 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> Node&lt;K,V&gt;[] resize() &#123;<br>    Node&lt;K,V&gt;[] oldTab = table;<br>    <span class="hljs-keyword">int</span> oldCap = (oldTab == <span class="hljs-keyword">null</span>) ? <span class="hljs-number">0</span> : oldTab.length;<br>    <span class="hljs-keyword">int</span> oldThr = threshold;<br>    <span class="hljs-keyword">int</span> newCap, newThr = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">if</span> (oldCap &gt; <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-comment">// 超过最大值就不再扩充了，就只好随你碰撞去吧</span><br>        <span class="hljs-keyword">if</span> (oldCap &gt;= MAXIMUM_CAPACITY) &#123;<br>            threshold = Integer.MAX_VALUE;<br>            <span class="hljs-keyword">return</span> oldTab;<br>        &#125;<br>        <span class="hljs-comment">// 没超过最大值，就扩充为原来的 2 倍</span><br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((newCap = oldCap &lt;&lt; <span class="hljs-number">1</span>) &lt; MAXIMUM_CAPACITY &amp;&amp;<br>                    oldCap &gt;= DEFAULT_INITIAL_CAPACITY)<br>            newThr = oldThr &lt;&lt; <span class="hljs-number">1</span>; <span class="hljs-comment">// double threshold</span><br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (oldThr &gt; <span class="hljs-number">0</span>) <span class="hljs-comment">// initial capacity was placed in threshold</span><br>        newCap = oldThr;<br>    <span class="hljs-keyword">else</span> &#123;               <span class="hljs-comment">// zero initial threshold signifies using defaults</span><br>        newCap = DEFAULT_INITIAL_CAPACITY;<br>        newThr = (<span class="hljs-keyword">int</span>)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);<br>    &#125;<br><br>    <span class="hljs-comment">// 计算新的 resize 上限</span><br>    <span class="hljs-keyword">if</span> (newThr == <span class="hljs-number">0</span>) &#123;<br>        <span class="hljs-keyword">float</span> ft = (<span class="hljs-keyword">float</span>)newCap * loadFactor;<br>        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (<span class="hljs-keyword">float</span>)MAXIMUM_CAPACITY ?<br>                    (<span class="hljs-keyword">int</span>)ft : Integer.MAX_VALUE);<br>    &#125;<br>    threshold = newThr;<br>    <span class="hljs-meta">@SuppressWarnings(&#123;&quot;rawtypes&quot;,&quot;unchecked&quot;&#125;)</span><br>        Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])<span class="hljs-keyword">new</span> Node[newCap];<br>    table = newTab;<br>    <span class="hljs-keyword">if</span> (oldTab != <span class="hljs-keyword">null</span>) &#123;<br>        <span class="hljs-comment">// 把每个 bucket 都移动到新的 buckets 中</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> j = <span class="hljs-number">0</span>; j &lt; oldCap; ++j) &#123;<br>            Node&lt;K,V&gt; e;<br>            <span class="hljs-keyword">if</span> ((e = oldTab[j]) != <span class="hljs-keyword">null</span>) &#123;<br>                oldTab[j] = <span class="hljs-keyword">null</span>;<br>                <span class="hljs-keyword">if</span> (e.next == <span class="hljs-keyword">null</span>)<br>                    newTab[e.hash &amp; (newCap - <span class="hljs-number">1</span>)] = e;<br>                <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (e <span class="hljs-keyword">instanceof</span> TreeNode)<br>                    ((TreeNode&lt;K,V&gt;)e).split(<span class="hljs-keyword">this</span>, newTab, j, oldCap);<br>                <span class="hljs-keyword">else</span> &#123; <span class="hljs-comment">// preserve order</span><br>                    Node&lt;K,V&gt; loHead = <span class="hljs-keyword">null</span>, loTail = <span class="hljs-keyword">null</span>;<br>                    Node&lt;K,V&gt; hiHead = <span class="hljs-keyword">null</span>, hiTail = <span class="hljs-keyword">null</span>;<br>                    Node&lt;K,V&gt; next;<br>                    <span class="hljs-keyword">do</span> &#123;<br>                        next = e.next;<br>                        <span class="hljs-comment">// 原索引</span><br>                        <span class="hljs-keyword">if</span> ((e.hash &amp; oldCap) == <span class="hljs-number">0</span>) &#123;<br>                            <span class="hljs-keyword">if</span> (loTail == <span class="hljs-keyword">null</span>)<br>                                loHead = e;<br>                            <span class="hljs-keyword">else</span><br>                                loTail.next = e;<br>                            loTail = e;<br>                        &#125;<br>                        <span class="hljs-comment">// 原索引+oldCap</span><br>                        <span class="hljs-keyword">else</span> &#123;<br>                            <span class="hljs-keyword">if</span> (hiTail == <span class="hljs-keyword">null</span>)<br>                                hiHead = e;<br>                            <span class="hljs-keyword">else</span><br>                                hiTail.next = e;<br>                            hiTail = e;<br>                        &#125;<br>                    &#125; <span class="hljs-keyword">while</span> ((e = next) != <span class="hljs-keyword">null</span>);<br>                    <span class="hljs-comment">// 原索引放到bucket里</span><br>                    <span class="hljs-keyword">if</span> (loTail != <span class="hljs-keyword">null</span>) &#123;<br>                        loTail.next = <span class="hljs-keyword">null</span>;<br>                        newTab[j] = loHead;<br>                    &#125;<br>                    <span class="hljs-comment">// 原索引+oldCap放到bucket里</span><br>                    <span class="hljs-keyword">if</span> (hiTail != <span class="hljs-keyword">null</span>) &#123;<br>                        hiTail.next = <span class="hljs-keyword">null</span>;<br>                        newTab[j + oldCap] = hiHead;<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> newTab;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="3-LinkedHashMap-类"><a href="#3-LinkedHashMap-类" class="headerlink" title="3. LinkedHashMap 类"></a>3. LinkedHashMap 类</h2><h3 id="3-1-LinkedHashMap-要点"><a href="#3-1-LinkedHashMap-要点" class="headerlink" title="3.1. LinkedHashMap 要点"></a>3.1. LinkedHashMap 要点</h3><p><strong><code>LinkedHashMap</code> 通过维护一个保存所有条目（Entry）的双向链表，保证了元素迭代的顺序（即插入顺序）</strong>。 </p>
+<table>
+<thead>
+<tr>
+<th>关注点</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否允许键值对为 null</td>
+<td>Key 和 Value 都允许 null</td>
+</tr>
+<tr>
+<td>是否允许重复数据</td>
+<td>Key 重复会覆盖、Value 允许重复</td>
+</tr>
+<tr>
+<td>是否有序</td>
+<td>按照元素插入顺序存储</td>
+</tr>
+<tr>
+<td>是否线程安全</td>
+<td>非线程安全</td>
+</tr>
+</tbody></table>
+<h3 id="3-2-LinkedHashMap-要点"><a href="#3-2-LinkedHashMap-要点" class="headerlink" title="3.2. LinkedHashMap 要点"></a>3.2. LinkedHashMap 要点</h3><h4 id="LinkedHashMap-数据结构"><a href="#LinkedHashMap-数据结构" class="headerlink" title="LinkedHashMap 数据结构"></a>LinkedHashMap 数据结构</h4><p><strong><code>LinkedHashMap</code> 通过维护一对 <code>LinkedHashMap.Entry</code> 类型的头尾指针，以双链表形式，保存所有数据</strong>。 </p>
+<p>学习过数据结构的双链表，就能理解其元素存储以及访问必然是有序的。 </p>
+<figure class="highlight java"><table><tr><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedHashMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">extends</span> <span class="hljs-title">HashMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">Map</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; </span>&#123;<br><br>    <span class="hljs-comment">// 双链表的头指针</span><br>    <span class="hljs-keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;<br>    <span class="hljs-comment">// 双链表的尾指针</span><br>    <span class="hljs-keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;<br>    <span class="hljs-comment">// 迭代排序方法：true 表示访问顺序；false 表示插入顺序</span><br>    <span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> accessOrder;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <code>LinkedHashMap</code> 继承了 <code>HashMap</code> 的 <code>put</code> 方法，本身没有实现 <code>put</code> 方法。 </p>
+<p>参考:</p>
+<p><a href="https://blog.csdn.net/qq_33642117/article/details/52049764"><strong>Java Map集合的详解</strong></a></p>
+<p><a href="https://blog.csdn.net/qq_33709582/article/details/113337405"><strong>真正搞懂hashCode和hash算法</strong></a></p>
+<p><a href="https://dunwu.github.io/javacore/container/java-container-map.html#_1-map-%E7%AE%80%E4%BB%8B"> <strong>Java 容器之 Map</strong> </a></p>
+<p><a href="https://www.cnblogs.com/liyihua/p/12199448.html"><strong>对Map集合的学习</strong></a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+        <category>Java-容器</category>
+      </categories>
+      <tags>
+        <tag>map</tag>
       </tags>
   </entry>
   <entry>
