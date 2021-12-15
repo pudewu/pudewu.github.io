@@ -1,0 +1,542 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="基于jdk1.8介绍Set接口下的常用实现类。 1 java 集合框架 由类图我们可以看到，set接口继承自Collection接口且有四个实现类，分别为AbstractSet、HashSet、LinkedHashSet和TreeSet，其中AbstractSet为抽象类，继承自AbstractCollection，实现了最基本的Collection骨架。下面我们分别来看一下其余三个实现类的实现原">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java容器之Set">
+<meta property="og:url" content="https://pudewu.github.io/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="基于jdk1.8介绍Set接口下的常用实现类。 1 java 集合框架 由类图我们可以看到，set接口继承自Collection接口且有四个实现类，分别为AbstractSet、HashSet、LinkedHashSet和TreeSet，其中AbstractSet为抽象类，继承自AbstractCollection，实现了最基本的Collection骨架。下面我们分别来看一下其余三个实现类的实现原">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211122204933065.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211215104248593.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211215111633626.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211215115341761.png">
+<meta property="article:published_time" content="2021-12-15T02:23:20.000Z">
+<meta property="article:modified_time" content="2021-12-15T05:56:02.358Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="set">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/image-20211122204933065.png">
+  
+  <title>Java容器之Set - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java容器之Set">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-12-15 10:23" pubdate>
+        2021年12月15日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      15 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java容器之Set</h1>
+            
+            <div class="markdown-body">
+              <p>基于<code>jdk1.8</code>介绍<code>Set</code>接口下的常用实现类。</p>
+<h2 id="1-java-集合框架"><a href="#1-java-集合框架" class="headerlink" title="1 java 集合框架"></a>1 java 集合框架</h2><p><img src="/img/work/image-20211122204933065.png" srcset="/img/loading.gif" lazyload alt="集合关系图"></p>
+<p>由类图我们可以看到，<code>set</code>接口继承自<code>Collection</code>接口且有四个实现类，分别为<code>AbstractSet</code>、<code>HashSet</code>、<code>LinkedHashSet</code>和<code>TreeSet</code>，其中<code>AbstractSet</code>为抽象类，继承自<code>AbstractCollection</code>，实现了最基本的<code>Collection</code>骨架。下面我们分别来看一下其余三个实现类的实现原理。</p>
+<h2 id="2-HashSet"><a href="#2-HashSet" class="headerlink" title="2.HashSet"></a>2.HashSet</h2><p><img src="/img/work/image-20211215104248593.png" srcset="/img/loading.gif" lazyload alt="HashSet类图"></p>
+<p>对于<code>HashSet</code>而言，它是基于<code>HashMap</code>实现的，可以看作是对<code>HashMap</code>的封装，<code>HashSet</code>底层使用<code>HashMap</code>来保存所有元素，因此<code>HashSet</code>的实现比较简单，相关<code>HashSet</code>的操作，基本上都是直接调用底层<code>HashMap</code>的相关方法来完成.</p>
+<h3 id="2-1-成员变量"><a href="#2-1-成员变量" class="headerlink" title="2.1 成员变量"></a>2.1 成员变量</h3><p>首先看一下两个成员变量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> HashMap&lt;E,Object&gt; map;<span class="hljs-comment">//存储元素的map</span><br><span class="hljs-comment">// Dummy value to associate with an Object in the backing Map</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Object PRESENT = <span class="hljs-keyword">new</span> Object(); <span class="hljs-comment">//元素的默认vlaue</span><br></code></pre></td></tr></table></figure>
+
+<p>通过这两个成员变量我们可以看到，在<code>HashSet</code>的内部维护着一个<code>HashMap</code>类型的变量<code>map</code>，这个<code>map</code>就是用来存储元素的容器。那我们知道，<code>HashMap</code>存储的是<code>key-value</code>形式的键值对，而<code>set</code>是一个单值对象，这要怎么存储呢？那就要看第二个成员变量<code>PRESENT</code>了，<code>PRESENT</code>是一个<code>Object</code>对象，这个对象就是充当键值对的值的，也就是说，我们只会把需要存储的元素当作<code>map</code>的<code>key</code>，而对应的<code>value</code>则默认为这个<code>Object</code>对象，这就是<code>HashSet</code>内部实现存储元素的数据结构。所以由<code>HashMap</code>的特性我们可以知道，<code>HashSet</code>存储的元素是无序的，元素是不可重复的并且可以为<code>null</code>，基于这个元素不允许重复的特性，<code>HashSet</code>经常被用来做元素的去重。</p>
+<h3 id="2-2-构造方法"><a href="#2-2-构造方法" class="headerlink" title="2.2 构造方法"></a>2.2 构造方法</h3><p>下面我们看一下<code>HashSet</code>提供的构造方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//构造一个使用HashMap的默认容量大小16和默认加载因子0.75初始化map的HashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashSet</span><span class="hljs-params">()</span> </span>&#123;<br>     map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;();<br> &#125;<br><br><br><span class="hljs-comment">//根据 Collection 接口构造一个HashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashSet</span><span class="hljs-params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;<br>     map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;(Math.max((<span class="hljs-keyword">int</span>) (c.size()/<span class="hljs-number">.75f</span>) + <span class="hljs-number">1</span>, <span class="hljs-number">16</span>));<br>     addAll(c);<br> &#125;<br><br> <span class="hljs-comment">//使用指定的初始容量大小和加载因子初始化map，构造一个HashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashSet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity, <span class="hljs-keyword">float</span> loadFactor)</span> </span>&#123;<br>     map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;(initialCapacity, loadFactor);<br> &#125;<br><br><span class="hljs-comment">//使用指定的初始容量大小初始化map，构造一个HashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">HashSet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity)</span> </span>&#123;<br>     map = <span class="hljs-keyword">new</span> HashMap&lt;&gt;(initialCapacity);<br> &#125;<br><br> <span class="hljs-comment">//构造一个LinkedHashMap，不对外公开 </span><br> HashSet(<span class="hljs-keyword">int</span> initialCapacity, <span class="hljs-keyword">float</span> loadFactor, <span class="hljs-keyword">boolean</span> dummy) &#123;<br>     map = <span class="hljs-keyword">new</span> LinkedHashMap&lt;&gt;(initialCapacity, loadFactor);<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>HashSet</code>一共提供了5个构造方法，由构造方法也可以看到，底层是用了<code>HashMap</code>的数据结构实现，构造方法也跟<code>HashMap</code>比较类似，这里重点要说一下<code>HashSet(int initialCapacity, float loadFactor, boolean dummy)</code>这个构造方法，这个构造方法是不对外部公开的，其实放在这里实现是为了给<code>LinkedHashSet</code>使用，下文我们会讲到这一点。</p>
+<h3 id="2-3-存取实现"><a href="#2-3-存取实现" class="headerlink" title="2.3 存取实现"></a>2.3 存取实现</h3><p>添加元素</p>
+<p>由于底层使用了<code>HashMap</code>作存储结构，这里直接调用了<code>HashMap</code>的<code>put</code>方法插入元素，元素被作为<code>key</code>插入的<code>map</code>中，而<code>value</code>则是使用的默认值<code>Object</code>对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(E e)</span> </span>&#123;<br>     <span class="hljs-keyword">return</span> map.put(e, PRESENT)==<span class="hljs-keyword">null</span>;<span class="hljs-comment">//直接将元素作为map的key插入</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>遍历</p>
+<p><code>HashSet</code>支持两种遍历方式，<code>Iterator</code>方式，<code>foreach</code>方式，不支持随机访问方式遍历。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java">Set&lt;String&gt; set=<span class="hljs-keyword">new</span> HashSet&lt;&gt;();<br> hashset.add(<span class="hljs-string">&quot;1&quot;</span>);<br> hashset.add(<span class="hljs-string">&quot;2&quot;</span>);<br><span class="hljs-comment">//Iterator遍历  </span><br><span class="hljs-keyword">for</span>(Iterator iterator = set.iterator();<br>      iterator.hasNext(); ) &#123; <br>   iterator.next();<br>&#125;<br><span class="hljs-comment">//foreach遍历</span><br> <span class="hljs-keyword">for</span> (String str:set)&#123;<br>    System.out.println(str);<br> &#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-4-特性总结"><a href="#2-4-特性总结" class="headerlink" title="2.4 特性总结"></a>2.4 特性总结</h3><p>1、由于底层基于<code>HashMap</code>实现，内部使用基于哈希表的数组+链表方式存储，所以不保证元素的存取顺序。<br>2、基于<code>key</code>的<code>hash</code>值存储，同样的对象<code>hash</code>值相同，所以元素不可重复，但是可以为<code>null</code>，可以快速查找是否包含某个元素。</p>
+<h2 id="3-LinkedHashSet"><a href="#3-LinkedHashSet" class="headerlink" title="3.LinkedHashSet"></a>3.LinkedHashSet</h2><p><img src="/img/work/image-20211215111633626.png" srcset="/img/loading.gif" lazyload alt="LinkedHashSet类关系图"></p>
+<p>由类图我们可以看到，<code>LinkedHashSet</code>继承自<code>HashSet</code>，内部是基于<code>LinkedHashMap</code>来实现的。<code>LinkedHashSet</code>底层使用<code>LinkedHashMap</code>来保存所有元素，其所有的方法操作上又与<code>HashSet</code>相同，因此<code>LinkedHashSet</code> 的实现上非常简单，只提供了四个构造方法和一个<code>spliterator</code>方法，并通过传递一个标识参数，调用父类的构造方法，上文我们说到<code>HashSet</code>预留了一个不对外部公开的构造方法，就是用在这里。底层构造一个<code>LinkedHashMap来实现</code>，在相关操作上与父类<code>HashSet</code>的操作相同，直接调用父类<code>HashSet</code>的方法即可。</p>
+<p><code>LinkedHashSet</code>源码，由于底层使用<code>LinkedHashMap</code>作为存储结构，继承了<code>HashSet</code>的各种方法,在此只做简单说明。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//使用指定的初始容量大小和加载因子初始化map，构造一个LinkedHashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">LinkedHashSet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity, <span class="hljs-keyword">float</span> loadFactor)</span> </span>&#123;<br>     <span class="hljs-keyword">super</span>(initialCapacity, loadFactor, <span class="hljs-keyword">true</span>);<br> &#125;<br><span class="hljs-comment">//使用指定的初始容量大小初始化map，构造一个LinkedHashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">LinkedHashSet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> initialCapacity)</span> </span>&#123;<br>     <span class="hljs-keyword">super</span>(initialCapacity, <span class="hljs-number">.75f</span>, <span class="hljs-keyword">true</span>);<br> &#125;<br> <span class="hljs-comment">// 构造一个使用HashMap的默认容量大小16和默认加载因子0.75初始化map的LinkedHashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">LinkedHashSet</span><span class="hljs-params">()</span> </span>&#123;<br>     <span class="hljs-keyword">super</span>(<span class="hljs-number">16</span>, <span class="hljs-number">.75f</span>, <span class="hljs-keyword">true</span>);<br> &#125;<br>  <span class="hljs-comment">//根据 Collection 接口构造一个inkedHashSet</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">LinkedHashSet</span><span class="hljs-params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;<br>     <span class="hljs-keyword">super</span>(Math.max(<span class="hljs-number">2</span>*c.size(), <span class="hljs-number">11</span>), <span class="hljs-number">.75f</span>, <span class="hljs-keyword">true</span>);<br>     addAll(c);<br> &#125;<br> <span class="hljs-comment">// 调用Spliterator接口中的spliterator()方法，将集合分割后遍历</span><br> <span class="hljs-meta">@Override</span><br> <span class="hljs-function"><span class="hljs-keyword">public</span> Spliterator&lt;E&gt; <span class="hljs-title">spliterator</span><span class="hljs-params">()</span> </span>&#123;<br>     <span class="hljs-keyword">return</span> Spliterators.spliterator(<span class="hljs-keyword">this</span>, Spliterator.DISTINCT | Spliterator.ORDERED);<br> &#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-1-特性总结"><a href="#3-1-特性总结" class="headerlink" title="3.1 特性总结"></a>3.1 特性总结</h3><p>1、底层存储基于<code>LinkedHashMap</code>实现，内部使用双向链表存储元素，所以保证了元素的顺序性。<br>2、基于<code>key</code>的<code>hash</code>值存储，同样的对象<code>hash</code>值相同，所以元素不可重复，但是可以为<code>null</code>，可以快速查找是否包含某个元素。</p>
+<h2 id="4-TreeSet"><a href="#4-TreeSet" class="headerlink" title="4.TreeSet"></a>4.TreeSet</h2><p><img src="/img/work/image-20211215115341761.png" srcset="/img/loading.gif" lazyload alt="TreeSet类关系图"></p>
+<p>还是先看类图，<code>TreeSet</code>继承自<code>AbstractSet</code>，实现了<code>NavigableSet</code>接口，<code>AbstractSet</code>为抽象类，继承自<code>AbstractCollection</code>，实现了最基本的<code>Collection</code>骨架。<code>TreeSet</code>是基于<code>TreeMap</code>实现的有序集合，<code>TreeSet</code>中含有一个<code>NavigableMap</code>类型的成员变量<code>m</code>，而<code>m</code>实际上是<code>TreeMap</code>的实例。我们知道<code>TreeMap</code>内部是用红黑树实现元素存储从而保证元素的顺序性的，那么同理<code>TreeSet</code>同样也是一个有序的集合。通过源码我们知道<code>TreeSet</code>继承自<code>AbstractSet</code>，实现<code>NavigableSet</code>、<code>Cloneable</code>、<code>Serializable</code>接口。其中<code>AbstractSet</code>提供 <code>Set</code> 接口的骨干实现，从而最大限度地减少了实现此接口所需的工作。<code>NavigableSet</code>是扩展的 <code>SortedSet</code>，具有了为给定搜索目标报告最接近匹配项的导航方法，这就意味着它支持一系列的导航方法。比如查找与指定目标最匹配项。<code>Cloneable</code>支持克隆，<code>Serializable</code>支持序列化。</p>
+<p>成员变量</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"> <span class="hljs-comment">//NavigableMap 对象</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> NavigableMap&lt;E,Object&gt; m;<br><span class="hljs-comment">//map的value值</span><br> <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Object PRESENT = <span class="hljs-keyword">new</span> Object();<br></code></pre></td></tr></table></figure>
+
+
+
+<p>构造方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//构造由指定的可导航映射支持的集合。</span><br>TreeSet(NavigableMap&lt;E,Object&gt; m) &#123;<br>    <span class="hljs-keyword">this</span>.m = m;<br>&#125;<br><span class="hljs-comment">//默认构造方法  根据其元素的自然顺序进行排序 </span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">TreeSet</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>(<span class="hljs-keyword">new</span> TreeMap&lt;E,Object&gt;());<br>&#125;<br><span class="hljs-comment">//构造一个包含指定 collection 的TreeSet，它按照其元素的顺序进行排序</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">TreeSet</span><span class="hljs-params">(Comparator&lt;? <span class="hljs-keyword">super</span> E&gt; comparator)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>(<span class="hljs-keyword">new</span> TreeMap&lt;&gt;(comparator));<br>&#125;<br><span class="hljs-comment">//构造一个指定Collection参数的TreeSet</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">TreeSet</span><span class="hljs-params">(Collection&lt;? extends E&gt; c)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>();<br>    addAll(c);<br>&#125;<br><span class="hljs-comment">//构造一个指定SortedMap的TreeSet，根据SortedMap的比较器来来维持TreeSet的顺序</span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">TreeSet</span><span class="hljs-params">(SortedSet&lt;E&gt; s)</span> </span>&#123;<br>    <span class="hljs-keyword">this</span>(s.comparator());<br>    addAll(s);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-1-特性总结"><a href="#4-1-特性总结" class="headerlink" title="4.1 特性总结"></a>4.1 特性总结</h3><p>1、底层存储基于<code>TreeMap</code>实现，内部使用红黑树结构表存储元素，所以保证了元素的顺序性。<br>2、元素不可为<code>null</code>。<br>2、遍历时不支持随机访问，只能通过迭代器和<code>for-each</code>遍进行遍历。</p>
+<h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5.参考"></a>5.参考</h2><p><a target="_blank" rel="noopener" href="https://yanglukuan.github.io/2017/09/09/java/Java%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6%E4%B9%8BSet%E6%8E%A5%E5%8F%A3%E8%AF%A6%E8%A7%A3/">Java集合框架之Set接口详解</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/set/">set</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java容器之Map</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/">
+                        <span class="hidden-mobile">Java-容器之List</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
