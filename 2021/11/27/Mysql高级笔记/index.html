@@ -19,15 +19,15 @@
   <meta name="description" content="1. mysql的架构介绍1.1 mysql简介概述  MySQL是一个*关系型数据库管理系统*，由瑞典[MySQL AB](https:&#x2F;&#x2F;baike.baidu.com&#x2F;item&#x2F;MySQL AB&#x2F;2620844) 公司开发，属于 Oracle 旗下产品。MySQL 是最流行的关系型数据库管理系统之一，在 WEB 应用方面，MySQL是最好的 RDBMS (Relational Databas">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Mysql高级笔记">
-<meta property="og:url" content="https://pudewu.github.io/2021/11/27/%E5%B0%9A%E7%A1%85%E8%B0%B7Mysql%E9%AB%98%E7%BA%A7%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:url" content="https://pudewu.github.io/2021/11/27/Mysql%E9%AB%98%E7%BA%A7%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="1. mysql的架构介绍1.1 mysql简介概述  MySQL是一个*关系型数据库管理系统*，由瑞典[MySQL AB](https:&#x2F;&#x2F;baike.baidu.com&#x2F;item&#x2F;MySQL AB&#x2F;2620844) 公司开发，属于 Oracle 旗下产品。MySQL 是最流行的关系型数据库管理系统之一，在 WEB 应用方面，MySQL是最好的 RDBMS (Relational Databas">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="d:/software06/blog/themes/fluid/source/img/work/1638882862860.png">
 <meta property="og:image" content="d:/software06/blog/themes/fluid/source/img/work/1638883031793.png">
-<meta property="og:image" content="d:/software06/blog/themes/fluid/source/img/work/1638885361688.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1638885361688.png">
 <meta property="article:published_time" content="2021-11-27T06:33:48.000Z">
-<meta property="article:modified_time" content="2021-12-14T12:54:34.078Z">
+<meta property="article:modified_time" content="2021-12-15T06:28:54.765Z">
 <meta property="article:author" content="pudewu">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="d:/software06/blog/themes/fluid/source/img/work/1638882862860.png">
@@ -345,7 +345,7 @@
 <p>因为在关系数据库中，数据的存储是以表的形式存储的，所以存储引擎也可以称为表类型（即存储和操作此表的类型）。 </p>
 <p><strong>4.文件系统层</strong></p>
 <p>文件系统层主要是将数据库的数据存储在操作系统的文件系统之上，并完成与存储引擎的交互。 </p>
-<h3 id="1-6-MySQL的工作流程"><a href="#1-6-MySQL的工作流程" class="headerlink" title="1.6 MySQL的工作流程"></a>1.6 MySQL的工作流程</h3><p><img src="D:\software06\blog\themes\fluid\source\img\work\1638885361688.png" srcset="/img/loading.gif" lazyload alt="1638885361688">① 客户端连接上 mysql 数据库的连接器，连接器获取权限，维持管理连接；连接完成后如果你没有后续的指令这个连接就会处于空闲状态，如果太长时间不使用这个连接这个连接就会断开，这个空闲时长默认是 8 小时，由 wait_timeout 参数控制。 </p>
+<h3 id="1-6-MySQL的工作流程"><a href="#1-6-MySQL的工作流程" class="headerlink" title="1.6 MySQL的工作流程"></a>1.6 MySQL的工作流程</h3><p><img src="/img/work/1638885361688.png" srcset="/img/loading.gif" lazyload alt="工作流程">① 客户端连接上 mysql 数据库的连接器，连接器获取权限，维持管理连接；连接完成后如果你没有后续的指令这个连接就会处于空闲状态，如果太长时间不使用这个连接这个连接就会断开，这个空闲时长默认是 8 小时，由 wait_timeout 参数控制。 </p>
 <p>② 往 mysql 数据库发送了一条 sql ，这个时候查询缓存开始工作，看看之前有没有执行过这个 sql ，如果有则直接返回缓存数据到客户端，只要对表执行过更新操作缓存都会失效，因此一些很少更新的数据表可考虑使用数据库缓存，对频繁更新的表使用缓存反而弊大于利。使用缓存的方法如以下 sql ，通过 SQL_CACHE 来指定：</p>
 
             </div>

@@ -1,0 +1,582 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="1.什么是QueueQueue也就是队列，是一种基本的线性数据结构，与之类似的其他数据结构还有数组、链表、栈等。 Queue是一种遵循先进先出（FIFO: First In, First Out）原则的数据集合，数据在Queue中的流动是单向的，从队尾流向队首。 如下图所示，元素的插入发生在队尾，删除发生在队首；通常一个元素从队首中取出后，该元素从Queue中删除；非队首的元素，无法直接对其进行读">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java容器之Queue">
+<meta property="og:url" content="https://pudewu.github.io/2021/12/16/Java%E5%AE%B9%E5%99%A8%E4%B9%8BQueue/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="1.什么是QueueQueue也就是队列，是一种基本的线性数据结构，与之类似的其他数据结构还有数组、链表、栈等。 Queue是一种遵循先进先出（FIFO: First In, First Out）原则的数据集合，数据在Queue中的流动是单向的，从队尾流向队首。 如下图所示，元素的插入发生在队尾，删除发生在队首；通常一个元素从队首中取出后，该元素从Queue中删除；非队首的元素，无法直接对其进行读">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211216094638623.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/Queue-diagrams.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211216103519826.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/d3f650e5a9b846eab201c5aadcd703d2.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20211216150618309.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/583d7c2d5af44dec8a42e053e04e411d~tplv-k3u1fbpfcp-watermark.image.png">
+<meta property="article:published_time" content="2021-12-16T06:48:51.000Z">
+<meta property="article:modified_time" content="2021-12-16T07:56:35.930Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="queue">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/image-20211216094638623.png">
+  
+  <title>Java容器之Queue - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java容器之Queue">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-12-16 14:48" pubdate>
+        2021年12月16日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      24 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java容器之Queue</h1>
+            
+            <div class="markdown-body">
+              <h2 id="1-什么是Queue"><a href="#1-什么是Queue" class="headerlink" title="1.什么是Queue"></a>1.什么是Queue</h2><p><code>Queue</code>也就是队列，是一种基本的<code>线性数据结构</code>，与之类似的其他数据结构还有数组、链表、栈等。</p>
+<p>Queue是一种遵循<strong>先进先出</strong>（<code>FIFO: First In, First Out</code>）原则的数据集合，数据在Queue中的流动是单向的，从队尾流向队首。</p>
+<p>如下图所示，元素的插入发生在队尾，删除发生在队首；通常一个元素从队首中取出后，该元素从Queue中删除；非队首的元素，无法直接对其进行读取。</p>
+<p><img src="/img/work/image-20211216094638623.png" srcset="/img/loading.gif" lazyload alt="Queue队列"></p>
+<p>在现实世界中队列非常常见，比如排队等待购票、上车的乘客，流水线上一个个等待处理的产品，都是一种队列模型；而且程序设计的世界中队列使用也非常广泛：比如多线程中等待处理的任务、排队等待获取某个锁的线程等。</p>
+<h2 id="2-Java中的Queue接口"><a href="#2-Java中的Queue接口" class="headerlink" title="2. Java中的Queue接口"></a>2. Java中的Queue接口</h2><p><img src="/img/work/Queue-diagrams.png" srcset="/img/loading.gif" lazyload alt="Queue类关系图"></p>
+<h3 id="2-1-Queue接口定义"><a href="#2-1-Queue接口定义" class="headerlink" title="2.1 Queue接口定义"></a>2.1 Queue接口定义</h3><p>在Java中，队列是一种基本的集合类型，提供了队列接口<code>Queue</code>，定义在 其中<code>java.util</code>包中；其中<code>Queue</code>接口继承了基础集合接口<code>Collection</code>。</p>
+<p>Queue接口定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Queue</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">Collection</span>&lt;<span class="hljs-title">E</span>&gt; </span>&#123;<br>    <br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(E e)</span></span>;<br>    <br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">offer</span><span class="hljs-params">(E e)</span></span>;<br><br>    <span class="hljs-function">E <span class="hljs-title">remove</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-function">E <span class="hljs-title">poll</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-function">E <span class="hljs-title">element</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-function">E <span class="hljs-title">peek</span><span class="hljs-params">()</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在Queue接口中，定义基本的元素插入和删除的方法，主要方法及其含义分别如下：</p>
+<table>
+<thead>
+<tr>
+<th align="left">方法</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>boolean add(E e)</code></td>
+<td align="left">向队列中添加一个元素；如果有空间则添加成功返回true，否则则抛出<code>IllegalStateException</code>异常</td>
+</tr>
+<tr>
+<td align="left"><code>boolean offer(E e)</code></td>
+<td align="left">向队列中添加一个元素；如果有空间则添加成功返回true，否则返回false</td>
+</tr>
+<tr>
+<td align="left"><code>E remove()</code></td>
+<td align="left">从队列中删除一个元素；如果元素存在则返回队首元素，否则抛出<code>NoSuchElementException</code>异常</td>
+</tr>
+<tr>
+<td align="left"><code>E poll();</code></td>
+<td align="left">从队列中删除一个元素；如果元素存在则返回队首元素，否则返回null</td>
+</tr>
+<tr>
+<td align="left"><code>E element()</code></td>
+<td align="left">从队列获取一个元素，但是不删除；如果元素存在则返回队首元素，否则抛出<code>NoSuchElementException</code>异常</td>
+</tr>
+<tr>
+<td align="left"><code>E peek()</code></td>
+<td align="left">从队列获取一个元素，但是不删除；如果元素存在则返回队首元素，否则返回null</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-双端队列：Deque接口"><a href="#2-2-双端队列：Deque接口" class="headerlink" title="2.2 双端队列：Deque接口"></a>2.2 双端队列：Deque接口</h3><p>在上面的Queue接口定义中，实现了最基本的元素插入和删除方法，也就是从队尾进行元素插入，在队首进行元素删除；而Java还提供了另一个功能强大的<code>Deque接口</code>，实现了<strong>双端队列</strong>的功能。</p>
+<p><strong>什么是双端队列？</strong></p>
+<p>双端队列就是可以支持在队首或者队尾，都可以进行元素的插入和删除操作的队列，如下图所示。在双端队列中，分别使用<code>front</code>和<code>back</code>表示队列的首、尾两端，而在插入或删除元素时，可以通过指定在队列的哪一端进行操作。</p>
+<p>比如：<code>push_front()</code>表示在队首进行元素的插入，<code>pop_back()</code>表示在队尾进行元素的删除。</p>
+<p><img src="/img/work/image-20211216103519826.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>Deque接口的定义如下</strong>：</p>
+<p><img src="/img/work/d3f650e5a9b846eab201c5aadcd703d2.png" srcset="/img/loading.gif" lazyload alt="Deque类图"></p>
+<p>可以看到，<code>Deque</code>接口继承了<code>Queue</code>接口，除了基本的<code>Queue</code>接口的方法外，<code>Deque</code>还提供了<strong>双端队列</strong>的操作方法，如代码所示，每个操作方法与<code>Queue</code>的操作方法类似，只是指定了在队首还是队尾进行元素操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Deque</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">Queue</span>&lt;<span class="hljs-title">E</span>&gt; </span>&#123;<br><br>    <span class="hljs-comment">// 向队首添加一个元素；如果有空间则添加成功返回true，否则则抛出`IllegalStateException`异常</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">addFirst</span><span class="hljs-params">(E e)</span></span>;<br>    <span class="hljs-comment">// 向队尾添加一个元素；如果有空间则添加成功返回true，否则则抛出`IllegalStateException`异常</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">addLast</span><span class="hljs-params">(E e)</span></span>;<br>	<br>    <span class="hljs-comment">// 向队首添加一个元素；如果有空间则添加成功返回true，否则返回false</span><br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">offerFirst</span><span class="hljs-params">(E e)</span></span>;<br>    <span class="hljs-comment">// 向队尾添加一个元素；如果有空间则添加成功返回true，否则返回false</span><br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">offerLast</span><span class="hljs-params">(E e)</span></span>;<br>  <br>    <span class="hljs-comment">// 从队首删除一个元素；如果元素存在则返回队首元素，否则抛出`NoSuchElementException`异常</span><br>    <span class="hljs-function">E <span class="hljs-title">removeFirst</span><span class="hljs-params">()</span></span>;<br>    <span class="hljs-comment">// 从队尾删除一个元素；如果元素存在则返回队尾元素，否则抛出`NoSuchElementException`异常</span><br>    <span class="hljs-function">E <span class="hljs-title">removeLast</span><span class="hljs-params">()</span></span>;<br>		<br>    <span class="hljs-comment">// 从队首删除一个元素；如果元素存在则返回队首元素，否则返回null</span><br>    <span class="hljs-function">E <span class="hljs-title">pollFirst</span><span class="hljs-params">()</span></span>;<br>    <span class="hljs-comment">// 从队尾删除一个元素；如果元素存在则返回队首元素，否则返回null</span><br>    <span class="hljs-function">E <span class="hljs-title">pollLast</span><span class="hljs-params">()</span></span>;<br>  <br>    <span class="hljs-comment">// 从队首获取一个元素，但是不删除；如果元素存在则返回队首元素，否则抛出`NoSuchElementException`异常</span><br>    <span class="hljs-function">E <span class="hljs-title">getFirst</span><span class="hljs-params">()</span></span>;<br>    <span class="hljs-comment">// 从队尾获取一个元素，但是不删除；如果元素存在则返回队尾元素，否则抛出`NoSuchElementException`异常</span><br>    <span class="hljs-function">E <span class="hljs-title">getLast</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-comment">// 从队首获取一个元素，但是不删除；如果元素存在则返回队首元素，否则返回null</span><br>    <span class="hljs-function">E <span class="hljs-title">peekFirst</span><span class="hljs-params">()</span></span>;<br>    <span class="hljs-comment">// 从队尾获取一个元素，但是不删除；如果元素存在则返回队尾元素，否则返回null</span><br>    <span class="hljs-function">E <span class="hljs-title">peekLast</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-comment">// 如果元素o存在，则从队列中删除第一次出现的该元素</span><br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">removeFirstOccurrence</span><span class="hljs-params">(Object o)</span></span>;<br>    <span class="hljs-comment">// 如果元素o存在，则从队列中删除最后一次出现的该元素</span><br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">removeLastOccurrence</span><span class="hljs-params">(Object o)</span></span>;<br>    <span class="hljs-comment">// 其他方法省略....</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-实现类-LinkedList"><a href="#2-3-实现类-LinkedList" class="headerlink" title="2.3 实现类 LinkedList"></a>2.3 实现类 LinkedList</h3><p>在前面，我们了解了Java中定义的两个队列接口<code>Queue</code>和<code>Deque</code>，而两个接口的实现类是通过<code>LinkedList</code>来实现的。从类名定义上可以看出来，<code>LinkedList</code>其实是基于链表实现的List的一个数据集合，而且<code>LinkedList</code>还实现了<code>Queue</code>接口和<code>Deque</code>接口。我们可以直接使用<code>LinkedList</code>来实现队列的操作。下面是其定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedList</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractSequentialList</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">List</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">Deque</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">Cloneable</span>, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializableb</span> </span>&#123;<br>  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>下面是一个基于<code>LinkedList</code>实现的双端队列的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>  Deque&lt;String&gt; queue = <span class="hljs-keyword">new</span> LinkedList&lt;&gt;();<br>  <span class="hljs-comment">// 元素入队</span><br>  queue.offer(<span class="hljs-string">&quot;1&quot;</span>);<br>  queue.offer(<span class="hljs-string">&quot;2&quot;</span>);<br>  queue.offer(<span class="hljs-string">&quot;3&quot;</span>);<br>  queue.offerFirst(<span class="hljs-string">&quot;0&quot;</span>);  <span class="hljs-comment">// 队首添加元素0</span><br>  queue.offerLast(<span class="hljs-string">&quot;4&quot;</span>);   <span class="hljs-comment">// 队尾添加元素4</span><br><br>  System.out.println(queue);  <span class="hljs-comment">// 此时队列中的元素为：[0, 1, 2, 3, 4]</span><br><br>  <span class="hljs-comment">// 元素出队</span><br>  System.out.println(queue.poll());       <span class="hljs-comment">// 删除队首元素，打印值：0</span><br>  System.out.println(queue.pollFirst());  <span class="hljs-comment">// 删除队首元素，打印值：1</span><br>  System.out.println(queue.pollLast());   <span class="hljs-comment">// 删除队尾元素，打印值：4</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>OK，到这儿我们已经了解了队列接口的定义以及实现类LinkedList的定义以及使用方法，下面我们简单看下LinkedList底层是如何实现的队列功能。</p>
+<h2 id="3-LinkedList如何实现队列功能"><a href="#3-LinkedList如何实现队列功能" class="headerlink" title="3. LinkedList如何实现队列功能"></a>3. LinkedList如何实现队列功能</h2><h3 id="3-1-链表的定义"><a href="#3-1-链表的定义" class="headerlink" title="3.1 链表的定义"></a>3.1 链表的定义</h3><p>上面我们了解到，<code>LinkedList</code>其实是基于链表实现的一个数据集合，并实现了队列的接口功能。我们再来看下<code>LinkedList</code>的定义和成员变量。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedList</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractSequentialList</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">List</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">Deque</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">Cloneable</span>, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-comment">// 元素数量</span><br>    <span class="hljs-keyword">transient</span> <span class="hljs-keyword">int</span> size = <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">// 队首元素节点</span><br>    <span class="hljs-keyword">transient</span> Node&lt;E&gt; first;<br>    <span class="hljs-comment">// 队尾元素节点</span><br>    <span class="hljs-keyword">transient</span> Node&lt;E&gt; last;<br>    <span class="hljs-comment">// ......</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，在LinkedList中有两个成员变量<code>first</code>和<code>last</code>，类型为<code>Node&lt;E&gt;</code>，分别表示队列中队首和队尾的节点，其实也就是链表中的首尾节点。<code>Node&lt;E&gt;</code>是链表的一个节点，下面是其定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Node</span>&lt;<span class="hljs-title">E</span>&gt; </span>&#123;<br>  <span class="hljs-comment">// 元素值</span><br>  E item;<br>  <span class="hljs-comment">// 后一个节点</span><br>  Node&lt;E&gt; next;<br>  <span class="hljs-comment">// 前一个节点</span><br>  Node&lt;E&gt; prev;<br><br>  Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;<br>    <span class="hljs-keyword">this</span>.item = element;<br>    <span class="hljs-keyword">this</span>.next = next;<br>    <span class="hljs-keyword">this</span>.prev = prev;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在<code>Node&lt;E&gt;</code>中，成员变量<code>item</code>用来存储具体的元素值，另外两个<code>Node&lt;E&gt;</code>类型的变量<code>next</code>和<code>prev</code>分别表示该节点的<strong>后一个节点</strong>和<strong>上一个节点</strong>。</p>
+<p>到此，我们就可以知道，<code>LinkedList</code>其实是由一个<strong>双向链表</strong>构成，并通过<code>first</code>和<code>last</code>分别表示链表的首尾节点。然后我们可以画出下面这个链表的示意图。</p>
+<p><img src="/img/work/image-20211216150618309.png" srcset="/img/loading.gif" lazyload alt="双向链表"></p>
+<h3 id="3-2-元素的插入"><a href="#3-2-元素的插入" class="headerlink" title="3.2 元素的插入"></a>3.2 元素的插入</h3><p>在前面的介绍中，我们知道，元素的插入可以使用<code>add</code>和<code>offer</code>两个方法，不同的是当队列容量不足时，<code>add</code>方法会抛除异常，而<code>offer</code>方法会返回false。但是<code>LinkedList</code>是基于双向链表实现，理论上该链表是无界的，只要程序内存允许，可以一直插入新的元素。</p>
+<p>下面我们看下<code>offer</code>方法插入元素的实现逻辑，代码如下（已添加相关注释）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedList</span>&lt;<span class="hljs-title">E</span>&gt; .....</span>&#123;<br>  <span class="hljs-comment">/**</span><br><span class="hljs-comment">   * 插入元素</span><br><span class="hljs-comment">   */</span><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">offer</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    <span class="hljs-comment">// 此处直接调用了add方法</span><br>    <span class="hljs-keyword">return</span> add(e);<br>  &#125;<br>  <span class="hljs-comment">/**</span><br><span class="hljs-comment">   * 插入元素</span><br><span class="hljs-comment">   */</span><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    <span class="hljs-comment">// 调用linkLast方法</span><br>    linkLast(e);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>  &#125;<br>  <span class="hljs-comment">/**</span><br><span class="hljs-comment">   * 在链表尾部，添加一个新元素，并作为新的last节点</span><br><span class="hljs-comment">   */</span><br>  <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">linkLast</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    <span class="hljs-comment">// 当前last节点</span><br>    <span class="hljs-keyword">final</span> Node&lt;E&gt; l = last;<br>    <span class="hljs-comment">// 创建新节点，prev节点指向当前last节点</span><br>    <span class="hljs-keyword">final</span> Node&lt;E&gt; newNode = <span class="hljs-keyword">new</span> Node&lt;&gt;(l, e, <span class="hljs-keyword">null</span>);<br>    <span class="hljs-comment">// 新节点作为新的last节点</span><br>    last = newNode;<br>    <span class="hljs-keyword">if</span> (l == <span class="hljs-keyword">null</span>)<br>      <span class="hljs-comment">// 如果原last节点为null，表示该链表为空，则将节点同时作为first节点</span><br>      first = newNode;<br>    <span class="hljs-keyword">else</span><br>      <span class="hljs-comment">// 链表不为空，则将新节点，作为原last节点的next节点</span><br>      l.next = newNode;<br>    <span class="hljs-comment">// 元素数量+1</span><br>    size++;<br>    <span class="hljs-comment">// 集合修改次数+1</span><br>    modCount++;<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从代码中可以很容易的看出，<code>offer</code>方法直接调用了<code>add</code>方法，<code>add</code>方法中调用了<code>linkLast</code>方法，并直接返回了true，表示该元素肯定可以插入成功。具体执行元素插入的逻辑在<code>linkLast</code>方法中完成，通过上面代码中的注释可以看出，<code>linkLast</code>方法主要功能是在链表尾端添加一个新节点，具体操作示意图如下：</p>
+<p><img src="/img/work/583d7c2d5af44dec8a42e053e04e411d~tplv-k3u1fbpfcp-watermark.image.png" srcset="/img/loading.gif" lazyload alt="链表的尾插入"></p>
+<p><strong><code>offerFirst</code>和<code>offerLast</code>是如何实现的？</strong></p>
+<p>当了解了<code>offer</code>方法后，我们再看下<code>offerFirst</code>和<code>offerLast</code>的实现。从下面代码中可以知道，<code>offerFirst</code>和<code>offerLast</code>方法分别调用了<code>addFirst</code>和<code>addLast</code>方法，然后在<code>addFirst</code>和<code>addLast</code>方法中，又分别调用了<code>linkFirst</code>和<code>linkLast</code>方法。</p>
+<p><code>linkLast</code>方法上已经讲到，主要功能是在链表尾端添加一个新节点；而<code>linkFirst</code>方法，其主要功能是在链表首端添加一个新节点，具体逻辑与<code>linkLast</code>方法类似，本处不再赘述，可以参考下面代码中的注释。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedList</span>&lt;<span class="hljs-title">E</span>&gt; .....</span>&#123;<br>  <span class="hljs-comment">// 队首插入元素</span><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">offerFirst</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    addFirst(e);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>  &#125;<br>  <span class="hljs-comment">// 队尾插入元素</span><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">offerLast</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    addLast(e);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>  &#125;<br>  <span class="hljs-comment">// 队首插入元素</span><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addFirst</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    linkFirst(e);<br>  &#125;<br>  <span class="hljs-comment">// 队尾插入元素</span><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">addLast</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    linkLast(e);<br>  &#125;<br>  <span class="hljs-comment">/**</span><br><span class="hljs-comment">   * 在链表头部，添加一个新元素，并作为新的first节点</span><br><span class="hljs-comment">   */</span><br>  <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">linkFirst</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    <span class="hljs-comment">// 当前first节点</span><br>    <span class="hljs-keyword">final</span> Node&lt;E&gt; f = first;<br>    <span class="hljs-comment">// 创建新节点，next节点指向当前first节点</span><br>    <span class="hljs-keyword">final</span> Node&lt;E&gt; newNode = <span class="hljs-keyword">new</span> Node&lt;&gt;(<span class="hljs-keyword">null</span>, e, f);<br>    <span class="hljs-comment">// 新节点作为新的first节点</span><br>    first = newNode;<br>    <span class="hljs-keyword">if</span> (f == <span class="hljs-keyword">null</span>)<br>      <span class="hljs-comment">// 如果原first节点为null，表示该链表为空，则将节点同时作为last节点</span><br>      last = newNode;<br>    <span class="hljs-keyword">else</span><br>      <span class="hljs-comment">// 链表不为空，则将新节点，作为原first节点的prev节点</span><br>      f.prev = newNode;<br>    <span class="hljs-comment">// 元素数量+1</span><br>    size++;<br>    <span class="hljs-comment">// 集合修改次数+1</span><br>    modCount++;<br>  &#125;<br>  <span class="hljs-comment">/**</span><br><span class="hljs-comment">   * 在链表尾部，添加一个新元素，并作为新的last节点</span><br><span class="hljs-comment">   */</span><br>  <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">linkLast</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    <span class="hljs-comment">// 本处省略，详见上一代码块</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>至此我们已经了解了元素是如何插入的，并且分别介绍了双端队列中在队首和队尾插入元素的实现逻辑，下面我们再简单看下元素是如何实现删除的。</p>
+<h3 id="3-3-元素的删除"><a href="#3-3-元素的删除" class="headerlink" title="3.3 元素的删除"></a>3.3 元素的删除</h3><p>前面了解了元素的插入流程，我们再看删除流程就很清晰了，主要功能就是将队列头或者队尾的节点删除。删除节点的方法主要有<code>poll</code>和<code>pollFirst</code>和<code>pollLast</code>，以及<code>delete</code>、<code>deleteFirst</code>和<code>deleteLast</code>。这几个方法最终调用的都是两个链表的操作方法<code>unlinkFirst</code>和<code>unlinkLast</code>，表示删除链表头部和链表尾部的节点。</p>
+<p>下面是<code>unlinkFirst</code>和<code>unlinkLast</code>方法的代码逻辑，此处不再赘述，可以直接看代码注释。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedList</span>&lt;<span class="hljs-title">E</span>&gt; .....</span>&#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 删除链表头结点f，f不为空</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> E <span class="hljs-title">unlinkFirst</span><span class="hljs-params">(Node&lt;E&gt; f)</span> </span>&#123;<br>        <span class="hljs-comment">// assert f == first &amp;&amp; f != null;</span><br>        <span class="hljs-comment">// 获取头结点的元素</span><br>        <span class="hljs-keyword">final</span> E element = f.item;<br>        <span class="hljs-comment">// 获取头结点的next结点</span><br>        <span class="hljs-keyword">final</span> Node&lt;E&gt; next = f.next;<br>        f.item = <span class="hljs-keyword">null</span>;<br>        f.next = <span class="hljs-keyword">null</span>; <span class="hljs-comment">// help GC</span><br>        <span class="hljs-comment">// 将next结点作为头结点</span><br>        first = next;<br>        <span class="hljs-keyword">if</span> (next == <span class="hljs-keyword">null</span>)<br>            <span class="hljs-comment">// next结点为null，表示删除完成后链表为空，则last结点置为null</span><br>            last = <span class="hljs-keyword">null</span>;<br>        <span class="hljs-keyword">else</span><br>            <span class="hljs-comment">// 删除完成后链表非空，则当前头结点的prev结点为null</span><br>            next.prev = <span class="hljs-keyword">null</span>;<br>        <span class="hljs-comment">// 元素数量-1</span><br>        size--;<br>        <span class="hljs-comment">// 集合修改次数-1</span><br>        modCount++;<br>        <span class="hljs-comment">// 返回删除结点的元素</span><br>        <span class="hljs-keyword">return</span> element;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 删除链表尾结点l，l不为空</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> E <span class="hljs-title">unlinkLast</span><span class="hljs-params">(Node&lt;E&gt; l)</span> </span>&#123;<br>        <span class="hljs-comment">// assert l == last &amp;&amp; l != null;</span><br>        <span class="hljs-comment">// 获取尾结点的元素</span><br>        <span class="hljs-keyword">final</span> E element = l.item;<br>        <span class="hljs-comment">// 获取尾结点的prev结点</span><br>        <span class="hljs-keyword">final</span> Node&lt;E&gt; prev = l.prev;<br>        l.item = <span class="hljs-keyword">null</span>;<br>        l.prev = <span class="hljs-keyword">null</span>; <span class="hljs-comment">// help GC</span><br>        <span class="hljs-comment">// 将prev结点作为尾结点</span><br>        last = prev;<br>        <span class="hljs-keyword">if</span> (prev == <span class="hljs-keyword">null</span>)<br>            <span class="hljs-comment">// prev结点为null，表示删除完成后链表为空，则first结点置为null</span><br>            first = <span class="hljs-keyword">null</span>;<br>        <span class="hljs-keyword">else</span><br>            <span class="hljs-comment">// 删除完成后链表非空，则当前尾结点的next结点为null</span><br>            prev.next = <span class="hljs-keyword">null</span>;<br>        <span class="hljs-comment">// 元素数量-1</span><br>        size--;<br>        <span class="hljs-comment">// 集合修改次数-1</span><br>        modCount++;<br>        <span class="hljs-comment">// 返回删除结点的元素</span><br>        <span class="hljs-keyword">return</span> element;<br>    &#125;<br>  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h2><p>本文主要介绍了Java中Queue的基础用法以及相关底层原理，使用Queue我们可以实现一些任务排队处理的功能等。</p>
+<p>但是在上面分析过程中，我们可以发现Java中Queue的实现其实是<strong>非线程安全</strong>的，如果在多线程环境下进行Queue的入队和出队操作，会产生不一致的情况。所以Java也提供了线程安全的队列类——阻塞队列<code>BlockingQueue</code>。</p>
+<h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5.参考"></a>5.参考</h2><p><a target="_blank" rel="noopener" href="http://soiiy.com/Java/16298">深入理解Java系列 | Queue用法详解</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/queue/">queue</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/">
+                        <span class="hidden-mobile">Java容器之Set</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
