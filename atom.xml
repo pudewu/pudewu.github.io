@@ -6,7 +6,7 @@
   <link href="https://pudewu.github.io/atom.xml" rel="self"/>
   
   <link href="https://pudewu.github.io/"/>
-  <updated>2021-12-16T07:56:35.930Z</updated>
+  <updated>2022-01-23T09:28:20.553Z</updated>
   <id>https://pudewu.github.io/</id>
   
   <author>
@@ -15,6 +15,87 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>JavaIO之NIO</title>
+    <link href="https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BNIO/"/>
+    <id>https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BNIO/</id>
+    <published>2022-01-23T14:45:50.000Z</published>
+    <updated>2022-01-23T09:28:20.553Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
+    
+    
+    <category term="NIO" scheme="https://pudewu.github.io/tags/NIO/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JavaIO之BIO</title>
+    <link href="https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BBIO/"/>
+    <id>https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BBIO/</id>
+    <published>2022-01-23T14:45:33.000Z</published>
+    <updated>2022-01-23T09:26:22.470Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
+    
+    
+    <category term="BIO" scheme="https://pudewu.github.io/tags/BIO/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java-IO模型</title>
+    <link href="https://pudewu.github.io/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/"/>
+    <id>https://pudewu.github.io/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/</id>
+    <published>2022-01-23T09:19:19.000Z</published>
+    <updated>2022-01-23T09:15:31.382Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
+    
+    
+    <category term="IO模型,IO" scheme="https://pudewu.github.io/tags/IO%E6%A8%A1%E5%9E%8B-IO/"/>
+    
+  </entry>
   
   <entry>
     <title>Java容器之Queue</title>
@@ -468,68 +549,6 @@
     
     
     <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis的三种特殊类型</title>
-    <link href="https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/"/>
-    <id>https://pudewu.github.io/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/</id>
-    <published>2021-09-26T12:50:39.000Z</published>
-    <updated>2021-10-24T06:35:22.401Z</updated>
-    
-    
-    <summary type="html">&lt;h2 id=&quot;三种特殊数据类型&quot;&gt;&lt;a href=&quot;#三种特殊数据类型&quot; class=&quot;headerlink&quot; title=&quot;三种特殊数据类型&quot;&gt;&lt;/a&gt;三种特殊数据类型&lt;/h2&gt;&lt;h3 id=&quot;Geospatial-地理位置&quot;&gt;&lt;a href=&quot;#Geospatial-地理位置&quot; class=&quot;headerlink&quot; title=&quot;Geospatial 地理位置&quot;&gt;&lt;/a&gt;Geospatial 地理位置&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！&lt;/strong&gt; &lt;/p&gt;</summary>
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis基础</title>
-    <link href="https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/"/>
-    <id>https://pudewu.github.io/2021/09/25/redis%E5%9F%BA%E7%A1%80/</id>
-    <published>2021-09-25T12:08:22.000Z</published>
-    <updated>2021-10-24T06:35:45.443Z</updated>
-    
-    
-    <summary type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;概述&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;Redis是什么？&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt; Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI &lt;a href=&quot;https://baike.baidu.com/item/C%E8%AF%AD%E8%A8%80&quot;&gt;C语言&lt;/a&gt;编写、支持网络、可基于内存亦可持久化的日志型、Key-Value&lt;a href=&quot;https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E5%BA%93/103728&quot;&gt;数据库&lt;/a&gt;，并提供多种语言的API。从2010年3月15日起，Redis的开发工作由VMware主持。从2013年5月开始，Redis的开发由&lt;a href=&quot;https://baike.baidu.com/item/Pivotal&quot;&gt;Pivotal&lt;/a&gt;赞助。 &lt;/p&gt;
-&lt;p&gt; 免费和开源！是当下最热门的 NoSQL 技术之一！也被人们称之为结构化数据库！ &lt;/p&gt;</summary>
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SpringBoot整合Flowable工作流(1)</title>
-    <link href="https://pudewu.github.io/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/"/>
-    <id>https://pudewu.github.io/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/</id>
-    <published>2021-09-17T08:36:57.000Z</published>
-    <updated>2021-10-24T06:36:31.778Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;Flowable流程图&quot;&gt;&lt;a href=&quot;#Flowable流程图&quot; class=&quot;headerlink&quot; title=&quot;Flowable流程图&quot;&gt;&lt;/a&gt;Flowable流程图&lt;/h1&gt;&lt;h3 id=&quot;Flowable是什么？&quot;&gt;&lt;a href=&quot;#Flowable是什么？&quot; class=&quot;headerlink&quot; title=&quot;Flowable是什么？&quot;&gt;&lt;/a&gt;Flowable是什么？&lt;/h3&gt;&lt;p&gt; Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。&lt;/p&gt;
-&lt;p&gt; Flowable可以十分灵活地加入你的应用/服务/构架。可以将JAR形式发布的Flowable库加入应用或服务，来&lt;em&gt;嵌入&lt;/em&gt;引擎。 以JAR形式发布使Flowable可以轻易加入任何Java环境：Java SE；Tomcat、Jetty或Spring之类的servlet容器；JBoss或WebSphere之类的Java EE服务器，等等。 另外，也可以使用Flowable REST API进行HTTP调用。也有许多Flowable应用（Flowable Modeler, Flowable Admin, Flowable IDM 与 Flowable Task），提供了直接可用的UI示例，可以使用流程与任务。 &lt;/p&gt;</summary>
-    
-    
-    
-    <category term="SpringBoot" scheme="https://pudewu.github.io/categories/SpringBoot/"/>
-    
-    
-    <category term="SpringBoot" scheme="https://pudewu.github.io/tags/SpringBoot/"/>
     
   </entry>
   
