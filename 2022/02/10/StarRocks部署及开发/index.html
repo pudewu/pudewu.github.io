@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="前言关于 Apache Doris 和 DorisDB、StarRocks 的关系 Apache Doris和DorisDB是两个不同公司的产品。DorisDB开源后改名为StarRocks。现在的StarRocks有分为免费版和企业版。 StarRocks官网：StarRocks - 新一代极速全场景MPP数据库 1、StarRocks简介1.1、StarRocks介绍 StarRocks是新一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="StarRocks(一)StarRocks简介及部署">
+<meta property="og:url" content="https://pudewu.github.io/2022/02/10/StarRocks%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%BC%80%E5%8F%91/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="前言关于 Apache Doris 和 DorisDB、StarRocks 的关系 Apache Doris和DorisDB是两个不同公司的产品。DorisDB开源后改名为StarRocks。现在的StarRocks有分为免费版和企业版。 StarRocks官网：StarRocks - 新一代极速全场景MPP数据库 1、StarRocks简介1.1、StarRocks介绍 StarRocks是新一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/2.1-1.png">
+<meta property="article:published_time" content="2022-02-10T02:17:25.000Z">
+<meta property="article:modified_time" content="2022-02-12T04:10:33.592Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="StarRocks">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/2.1-1.png">
+  
+  <title>StarRocks(一)StarRocks简介及部署 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="StarRocks(一)StarRocks简介及部署">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-02-10 10:17" pubdate>
+        2022年2月10日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      28 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">StarRocks(一)StarRocks简介及部署</h1>
+            
+            <div class="markdown-body">
+              <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><strong>关于 Apache Doris 和 DorisDB、StarRocks 的关系</strong></p>
+<p><strong>Apache</strong> Doris和DorisDB是两个不同公司的产品。DorisDB开源后改名为StarRocks。现在的StarRocks有分为免费版和企业版。</p>
+<p>StarRocks官网：<a target="_blank" rel="noopener" href="https://starrocks.com/zh-CN/index">StarRocks - 新一代极速全场景MPP数据库</a></p>
+<h1 id="1、StarRocks简介"><a href="#1、StarRocks简介" class="headerlink" title="1、StarRocks简介"></a>1、StarRocks简介</h1><h2 id="1-1、StarRocks介绍"><a href="#1-1、StarRocks介绍" class="headerlink" title="1.1、StarRocks介绍"></a>1.1、StarRocks介绍</h2><ul>
+<li><p>StarRocks是新一代极速全场景MPP数据库</p>
+</li>
+<li><p>StarRocks充分吸收关系型OLAP数据库和分布式存储系统在大数据时代的优秀研究成果，在业界实践的基础上，进一步改进优化、升级架构，并增添了众多全新功能，形成了全新的企业级产品。</p>
+</li>
+<li><p>StarRocks致力于构建极速统一分析体验，满足企业用户的多种数据分析场景，支持多种数据模型(明细模型、聚合模型、更新模型)，多种导入方式（批量和实时），可整合和接入多种现有系统(Spark、Flink、Hive、 ElasticSearch)。</p>
+</li>
+<li><p>StarRocks兼容MySQL协议，可使用MySQL客户端和常用BI工具对接StarRocks来进行数据分析。</p>
+</li>
+<li><p>StarRocks采用分布式架构，对数据表进行水平划分并以多副本存储。集群规模可以灵活伸缩，能够支持10PB级别的数据分析; 支持MPP框架，并行加速计算; 支持多副本，具有弹性容错能力。</p>
+</li>
+<li><p>StarRocks采用关系模型，使用严格的数据类型和列式存储引擎，通过编码和压缩技术，降低读写放大；使用向量化执行方式，充分挖掘多核CPU的并行计算能力，从而显著提升查询性能。</p>
+</li>
+</ul>
+<h2 id="1-2、StarRocks适合什么场景"><a href="#1-2、StarRocks适合什么场景" class="headerlink" title="1.2、StarRocks适合什么场景"></a>1.2、StarRocks适合什么场景</h2><blockquote>
+<p> StarRocks可以满足企业级用户的多种分析需求，包括OLAP多维分析、定制报表、实时数据分析和Ad-hoc数据分析等。具体的业务场景包括：</p>
+</blockquote>
+<ul>
+<li>OLAP多维分析：用户行为分析、用户画像、财务报表、系统监控分析</li>
+<li>实时数据分析：电商数据分析、直播质量分析、物流运单分析、广告投放分析</li>
+<li>高并发查询：广告主表分析、Dashbroad多页面分析</li>
+<li>统一分析：通过使用一套系统解决上述场景，降低系统复杂度和多技术栈开发成本</li>
+</ul>
+<h2 id="1-3、StarRocks基本概念"><a href="#1-3、StarRocks基本概念" class="headerlink" title="1.3、StarRocks基本概念"></a>1.3、StarRocks基本概念</h2><ul>
+<li>FE：FrontEnd简称FE，是StarRocks的前端节点，负责管理元数据，管理客户端连接，进行查询规划，查询调度等工作。</li>
+<li>BE：BackEnd简称BE，是StarRocks的后端节点，负责数据存储，计算执行，以及compaction，副本管理等工作。</li>
+<li>Broker：StarRocks中和外部HDFS/对象存储等外部数据对接的中转服务，辅助提供导入导出功能。</li>
+<li>StarRocksManager：StarRocks的管理工具，提供StarRocks集群管理、在线查询、故障查询、监控报警的可视化工具。</li>
+<li>Tablet：StarRocks中表的逻辑分片，也是StarRocks中副本管理的基本单位，每个表根据分区和分桶机制被划分成多个Tablet存储在不同BE节点上。</li>
+</ul>
+<h2 id="1-4、StarRocks系统架构"><a href="#1-4、StarRocks系统架构" class="headerlink" title="1.4、StarRocks系统架构"></a>1.4、StarRocks系统架构</h2><p><img src="/img/work/2.1-1.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>组件介绍</strong></p>
+<p>​    StarRocks集群由FE和BE构成, 可以使用MySQL客户端访问StarRocks集群。</p>
+<p><strong>FE:</strong></p>
+<p>FE接收MySQL客户端的连接, 解析并执行SQL语句。</p>
+<ul>
+<li>管理元数据, 执行SQL DDL命令, 用Catalog记录库, 表, 分区, tablet副本等信息。</li>
+<li>FE高可用部署, 使用复制协议选主和主从同步元数据, 所有的元数据修改操作, 由FE leader节点完成, FE follower节点可执行读操作。 元数据的读写满足顺序一致性。  FE的节点数目采用2n+1, 可容忍n个节点故障。  当FE leader故障时, 从现有的follower节点重新选主, 完成故障切换。</li>
+<li>FE的SQL layer对用户提交的SQL进行解析, 分析, 改写, 语义分析和关系代数优化, 生产逻辑执行计划。</li>
+<li>FE的Planner负责把逻辑计划转化为可分布式执行的物理计划, 分发给一组BE。</li>
+<li>FE监督BE, 管理BE的上下线, 根据BE的存活和健康状态, 维持tablet副本的数量。</li>
+<li>FE协调数据导入, 保证数据导入的一致性。</li>
+</ul>
+<p><strong>BE</strong></p>
+<ul>
+<li>BE管理tablet副本, tablet是table经过分区分桶形成的子表, 采用列式存储。</li>
+<li>BE受FE指导, 创建或删除子表。</li>
+<li>BE接收FE分发的物理执行计划并指定BE coordinator节点, 在BE coordinator的调度下, 与其他BE worker共同协作完成执行。</li>
+<li>BE读本地的列存储引擎获取数据,并通过索引和谓词下沉快速过滤数据。</li>
+<li>BE后台执行compact任务, 减少查询时的读放大。</li>
+<li>数据导入时, 由FE指定BE coordinator, 将数据以fanout的形式写入到tablet多副本所在的BE上。</li>
+</ul>
+<h1 id="2、手动部署"><a href="#2、手动部署" class="headerlink" title="2、手动部署"></a>2、手动部署</h1><p>2.1、下载starrocks包:<a target="_blank" rel="noopener" href="https://www.starrocks.com/zh-CN/download/community">https://www.starrocks.com/zh-CN/download/community</a></p>
+<p>解压包: </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">tar -xzvf starrocks-2.0.1.tar.gz <br></code></pre></td></tr></table></figure>
+
+
+
+<p>目录结构:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs she">StarRocks-XX-1.0.0<br>├── be  # BE目录<br>│   ├── bin<br>│   │   ├── start_be.sh # BE启动命令<br>│   │   └── stop_be.sh  # BE关闭命令<br>│   ├── conf<br>│   │   └── be.conf     # BE配置文件<br>│   ├── lib<br>│   │   ├── starrocks_be  # BE可执行文件<br>│   │   └── meta_tool<br>│   └── www<br>├── fe  # FE目录<br>│   ├── bin<br>│   │   ├── start_fe.sh # FE启动命令<br>│   │   └── stop_fe.sh  # FE关闭命令<br>│   ├── conf<br>│   │   └── fe.conf     # FE配置文件<br>│   ├── lib<br>│   │   ├── starrocks-fe.jar  # FE jar包<br>│   │   └── *.jar           # FE 依赖的jar包<br>│   └── webroot<br>└── udf<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>准备三台物理机, 需要以下环境支持：</p>
+<ul>
+<li>Linux (Centos 7+)</li>
+<li>Java 1.8+</li>
+</ul>
+<p>CPU需要支持AVX2指令集，cat /proc/cpuinfo |grep avx2有结果输出表明CPU支持，如果没有支持，建议更换机器，StarRocks使用向量化技术需要一定的指令集支持才能发挥效果。</p>
+<p>将StarRocks的二进制产品包分发到目标主机的部署路径并解压，可以考虑使用新建的StarRocks用户来管理。</p>
+<h2 id="部署FE"><a href="#部署FE" class="headerlink" title="部署FE"></a>部署FE</h2><h3 id="FE的基本配置"><a href="#FE的基本配置" class="headerlink" title="FE的基本配置"></a>FE的基本配置</h3><p>FE的配置文件为StarRocks-XX-1.0.0/fe/conf/fe.conf, 默认配置已经足以启动集群, 有经验的用户可以查看手册的系统配置章节, 为生产环境定制配置，为了让用户更好的理解集群的工作原理, 此处只列出基础配置。</p>
+<h3 id="FE单实例部署"><a href="#FE单实例部署" class="headerlink" title="FE单实例部署"></a>FE单实例部署</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd starrocks-2.0.1/fe<br></code></pre></td></tr></table></figure>
+
+<p>第一步: 定制配置文件conf/fe.conf：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">JAVA_OPTS = &quot;-Xmx4096m -XX:+UseMembar -XX:SurvivorRatio=8 -XX:MaxTenuringThreshold=7 -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSClassUnloadingEnabled -XX:-CMSParallelRemarkEnabled -XX:CMSInitiatingOccupancyFraction=80 -XX:SoftRefLRUPolicyMSPerMB=0 -Xloggc:$STARROCKS_HOME/log/fe.gc.log&quot;<br></code></pre></td></tr></table></figure>
+
+<p>可以根据FE内存大小调整 -Xmx4096m，为了避免GC建议16G以上，StarRocks的元数据都在内存中保存。</p>
+<p>第二步: 创建元数据目录:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir -p meta (1.19.x及以前的版本需要使用mkdir -p doris-meta)<br></code></pre></td></tr></table></figure>
+
+
+
+<p>第三步: 启动FE进程:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">bin/start_fe.sh --daemon<br></code></pre></td></tr></table></figure>
+
+
+
+<p>第四步: 确认启动FE启动成功。</p>
+<ul>
+<li> 查看日志log/fe.log确认。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">2022-02-16 20:32:14,686 INFO 1 [FeServer.start():46] thrift server started.<br><br>2022-02-16 20:32:14,696 INFO 1 [NMysqlServer.start():71] Open mysql server success on 9030<br><br>2022-02-16 20:32:14,696 INFO 1 [QeService.start():60] QE service start.<br><br>2022-02-16 20:32:14,825 INFO 76 [HttpServer$HttpServerThread.run():210] HttpServer started with port 8030<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果FE启动失败，可能是由于端口号被占用，修改配置文件conf/fe.conf中的端口号http_port。</li>
+<li>使用jps命令查看java进程确认”StarRocksFe”存在。</li>
+<li>使用浏览器访问8030端口, 打开StarRocks的WebUI, 用户名为root, 密码为空。</li>
+</ul>
+<h3 id="使用MySQL客户端访问FE"><a href="#使用MySQL客户端访问FE" class="headerlink" title="使用MySQL客户端访问FE"></a>使用MySQL客户端访问FE</h3><p>第一步: 安装mysql客户端(如果已经安装，可忽略此步)：</p>
+<p>Ubuntu：sudo apt-get install mysql-client</p>
+<p>Centos：sudo yum install mysql-client</p>
+<p>第二步: 使用mysql客户端连接：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -h 127.0.0.1 -P9030 -uroot<br></code></pre></td></tr></table></figure>
+
+<p>注意：这里默认root用户密码为空，端口为fe/conf/fe.conf中的query_port配置项，默认为9030</p>
+<p>第三步: 查看FE状态：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">mysql&gt;</span><span class="bash"> SHOW PROC <span class="hljs-string">&#x27;/frontends&#x27;</span>\G</span><br><br>************************* 1. row ************************<br>             Name: 172.16.139.24_9010_1594200991015<br>               IP: 172.16.139.24<br>         HostName: starrocks-sandbox01<br>      EditLogPort: 9010<br>         HttpPort: 8030<br>        QueryPort: 9030<br>          RpcPort: 9020<br>             Role: FOLLOWER<br>         IsMaster: true<br>        ClusterId: 861797858<br>             Join: true<br>            Alive: true<br>ReplayedJournalId: 64<br>    LastHeartbeat: 2020-03-23 20:15:07<br>         IsHelper: true<br>           ErrMsg:<br>1 row in set (0.03 sec)<br></code></pre></td></tr></table></figure>
+
+<p>Role为FOLLOWER说明这是一个能参与选主的FE；IsMaster为true，说明该FE当前为主节点。</p>
+<p>如果MySQL客户端连接不成功，请查看log/fe.warn.log日志文件，确认问题。由于是初次启动，如果在操作过程中遇到任何意外问题，都可以删除并重新创建FE的元数据目录，再从头开始操作。</p>
+<h3 id="FE的高可用集群部署"><a href="#FE的高可用集群部署" class="headerlink" title="FE的高可用集群部署"></a>FE的高可用集群部署</h3><p>FE的高可用集群采用主从复制架构, 可避免FE单点故障. FE采用了类raft的bdbje协议完成选主, 日志复制和故障切换. 在FE集群中, 多实例分为两种角色: follower和observer; 前者为复制协议的可投票成员, 参与选主和提交日志, 一般数量为奇数(2n+1), 使用多数派(n+1)确认, 可容忍少数派(n)故障; 而后者属于非投票成员, 用于异步订阅复制日志, observer的状态落后于follower, 类似其他复制协议中的learner角色。</p>
+<p>FE集群从follower中自动选出master节点, 所有更改状态操作都由master节点执行, 从FE的master节点可以读到最新的状态. 更改操作可以从非master节点发起, 继而转发给master节点执行,  非master节点记录最近一次更改操作在复制日志中的LSN, 读操作可以直接在非master节点上执行, 但需要等待非master节点的状态已经同步到最近一次更改操作的LSN, 因此读写非Master节点满足顺序一致性. Observer节点能够增加FE集群的读负载能力, 时效性要求放宽的非紧要用户可以读observer节点。</p>
+<p>FE节点之间的时钟相差不能超过5s, 使用NTP协议校准时间。</p>
+<p>一台机器上只可以部署单个FE节点。所有FE节点的http_port需要相同。</p>
+<p>集群部署按照下列步骤逐个增加FE实例。</p>
+<p>第一步: 分发二进制和配置文件, 配置文件和单实例情形相同。</p>
+<p>第二步: 使用MySQL客户端连接已有的FE,  添加新实例的信息，信息包括角色、ip、port：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">ADD</span> FOLLOWER &quot;host:port&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">ADD</span> OBSERVER &quot;host:port&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>host为机器的IP，如果机器存在多个IP，需要选取priority_networks里的IP，例如priority_networks=192.168.1.0/24 可以设置使用192.168.1.x 这个子网进行通信。port为edit_log_port，默认为9010。</p>
+<blockquote>
+<p>StarRocks的FE和BE因为安全考虑都只会监听一个IP来进行通信，如果一台机器有多块网卡，可能StarRocks无法自动找到正确的IP，例如 ifconfig 命令能看到 eth0 ip为 192.168.1.1, docker0: 172.17.0.1 ，我们可以设置 192.168.1.0/24 这一个子网来指定使用eth0作为通信的IP，这里采用是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing">CIDR</a>的表示方法来指定IP所在子网范围，这样可以在所有的BE，FE上使用相同的配置。 priority_networks 是 FE 和 BE 相同的配置项，写在 fe.conf 和 be.conf 中。该配置项用于在 FE 或 BE 启动时，告诉进程应该绑定哪个IP。示例如下： <code>priority_networks=10.1.3.0/24</code></p>
+</blockquote>
+<p>如出现错误，需要删除FE，应用下列命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">drop</span> follower &quot;fe_host:edit_log_port&quot;;<br><span class="hljs-keyword">alter</span> <span class="hljs-keyword">system</span> <span class="hljs-keyword">drop</span> observer &quot;fe_host:edit_log_port&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>具体参考<a target="_blank" rel="noopener" href="https://docs.starrocks.com/zh-cn/main/administration/Scale_up_down">扩容缩容</a>。</p>
+<p>第三步: FE节点之间需要两两互联才能完成复制协议选主, 投票，日志提交和复制等功能。 FE节点首次启动时，需要指定现有集群中的一个节点作为helper节点, 从该节点获得集群的所有FE节点的配置信息，才能建立通信连接，因此首次启动需要指定–helper参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./bin/start_fe.sh --helper host:port --daemon<br></code></pre></td></tr></table></figure>
+
+<p>host为helper节点的IP，如果有多个IP，需要选取priority_networks里的IP。port为edit_log_port，默认为9010。</p>
+<p>当FE再次启动时，无须指定–helper参数，因为FE已经将其他FE的配置信息存储于本地目录, 因此可直接启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./bin/start_fe.sh --daemon<br></code></pre></td></tr></table></figure>
+
+
+
+<p>第四步: 查看集群状态, 确认部署成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">mysql&gt;</span><span class="bash"> SHOW PROC <span class="hljs-string">&#x27;/frontends&#x27;</span>\G</span><br><br>********************* 1. row **********************<br>    Name: 172.26.108.172_9010_1584965098874<br>      IP: 172.26.108.172<br>HostName: starrocks-sandbox01<br>......<br>    Role: FOLLOWER<br>IsMaster: true<br>......<br>   Alive: true<br>......<br>********************* 2. row **********************<br>    Name: 172.26.108.174_9010_1584965098874<br>      IP: 172.26.108.174<br>HostName: starrocks-sandbox02<br>......<br>    Role: FOLLOWER<br>IsMaster: false<br>......<br>   Alive: true<br>......<br>********************* 3. row **********************<br>    Name: 172.26.108.175_9010_1584965098874<br>      IP: 172.26.108.175<br>HostName: starrocks-sandbox03<br>......<br>    Role: FOLLOWER<br>IsMaster: false<br>......<br>   Alive: true<br>......<br>3 rows in set (0.05 sec)<br></code></pre></td></tr></table></figure>
+
+<p>节点的Alive显示为true则说明添加节点成功。以上例子中，</p>
+<p>172.26.108.172_9010_1584965098874 为主FE节点。</p>
+<h2 id="部署BE"><a href="#部署BE" class="headerlink" title="部署BE"></a>部署BE</h2><h3 id="BE的基本配置"><a href="#BE的基本配置" class="headerlink" title="BE的基本配置"></a>BE的基本配置</h3><p>BE的配置文件为StarRocks-2.0.1/be/conf/be.conf, 默认配置已经足以启动集群, 不建议初尝用户修改配置, 有经验的用户可以查看手册的系统配置章节, 为生产环境定制配置. 为了让用户更好的理解集群的工作原理, 此处只列出基础配置。</p>
+<h3 id="BE部署"><a href="#BE部署" class="headerlink" title="BE部署"></a>BE部署</h3><p>用户可使用下面命令添加BE到StarRocks集群, 一般至少部署3个BE实例, 每个实例的添加步骤相同。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd StarRocks-2.0.1/be<br></code></pre></td></tr></table></figure>
+
+<p>第一步: 创建数据目录：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir -p storage<br></code></pre></td></tr></table></figure>
+
+<p>第二步: 通过mysql客户端添加BE节点：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">ADD</span> BACKEND &quot;host:port&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>这里IP地址为和priority_networks设置匹配的IP，portheartbeat_service_port，默认为9050</p>
+<p>如出现错误，需要删除BE节点，应用下列命令：</p>
+<ul>
+<li><code>alter system decommission backend &quot;be_host:be_heartbeat_service_port&quot;;</code></li>
+</ul>
+<p>具体参考<a target="_blank" rel="noopener" href="https://docs.starrocks.com/zh-cn/main/administration/Scale_up_down">扩容缩容</a>。</p>
+<p>第三步: 启动BE：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">bin/start_be.sh --daemon<br></code></pre></td></tr></table></figure>
+
+<p>第四步: 查看BE状态, 确认BE就绪:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">mysql&gt;</span><span class="bash"> SHOW PROC <span class="hljs-string">&#x27;/backends&#x27;</span>\G</span><br><br>********************* 1. row **********************<br>            BackendId: 10002<br>              Cluster: default_cluster<br>                   IP: 172.16.139.24<br>             HostName: starrocks-sandbox01<br>        HeartbeatPort: 9050<br>               BePort: 9060<br>             HttpPort: 8040<br>             BrpcPort: 8060<br>        LastStartTime: 2020-03-23 20:19:07<br>        LastHeartbeat: 2020-03-23 20:34:49<br>                Alive: true<br> SystemDecommissioned: false<br>ClusterDecommissioned: false<br>            TabletNum: 0<br>     DataUsedCapacity: .000<br>        AvailCapacity: 327.292 GB<br>        TotalCapacity: 450.905 GB<br>              UsedPct: 27.41 %<br>       MaxDiskUsedPct: 27.41 %<br>               ErrMsg:<br>              Version:<br>1 row in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<p>如果isAlive为true，则说明BE正常接入集群。如果BE没有正常接入集群，请查看log目录下的be.WARNING日志文件确定原因。</p>
+<p>如果日志中出现类似以下的信息，说明priority_networks的配置存在问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">W0708 17:16:27.308156 11473 heartbeat\_server.cpp:82\] backend ip saved in master does not equal to backend local ip127.0.0.1 vs. 172.16.179.26<br></code></pre></td></tr></table></figure>
+
+<p>此时需要，先用以下命令drop掉原来加进去的be，然后重新以正确的IP添加BE。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> DROPP BACKEND &quot;172.16.139.24:9050&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>由于是初次启动，如果在操作过程中遇到任何意外问题，都可以删除并重新创建storage目录，再从头开始操作。</p>
+<h2 id="部署Broker"><a href="#部署Broker" class="headerlink" title="部署Broker"></a>部署Broker</h2><p>配置文件为apache_hdfs_broker/conf/apache_hdfs_broker.conf</p>
+<blockquote>
+<p>注意：Broker没有也不需要priority_networks参数，Broker的服务默认绑定在0.0.0.0上，只需要在ADD BROKER时，填写正确可访问的Broker IP即可。</p>
+</blockquote>
+<p>如果有特殊的hdfs配置，复制线上的hdfs-site.xml到conf目录下</p>
+<p>启动：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">./apache_hdfs_broker/bin/start_broker.sh --daemon<br></code></pre></td></tr></table></figure>
+
+<p>添加broker节点到集群中：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">MySQL<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">ADD</span> BROKER broker1 &quot;172.16.139.24:8000&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>查看broker状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs plaintext">MySQL&gt; SHOW PROC &quot;/brokers&quot;\G<br>*************************** 1. row ***************************<br>          Name: broker1<br>            IP: 172.16.139.24<br>          Port: 8000<br>         Alive: true<br> LastStartTime: 2020-04-01 19:08:35<br>LastUpdateTime: 2020-04-01 19:08:45<br>        ErrMsg: <br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>Alive为true代表状态正常。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/StarRocks/">StarRocks</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/StarRocks/">StarRocks</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/02/28/Java%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java网络编程</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/01/23/JavaIO%E4%B9%8BNIO/">
+                        <span class="hidden-mobile">JavaIO之NIO</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

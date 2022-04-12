@@ -6,7 +6,7 @@
   <link href="https://pudewu.github.io/atom.xml" rel="self"/>
   
   <link href="https://pudewu.github.io/"/>
-  <updated>2022-01-23T09:28:20.553Z</updated>
+  <updated>2022-04-08T08:47:55.148Z</updated>
   <id>https://pudewu.github.io/</id>
   
   <author>
@@ -15,6 +15,168 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Java设计模式-简单工厂模式</title>
+    <link href="https://pudewu.github.io/2022/04/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/04/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-04-07T08:16:17.000Z</published>
+    <updated>2022-04-08T08:47:55.148Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    <category term="简单工厂模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="简单工厂模式" scheme="https://pudewu.github.io/tags/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-策略模式</title>
+    <link href="https://pudewu.github.io/2022/04/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/04/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-04-06T03:10:59.000Z</published>
+    <updated>2022-04-06T08:23:42.526Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    <category term="策略模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="策略模式" scheme="https://pudewu.github.io/tags/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java线程基础</title>
+    <link href="https://pudewu.github.io/2022/04/04/Java%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"/>
+    <id>https://pudewu.github.io/2022/04/04/Java%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/</id>
+    <published>2022-04-04T11:17:04.000Z</published>
+    <updated>2022-04-12T07:57:22.219Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="线程基础" scheme="https://pudewu.github.io/tags/%E7%BA%BF%E7%A8%8B%E5%9F%BA%E7%A1%80/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java并发简介</title>
+    <link href="https://pudewu.github.io/2022/03/22/Java%E5%B9%B6%E5%8F%91%E6%A6%82%E5%BF%B5/"/>
+    <id>https://pudewu.github.io/2022/03/22/Java%E5%B9%B6%E5%8F%91%E6%A6%82%E5%BF%B5/</id>
+    <published>2022-03-22T06:20:57.000Z</published>
+    <updated>2022-04-06T02:45:28.545Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java网络编程</title>
+    <link href="https://pudewu.github.io/2022/02/28/Java%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
+    <id>https://pudewu.github.io/2022/02/28/Java%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</id>
+    <published>2022-02-28T12:39:55.000Z</published>
+    <updated>2022-03-23T06:47:52.949Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Socket" scheme="https://pudewu.github.io/categories/Java/Socket/"/>
+    
+    
+    <category term="IO" scheme="https://pudewu.github.io/tags/IO/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>StarRocks(一)StarRocks简介及部署</title>
+    <link href="https://pudewu.github.io/2022/02/10/StarRocks%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%BC%80%E5%8F%91/"/>
+    <id>https://pudewu.github.io/2022/02/10/StarRocks%E9%83%A8%E7%BD%B2%E5%8F%8A%E5%BC%80%E5%8F%91/</id>
+    <published>2022-02-10T02:17:25.000Z</published>
+    <updated>2022-02-12T04:10:33.592Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="数据处理" scheme="https://pudewu.github.io/categories/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/"/>
+    
+    <category term="StarRocks" scheme="https://pudewu.github.io/categories/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/StarRocks/"/>
+    
+    
+    <category term="StarRocks" scheme="https://pudewu.github.io/tags/StarRocks/"/>
+    
+  </entry>
   
   <entry>
     <title>JavaIO之NIO</title>
@@ -75,7 +237,7 @@
     <link href="https://pudewu.github.io/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/"/>
     <id>https://pudewu.github.io/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/</id>
     <published>2022-01-23T09:19:19.000Z</published>
-    <updated>2022-01-23T09:15:31.382Z</updated>
+    <updated>2022-03-31T07:16:41.737Z</updated>
     
     
       
@@ -382,166 +544,6 @@
     <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
         
       
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis三种集群模式之Cluster模式</title>
-    <link href="https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/"/>
-    <id>https://pudewu.github.io/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/</id>
-    <published>2021-10-07T07:56:51.000Z</published>
-    <updated>2021-10-24T06:34:48.320Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis三种集群模式之哨兵模式</title>
-    <link href="https://pudewu.github.io/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://pudewu.github.io/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/</id>
-    <published>2021-10-06T15:12:10.000Z</published>
-    <updated>2021-10-24T06:35:55.391Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis三种集群模式之主从复制</title>
-    <link href="https://pudewu.github.io/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/"/>
-    <id>https://pudewu.github.io/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/</id>
-    <published>2021-10-06T10:35:12.000Z</published>
-    <updated>2021-10-24T06:36:35.429Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis持久化</title>
-    <link href="https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/"/>
-    <id>https://pudewu.github.io/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/</id>
-    <published>2021-09-30T08:47:08.000Z</published>
-    <updated>2021-10-24T06:35:11.649Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis.conf详解</title>
-    <link href="https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/"/>
-    <id>https://pudewu.github.io/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/</id>
-    <published>2021-09-29T14:00:50.000Z</published>
-    <updated>2021-10-24T06:34:59.478Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;&lt;strong&gt;以下将从配置文件中顺序往下讲解&lt;/strong&gt;,&lt;strong&gt;涉及主从复制，持久化将会另起讲解&lt;/strong&gt;&lt;/p&gt;
-&lt;h4 id=&quot;单位&quot;&gt;&lt;a href=&quot;#单位&quot; class=&quot;headerlink&quot; title=&quot;单位&quot;&gt;&lt;/a&gt;单位&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;/img/work/1632924192904.png&quot;&gt;&lt;/p&gt;
-&lt;p&gt;1.配置文件unit单位大小写不敏感&lt;/p&gt;
-&lt;h4 id=&quot;包含&quot;&gt;&lt;a href=&quot;#包含&quot; class=&quot;headerlink&quot; title=&quot;包含&quot;&gt;&lt;/a&gt;包含&lt;/h4&gt;&lt;p&gt;&lt;img src=&quot;/img/work/1632924269484.png&quot;&gt;&lt;/p&gt;
-&lt;p&gt;类似我们nginx中的include中的包含文件&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/categories/Redis/"/>
-    
-    
-    <category term="Redis" scheme="https://pudewu.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Redis事务</title>
-    <link href="https://pudewu.github.io/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/"/>
-    <id>https://pudewu.github.io/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/</id>
-    <published>2021-09-28T14:01:04.000Z</published>
-    <updated>2021-10-11T07:38:57.696Z</updated>
-    
-    
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;事务&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt; redis单条命令是原子性的，但是事务不保证原子性 &lt;/p&gt;
-&lt;p&gt;redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行&lt;/p&gt;
-&lt;p&gt; &lt;strong&gt;一次性、顺序性、排他性&lt;/strong&gt;！执行一系列命令！ &lt;/p&gt;
-&lt;figure class=&quot;highlight shell&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;code class=&quot;hljs shell&quot;&gt;------ 队列 set set set 执行------&lt;br&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-
-
-
-&lt;p&gt; &lt;strong&gt;事务没有隔离级别的概念&lt;/strong&gt; &lt;/p&gt;
-&lt;p&gt;所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Redis单条命令式保存原子性的，但是事务不保证原子性！&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;redis事务:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;开始事务(multi)&lt;/li&gt;
-&lt;li&gt;命令入队(。。）&lt;/li&gt;
-&lt;li&gt;执行事务(exec)&lt;/li&gt;
-&lt;/ul&gt;</summary>
     
     
     

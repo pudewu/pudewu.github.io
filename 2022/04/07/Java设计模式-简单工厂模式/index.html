@@ -1,0 +1,559 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="概述 简单工厂模式是类的创建模式，又叫做静态工厂方法（Static Factory Method）模式。简单工厂模式是由一个工厂对象决定创建出哪一种产品类的实例。  为什么要使用简单工厂模式原因: 解耦 A对象如果要调用B对象，最简单的做法就是直接new一个B出来。这么做有一个问题，假如C类和B类实现了同一个接口&#x2F;继承自同一个类，系统需要把B类修改成C类，程序不得不重写A类代码。如果程序中有100">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java设计模式-简单工厂模式">
+<meta property="og:url" content="https://pudewu.github.io/2022/04/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="概述 简单工厂模式是类的创建模式，又叫做静态工厂方法（Static Factory Method）模式。简单工厂模式是由一个工厂对象决定创建出哪一种产品类的实例。  为什么要使用简单工厂模式原因: 解耦 A对象如果要调用B对象，最简单的做法就是直接new一个B出来。这么做有一个问题，假如C类和B类实现了同一个接口&#x2F;继承自同一个类，系统需要把B类修改成C类，程序不得不重写A类代码。如果程序中有100">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-07T08:16:17.000Z">
+<meta property="article:modified_time" content="2022-04-08T08:47:55.148Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="简单工厂模式">
+<meta name="twitter:card" content="summary_large_image">
+  
+  <title>Java设计模式-简单工厂模式 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java设计模式-简单工厂模式">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-04-07 16:16" pubdate>
+        2022年4月7日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java设计模式-简单工厂模式</h1>
+            
+            <div class="markdown-body">
+              <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p><strong>简单工厂模式是类的创建模式，又叫做静态工厂方法（Static Factory Method）模式。简单工厂模式是由一个工厂对象决定创建出哪一种产品类的实例。</strong></p>
+</blockquote>
+<h2 id="为什么要使用简单工厂模式"><a href="#为什么要使用简单工厂模式" class="headerlink" title="为什么要使用简单工厂模式"></a><strong>为什么要使用简单工厂模式</strong></h2><p>原因: 解耦</p>
+<p>A对象如果要调用B对象，最简单的做法就是直接new一个B出来。这么做有一个问题，假如C类和B类实现了同一个接口/继承自同一个类，系统需要把B类修改成C类，程序不得不重写A类代码。如果程序中有100个地方new了B对象，那么就要修改100处。</p>
+<p>这就是典型的代码耦合度太高导致的”牵一发动全身”。所以，有一个办法就是写一个工厂IFactory，A与IFactory耦合，修改一下，让所有的类都实现C接口并且IFactory生产出C的实例就可以了。</p>
+<h2 id="简单工厂模式示例"><a href="#简单工厂模式示例" class="headerlink" title="简单工厂模式示例"></a><strong>简单工厂模式示例</strong></h2><p>水果为例:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Fruit</span> </span>&#123;<br><br>    <span class="hljs-comment">//生产</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">grow</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-comment">//收货</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">harveset</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-comment">//种植</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">plant</span><span class="hljs-params">()</span></span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>有两个子类苹果和葡萄：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Apple</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Fruit</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">grow</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Apple.grow()&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">harveset</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Apple.harveset()&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">plant</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Apple.plant()&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Grape</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Fruit</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">grow</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Grape.grow()&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">harveset</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Grape.harveset()&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">plant</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Grape.plant()&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>有一个园丁，专门负责生产出各种水果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Gardener</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Fruit <span class="hljs-title">getFruit</span><span class="hljs-params">(String fruit)</span> </span>&#123;<br>        <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;apple&quot;</span>.equalsIgnoreCase(fruit)) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Apple();<br>        &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;grape&quot;</span>.equalsIgnoreCase(fruit)) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Grape();<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>想要什么水果就问园丁拿就好了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        Fruit fruit = Gardener.getFruit(<span class="hljs-string">&quot;apple&quot;</span>);<br>        fruit.grow();<br>        Fruit fruit1 = Gardener.getFruit(<span class="hljs-string">&quot;grape&quot;</span>);<br>        fruit1.harveset();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>程序优点：</strong></p>
+<ol>
+<li>用户不自己去生产产品，只需要负责去拿自己需要的东西就好了，这样用户–&gt;产品之间的耦合度就降低了</li>
+<li>代码模块职责更明确了，有专门消费的模块、有专门生产的模块</li>
+</ol>
+<h2 id="改进"><a href="#改进" class="headerlink" title="改进"></a><strong>改进</strong></h2><p>上面的代码虽然实现了用户–&gt;产品之间的分离，但还是有一个问题，工厂并不知道有多少种产品，所以每一次新增产品的时候，都需要新增else if分支，这样是不是不便呢？所以我们又想了一个办法，就是反射，园丁可以这么修改：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Gardener</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Fruit <span class="hljs-title">getFruit</span><span class="hljs-params">(String fruit)</span> <span class="hljs-keyword">throws</span> ClassNotFoundException, IllegalAccessException, InstantiationException </span>&#123;<br>        Class&lt;?&gt; aClass = Class.forName(fruit);<br>        <span class="hljs-keyword">return</span> (Fruit) aClass.newInstance();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>调用的地方可以写成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> IllegalAccessException, InstantiationException, ClassNotFoundException </span>&#123;<br>        Fruit fruit = Gardener.getFruit(<span class="hljs-string">&quot;com.dewu.design.factory.simpl.Apple&quot;</span>);<br>        fruit.grow();<br>        Fruit fruit1 = Gardener.getFruit(<span class="hljs-string">&quot;com.dewu.design.factory.simpl.Grape&quot;</span>);<br>        fruit1.harveset();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当然，这么写其实也有一点点问题，假如有一天我的项目想进行一个重构，重整类路径，包路径，比方说生产Apple的地方有100处，岂不是要修改100处？当然不用，有以下三种方法推荐：</p>
+<ol>
+<li>写一个接口FruitPath，里面定义常量：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">FruitPath</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> String apple = <span class="hljs-string">&quot;com.dewu.design.factory.simpl.Apple&quot;</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> String grape = <span class="hljs-string">&quot;com.dewu.design.factory.simpl.Grape&quot;</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>写一个Fruit.properties文件，里面定义水果和类路径的对应关系：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">Apple=com.dewu.design.factory.simpl.Apple<br>Grape=com.dewu.design.factory.simpl.Grape<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>写一个Fruit.xml文件，里面定义水果和类路径的对应关系：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">&lt;apple&gt;com.dewu.design.factory.simpl.Apple&lt;/apple&gt;<br>&lt;grape&gt;com.dewu.design.factory.simpl.Grape&lt;/grape&gt;<br></code></pre></td></tr></table></figure>
+
+<p>第一种方式不说了，第二种方式.properties可以用Java自带的Properties类来解析，第三种方式.xml可以用DOM4J来解析。这样， 假设我以后要修改水果的路径，修改一个文件就可以了。</p>
+<p>从设计模式的角度讲，这么修改也有很大的优点。现在不管我新增还是删除水果，园丁（类工厂）都不用变了，只需要告诉工厂我需要哪种水果就够了，工厂自然会给调用者返回。这种写法，也是Spring的基础。</p>
+<p><strong>简单工厂模式或者说工厂模式的关注点并不在于在工厂中是如何生产出来需要的类的，而在于将创建产品与消费产品分离</strong>。前面使用过if…else if…else、反射，除了这些方法，还可以有别的方法可以创建产品，比如传入一个具体产品的标识，根据这个标识去数据库里面查询。</p>
+<h2 id="简单工厂模式在Java中的应用及解读"><a href="#简单工厂模式在Java中的应用及解读" class="headerlink" title="简单工厂模式在Java中的应用及解读"></a><strong>简单工厂模式在Java中的应用及解读</strong></h2><p>JDK中的简单工厂模式有很多应用，比较典型的比如线程池，我们使用线程池的时候，可以使用ThreadPoolExecutor，根据自己的喜好传入corePoolSize、maximumPoolSize、keepAliveTimem、unit、workQueue、threadFactory、handler这几个参数，new出一个指定的ThreadPoolExecutor出来。</p>
+<p>JDK给开发者提供了Executors这个类，可以让用户产生ThreadPoolExecutor和使用ThreadPoolExecutor分离开，比如可以让Executors提供一个单线程的线程池Executors.newSingleThreadExecutor()、让Executors提供一个无界线程池Executors.newCachedThreadPool()等，这样，开发者可以不用关心线程池是如何去实现的，直接使用Executors方法提供给开发者的ThreadPoolExecutor就可以了。</p>
+<h2 id="工厂模式的优缺点"><a href="#工厂模式的优缺点" class="headerlink" title="工厂模式的优缺点"></a><strong>工厂模式的优缺点</strong></h2><p><strong>优点:</strong></p>
+<p>1、简单优化了软件体系结构，明确了各自功能模块的职责和权利</p>
+<p>2、通过工厂类，外界不需要直接创建具体产品对象，只需要负责消费，不需要关心内部如何创建对象</p>
+<p><strong>缺点:</strong></p>
+<p>1、改进前的简单工厂模式全部创建逻辑都集中在一个工厂类中，能创建的类只能是考虑到的，如果需要添加新的类，就必须改变工厂类了</p>
+<p>2、改进前的简单工厂模式随着具体产品的不断增多，可能会出现共产类根据不同条件创建不同实例的需求，这种对条件的判断和对具体产品类型的判断交错在一起，很难避免功能模块的蔓延，对系统的维护和扩展不利</p>
+<p>3、改进后的简单工厂模式主要是使用反射效率会低一些</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p>以上文章引用自:<a target="_blank" rel="noopener" href="https://www.cnblogs.com/xrq730/p/4902597.html">Java设计模式-简单工厂模式</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">Java设计模式</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">简单工厂模式</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/">简单工厂模式</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">
+                        <span class="hidden-mobile">Java设计模式-策略模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
