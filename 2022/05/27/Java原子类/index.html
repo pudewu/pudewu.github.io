@@ -1,0 +1,640 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="1. 原子变量类简介1.1. 为何需要原子变量类保证线程安全是 Java 并发编程必须要解决的重要问题。Java 从原子性、可见性、有序性这三大特性入手，确保多线程的数据一致性。   确保线程安全最常见的做法是利用锁机制（Lock、sychronized）来对共享数据做互斥同步，这样在同一个时刻，只有一个线程可以执行某个方法或者某个代码块，那么操作必然是原子性的，线程安全的。互斥同步最主要的问题是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java原子类">
+<meta property="og:url" content="https://pudewu.github.io/2022/05/27/Java%E5%8E%9F%E5%AD%90%E7%B1%BB/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="1. 原子变量类简介1.1. 为何需要原子变量类保证线程安全是 Java 并发编程必须要解决的重要问题。Java 从原子性、可见性、有序性这三大特性入手，确保多线程的数据一致性。   确保线程安全最常见的做法是利用锁机制（Lock、sychronized）来对共享数据做互斥同步，这样在同一个时刻，只有一个线程可以执行某个方法或者某个代码块，那么操作必然是原子性的，线程安全的。互斥同步最主要的问题是">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-05-26T23:34:45.000Z">
+<meta property="article:modified_time" content="2022-05-27T06:43:27.065Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="Java并发">
+<meta name="twitter:card" content="summary_large_image">
+  
+  <title>Java原子类 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/article.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java原子类">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-27 07:34" pubdate>
+        2022年5月27日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      34 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java原子类</h1>
+            
+            <div class="markdown-body">
+              <h2 id="1-原子变量类简介"><a href="#1-原子变量类简介" class="headerlink" title="1. 原子变量类简介"></a>1. 原子变量类简介</h2><h3 id="1-1-为何需要原子变量类"><a href="#1-1-为何需要原子变量类" class="headerlink" title="1.1. 为何需要原子变量类"></a>1.1. 为何需要原子变量类</h3><p>保证线程安全是 Java 并发编程必须要解决的重要问题。Java 从原子性、可见性、有序性这三大特性入手，确保多线程的数据一致性。 </p>
+<ul>
+<li>确保线程安全最常见的做法是利用锁机制（<code>Lock</code>、<code>sychronized</code>）来对共享数据做互斥同步，这样在同一个时刻，只有一个线程可以执行某个方法或者某个代码块，那么操作必然是原子性的，线程安全的。互斥同步最主要的问题是线程阻塞和唤醒所带来的性能问题。</li>
+<li><code>volatile</code> 是轻量级的锁（自然比普通锁性能要好），它保证了共享变量在多线程中的可见性，但无法保证原子性。所以，它只能在一些特定场景下使用。</li>
+<li>为了兼顾原子性以及锁带来的性能问题，Java 引入了 CAS （主要体现在 <code>Unsafe</code> 类）来实现非阻塞同步（也叫乐观锁）。并基于 CAS ，提供了一套原子工具类。</li>
+</ul>
+<h3 id="1-2-原子变量类的作用"><a href="#1-2-原子变量类的作用" class="headerlink" title="1.2. 原子变量类的作用"></a>1.2. 原子变量类的作用</h3><p>原子变量类 <strong>比锁的粒度更细，更轻量级</strong>，并且对于在多处理器系统上实现高性能的并发代码来说是非常关键的。原子变量将发生竞争的范围缩小到单个变量上。 </p>
+<p>原子变量类相当于一种泛化的 <code>volatile</code> 变量，能够<strong>支持原子的、有条件的读/改/写操</strong>作。 </p>
+<p>原子类在内部使用 CAS 指令（基于硬件的支持）来实现同步。这些指令通常比锁更快。 </p>
+<p>原子变量类可以分为 4 组： </p>
+<ul>
+<li>基本类型<ul>
+<li><code>AtomicBoolean</code> - 布尔类型原子类</li>
+<li> <code>AtomicInteger</code>  -  整型原子类 </li>
+<li><code>AtomicLong</code> - 长整型原子类</li>
+</ul>
+</li>
+<li>引用类型<ul>
+<li><code>AtomicReference</code> - 引用类型原子类</li>
+<li><code>AtomicMarkableReference</code> - 带有标记位的引用类型原子类</li>
+<li><code>AtomicStampedReference</code> - 带有版本号的引用类型原子类</li>
+</ul>
+</li>
+<li> 数组类型 </li>
+<li><code>AtomicIntegerArray</code> - 整形数组原子类</li>
+<li><code>AtomicLongArray</code> - 长整型数组原子类</li>
+<li><code>AtomicReferenceArray</code> - 引用类型数组原子类</li>
+<li> 属性更新器类型 </li>
+<li><code>AtomicIntegerFieldUpdater</code> - 整型字段的原子更新器。</li>
+<li><code>AtomicLongFieldUpdater</code> - 长整型字段的原子更新器。</li>
+<li><code>AtomicReferenceFieldUpdater</code> - 原子更新引用类型里的字段。</li>
+</ul>
+<h2 id="2-基本类型"><a href="#2-基本类型" class="headerlink" title="2.基本类型"></a>2.基本类型</h2><p>这一类型的原子类是针对 Java 基本类型进行操作。 </p>
+<ul>
+<li><code>AtomicBoolean</code> - 布尔类型原子类</li>
+<li><code>AtomicInteger</code> - 整型原子类</li>
+<li><code>AtomicLong</code> - 长整型原子类</li>
+</ul>
+<p>以上类都支持 CAS（<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Compare-and-swap">compare-and-swap</a>）技术，此外，<code>AtomicInteger</code>、<code>AtomicLong</code> 还支持算术运算。 </p>
+<blockquote>
+<p>虽然 Java 只提供了 <code>AtomicBoolean</code> 、<code>AtomicInteger</code>、<code>AtomicLong</code>，但是可以模拟其他基本类型的原子变量。要想模拟其他基本类型的原子变量，可以将 <code>short</code> 或 <code>byte</code> 等类型与 <code>int</code> 类型进行转换，以及使用 <code>Float.floatToIntBits</code> 、<code>Double.doubleToLongBits</code> 来转换浮点数。</p>
+<p>由于 <code>AtomicBoolean</code>、<code>AtomicInteger</code>、<code>AtomicLong</code> 实现方式、使用方式都相近，所以本文仅针对 <code>AtomicInteger</code> 进行介绍</p>
+</blockquote>
+<h3 id="2-1-AtomicInteger-用法"><a href="#2-1-AtomicInteger-用法" class="headerlink" title="2.1. AtomicInteger 用法"></a>2.1. <strong><code>AtomicInteger</code> 用法</strong></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-comment">// 获取当前值</span></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getAndSet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> newValue)</span> <span class="hljs-comment">// 获取当前值，并设置新值</span></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getAndIncrement</span><span class="hljs-params">()</span><span class="hljs-comment">// 获取当前值，并自增</span></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getAndDecrement</span><span class="hljs-params">()</span> <span class="hljs-comment">// 获取当前值，并自减</span></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> <span class="hljs-title">getAndAdd</span><span class="hljs-params">(<span class="hljs-keyword">int</span> delta)</span> <span class="hljs-comment">// 获取当前值，并加上预期值</span></span><br><span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">compareAndSet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> expect, <span class="hljs-keyword">int</span> update)</span> <span class="hljs-comment">// 如果输入值（update）等于预期值，将该值设置为输入值</span></span><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">lazySet</span><span class="hljs-params">(<span class="hljs-keyword">int</span> newValue)</span> <span class="hljs-comment">// 最终设置为 newValue，使用 lazySet 设置之后可能导致其他线程在之后的一小段时间内还是可以读到旧的值。</span></span><br></code></pre></td></tr></table></figure>
+
+<p><code>AtomicInteger</code> 使用示例： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomicIntegerDemo</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        ExecutorService executorService = Executors.newFixedThreadPool(<span class="hljs-number">5</span>);<br>        AtomicInteger count = <span class="hljs-keyword">new</span> AtomicInteger(<span class="hljs-number">0</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">1000</span>; i++) &#123;<br>            executorService.submit((Runnable) () -&gt; &#123;<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; count=&quot;</span> + count.get());<br>                count.incrementAndGet();<br>            &#125;);<br>        &#125;<br><br>        executorService.shutdown();<br>        executorService.awaitTermination(<span class="hljs-number">30</span>, TimeUnit.SECONDS);<br>        System.out.println(<span class="hljs-string">&quot;Final Count is : &quot;</span> + count.get());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-AtomicInteger-实现"><a href="#2-2-AtomicInteger-实现" class="headerlink" title="2.2. AtomicInteger 实现"></a>2.2. <strong><code>AtomicInteger</code> 实现</strong></h3><p>阅读 <code>AtomicInteger</code> 源码，可以看到如下定义： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> Unsafe unsafe = Unsafe.getUnsafe();<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">long</span> valueOffset;<br><br><span class="hljs-keyword">static</span> &#123;<br>	<span class="hljs-keyword">try</span> &#123;<br>		valueOffset = unsafe.objectFieldOffset<br>			(AtomicInteger.class.getDeclaredField(<span class="hljs-string">&quot;value&quot;</span>));<br>	&#125; <span class="hljs-keyword">catch</span> (Exception ex) &#123; <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(ex); &#125;<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">volatile</span> <span class="hljs-keyword">int</span> value;<br></code></pre></td></tr></table></figure>
+
+<p><strong>说明:</strong></p>
+<ul>
+<li><code>value</code> - value 属性使用 <code>volatile</code> 修饰，使得对 value 的修改在并发环境下对所有线程可见。</li>
+<li><code>valueOffset</code> - value 属性的偏移量，通过这个偏移量可以快速定位到 value 字段，这个是实现 AtomicInteger 的关键。</li>
+<li><code>unsafe</code> - Unsafe 类型的属性，它为 <code>AtomicInteger</code> 提供了 CAS 操作。</li>
+</ul>
+<h2 id="3-引用类型"><a href="#3-引用类型" class="headerlink" title="3. 引用类型"></a>3. 引用类型</h2><p>Java 数据类型分为 <strong>基本数据类型</strong> 和 <strong>引用数据类型</strong> 两大类 </p>
+<p>上一节中提到了针对基本数据类型的原子类，那么如果想针对引用类型做原子操作怎么办？Java 也提供了相关的原子类： </p>
+<ul>
+<li><code>AtomicReference</code> - 引用类型原子类</li>
+<li><code>AtomicMarkableReference</code> - 带有标记位的引用类型原子类</li>
+<li><code>AtomicStampedReference</code> - 带有版本号的引用类型原子类</li>
+</ul>
+<p><code>AtomicStampedReference</code> 类在引用类型原子类中，彻底地解决了 ABA 问题，其它的 CAS 能力与另外两个类相近，所以最具代表性。因此，本节只针对 <code>AtomicStampedReference</code> 进行说明。 </p>
+<p>示例：基于 <code>AtomicReference</code> 实现一个简单的自旋锁 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomicReferenceDemo</span> </span>&#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> ticket = <span class="hljs-number">10</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        threadSafeDemo();<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">threadSafeDemo</span> <span class="hljs-params">()</span> </span>&#123;<br>        SpinLock lock = <span class="hljs-keyword">new</span> SpinLock();<br>        ExecutorService executorService = Executors.newFixedThreadPool(<span class="hljs-number">3</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; i++) &#123;<br>            executorService.execute(<span class="hljs-keyword">new</span> MyThread(lock));<br>        &#125;<br>        executorService.shutdown();<br>    &#125;<br><br><br><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 基于 &#123;<span class="hljs-doctag">@link</span> AtomicReference&#125; 实现的简单自旋锁</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SpinLock</span> </span>&#123;<br>        <span class="hljs-keyword">private</span> AtomicReference&lt;Thread&gt; atomicReference = <span class="hljs-keyword">new</span> AtomicReference&lt;&gt;();<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">lock</span><span class="hljs-params">()</span> </span>&#123;<br>            Thread thread = Thread.currentThread();<br><br>            <span class="hljs-keyword">while</span> (!atomicReference.compareAndSet(<span class="hljs-keyword">null</span>,thread)) &#123;&#125;<br>        &#125;<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">unlock</span><span class="hljs-params">()</span> </span>&#123;<br>            Thread current = Thread.currentThread();<br>            atomicReference.compareAndSet(current,<span class="hljs-keyword">null</span>);<br>        &#125;<br><br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyThread</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        <span class="hljs-keyword">private</span> SpinLock lock;<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">MyThread</span><span class="hljs-params">(SpinLock lock)</span> </span>&#123;<br>            <span class="hljs-keyword">this</span>.lock = lock;<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">while</span> (ticket &gt; <span class="hljs-number">0</span>) &#123;<br>                lock.lock();<br>                <span class="hljs-keyword">if</span> (ticket &gt; <span class="hljs-number">0</span>) &#123;<br>                    System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; 卖出了第 &quot;</span> + ticket + <span class="hljs-string">&quot; 张票&quot;</span>);<br>                    ticket --;<br>                &#125;<br>                lock.unlock();<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>原子类的实现基于 CAS 机制，而 CAS 存在 ABA 问题, 正是为了解决 ABA 问题,才有了<code> AtomicMarkableReference</code> 和 <code>AtomicStampedReference</code>。 </p>
+<p><code>AtomicMarkableReference</code> 使用一个布尔值作为标记，修改时在 true / false 之间切换。这种策略不能根本上解决 ABA 问题，但是可以降低 ABA 发生的几率。常用于缓存或者状态描述这样的场景。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomicMarkableReferenceDemo</span> </span>&#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> String INIT_TEXT = <span class="hljs-string">&quot;abc&quot;</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br><br>        <span class="hljs-keyword">final</span> AtomicMarkableReference&lt;String&gt; amr = <span class="hljs-keyword">new</span> AtomicMarkableReference&lt;&gt;(INIT_TEXT, <span class="hljs-keyword">false</span>);<br><br>        ExecutorService executorService = Executors.newFixedThreadPool(<span class="hljs-number">3</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;<br>            executorService.submit(<span class="hljs-keyword">new</span> Runnable() &#123;<br>                <span class="hljs-meta">@Override</span><br>                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>                    <span class="hljs-keyword">try</span> &#123;<br>                        Thread.sleep(Math.abs((<span class="hljs-keyword">int</span>) (Math.random() * <span class="hljs-number">100</span>)));<br>                    &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                        e.printStackTrace();<br>                    &#125;<br><br>                    String name = Thread.currentThread().getName();<br>                    <span class="hljs-keyword">if</span> (amr.compareAndSet(INIT_TEXT, name, amr.isMarked(), !amr.isMarked())) &#123;<br>                        System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; 修改了对象！&quot;</span>);<br>                        System.out.println(<span class="hljs-string">&quot;新的对象为：&quot;</span> + amr.getReference());<br>                    &#125;<br>                &#125;<br>            &#125;);<br>        &#125;<br><br>        executorService.shutdown();<br>        executorService.awaitTermination(<span class="hljs-number">3</span>, TimeUnit.SECONDS);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs subunit">pool<span class="hljs-string">-1</span>-thread<span class="hljs-string">-1</span> 修改了对象！<br>新的对象为：pool<span class="hljs-string">-1</span>-thread<span class="hljs-string">-1</span><br></code></pre></td></tr></table></figure>
+
+<p><strong><code>AtomicStampedReference</code> 使用一个整型值做为版本号，每次更新前先比较版本号，如果一致，才进行修改</strong>。通过这种策略，可以根本上解决 ABA 问题。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomicStampedReferenceDemo</span> </span>&#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> String INIT_REF = <span class="hljs-string">&quot;pool-1-thread-3&quot;</span>;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> AtomicStampedReference&lt;String&gt; asr = <span class="hljs-keyword">new</span> AtomicStampedReference&lt;&gt;(INIT_REF,<span class="hljs-number">0</span>);<br><br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;初始对象为：&quot;</span> + asr.getReference());<br><br>        ExecutorService executorService = Executors.newFixedThreadPool(<span class="hljs-number">3</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++) &#123;<br>            executorService.execute(<span class="hljs-keyword">new</span> MyThread());<br>        &#125;<br><br>        executorService.shutdown();<br>        executorService.awaitTermination(<span class="hljs-number">3</span>, TimeUnit.SECONDS);<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyThread</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                Thread.sleep(Math.abs((<span class="hljs-keyword">int</span>) (Math.random() * <span class="hljs-number">100</span>)));<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br><br>            <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> stamp = asr.getStamp();<br><br>            <span class="hljs-keyword">if</span> (asr.compareAndSet(INIT_REF,Thread.currentThread().getName(),stamp,stamp + <span class="hljs-number">1</span>)) &#123;<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; 修改了对象！&quot;</span>);<br>                System.out.println(<span class="hljs-string">&quot;新的对象为：&quot;</span> + asr.getReference());<br>            &#125;<br>        &#125;<br>    &#125;<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-数组类型"><a href="#4-数组类型" class="headerlink" title="4.数组类型"></a>4.数组类型</h2><p>Java 提供了以下针对数组的原子类： </p>
+<ul>
+<li><code>AtomicIntegerArray</code> - 整形数组原子类</li>
+<li><code>AtomicLongArray</code> - 长整型数组原子类</li>
+<li><code>AtomicReferenceArray</code> - 引用类型数组原子类</li>
+</ul>
+<p>已经有了针对基本类型和引用类型的原子类，为什么还要提供针对数组的原子类呢？ </p>
+<p>数组类型的原子类为 <strong>数组元素</strong> 提供了 <code>volatile</code> 类型的访问语义，这是普通数组所不具备的特性——**<code>volatile</code> 类型的数组仅在数组引用上具有 <code>volatile</code> 语义**。 </p>
+<p>示例：<code>AtomicIntegerArray</code> 使用示例（<code>AtomicLongArray</code> 、<code>AtomicReferenceArray</code> 使用方式也类似） </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomicIntegerArrayDemo</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> AtomicIntegerArray atomicIntegerArray = <span class="hljs-keyword">new</span> AtomicIntegerArray(<span class="hljs-number">10</span>);<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        System.out.println(<span class="hljs-string">&quot;Init Values: &quot;</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i&lt; atomicIntegerArray.length(); i++ ) &#123;<br>            atomicIntegerArray.set(i,i);<br>            System.out.print(atomicIntegerArray.get(i) + <span class="hljs-string">&quot; &quot;</span>);<br>        &#125;<br><br>        System.out.println();<br><br>        Thread t1 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-keyword">new</span> Increment());<br>        Thread t2 = <span class="hljs-keyword">new</span> Thread(<span class="hljs-keyword">new</span> Compare());<br>        t1.start();<br>        t2.start();<br><br>        t1.join();<br>        t2.join();<br><br>        System.out.println(<span class="hljs-string">&quot;Final Values: &quot;</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; atomicIntegerArray.length(); i++) &#123;<br>            System.out.print(atomicIntegerArray.get(i) + <span class="hljs-string">&quot; &quot;</span>);<br>        &#125;<br>        System.out.println();<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Increment</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i&lt; atomicIntegerArray.length(); i++) &#123;<br>                <span class="hljs-keyword">int</span> value = atomicIntegerArray.incrementAndGet(i);<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot;, index = &quot;</span> + i + <span class="hljs-string">&quot;, value = &quot;</span> + value);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Compare</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; atomicIntegerArray.length(); i++) &#123;<br>                <span class="hljs-keyword">boolean</span> compareAndSet = atomicIntegerArray.compareAndSet(i, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>);<br>                <span class="hljs-keyword">if</span> (compareAndSet) &#123;<br>                    System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot; swapped, index = &quot;</span> + i + <span class="hljs-string">&quot;, value = 3&quot;</span>);<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出结果:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java">Init Values: <br><span class="hljs-number">0</span> <span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">3</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span> <span class="hljs-number">6</span> <span class="hljs-number">7</span> <span class="hljs-number">8</span> <span class="hljs-number">9</span> <br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">0</span>, value = <span class="hljs-number">1</span><br>Thread-<span class="hljs-number">1</span> swapped, index = <span class="hljs-number">2</span>, value = <span class="hljs-number">3</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">1</span>, value = <span class="hljs-number">2</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">2</span>, value = <span class="hljs-number">4</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">3</span>, value = <span class="hljs-number">4</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">4</span>, value = <span class="hljs-number">5</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">5</span>, value = <span class="hljs-number">6</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">6</span>, value = <span class="hljs-number">7</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">7</span>, value = <span class="hljs-number">8</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">8</span>, value = <span class="hljs-number">9</span><br>Thread-<span class="hljs-number">0</span>, index = <span class="hljs-number">9</span>, value = <span class="hljs-number">10</span><br>Final Values: <br><span class="hljs-number">1</span> <span class="hljs-number">2</span> <span class="hljs-number">4</span> <span class="hljs-number">4</span> <span class="hljs-number">5</span> <span class="hljs-number">6</span> <span class="hljs-number">7</span> <span class="hljs-number">8</span> <span class="hljs-number">9</span> <span class="hljs-number">10</span> <br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="5-属性更新器类型"><a href="#5-属性更新器类型" class="headerlink" title="5.属性更新器类型"></a>5.属性更新器类型</h2><p>更新器类支持基于反射机制的更新字段值的原子操作。 </p>
+<ul>
+<li><code>AtomicIntegerFieldUpdater</code> - 整型字段的原子更新器。</li>
+<li><code>AtomicLongFieldUpdater</code> - 长整型字段的原子更新器。</li>
+<li><code>AtomicReferenceFieldUpdater</code> - 原子更新引用类型里的字段。</li>
+</ul>
+<p>这些类的使用有一定限制： </p>
+<ul>
+<li>因为对象的属性修改类型原子类都是抽象类，所以每次使用都必须使用静态方法 <code>newUpdater()</code> 创建一个更新器，并且需要设置想要更新的类和属性。</li>
+<li>字段必须是 <code>volatile</code> 类型的；</li>
+<li>不能作用于静态变量（<code>static</code>）；</li>
+<li>不能作用于常量（<code>final</code>）；</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">AtomicReferenceFieldUpdaterDemo</span> </span>&#123;<br><br><br>    <span class="hljs-keyword">static</span> User user = <span class="hljs-keyword">new</span> User(<span class="hljs-string">&quot;begin&quot;</span>);<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        ExecutorService executorService = Executors.newFixedThreadPool(<span class="hljs-number">5</span>);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">6</span>; i++) &#123;<br>            executorService.execute(<span class="hljs-keyword">new</span> MyThread());<br>        &#125;<br>        executorService.shutdown();<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> AtomicReferenceFieldUpdater&lt;User,String&gt; updater = AtomicReferenceFieldUpdater.newUpdater(User.class,String.class,<span class="hljs-string">&quot;name&quot;</span>);<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span> </span>&#123;<br>        <span class="hljs-keyword">volatile</span> String name;<br><br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">User</span><span class="hljs-params">(String name)</span> </span>&#123;<br>            <span class="hljs-keyword">this</span>.name = name;<br>        &#125;<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> String <span class="hljs-title">getName</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">return</span> name;<br>        &#125;<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setName</span><span class="hljs-params">(String name)</span> </span>&#123;<br>            <span class="hljs-keyword">this</span>.name = name;<br>        &#125;<br>    &#125;<br><br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MyThread</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">if</span> (updater.compareAndSet(user,<span class="hljs-string">&quot;begin&quot;</span>,<span class="hljs-string">&quot;end&quot;</span>)) &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    TimeUnit.MICROSECONDS.sleep(<span class="hljs-number">1</span>);<br>                &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot;已修改 name = &quot;</span> + user.getName());<br>            &#125; <span class="hljs-keyword">else</span> &#123;<br>                System.out.println(Thread.currentThread().getName() + <span class="hljs-string">&quot;已被其他线程修改&quot;</span>);<br><br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-原子化的累加器"><a href="#6-原子化的累加器" class="headerlink" title="6. 原子化的累加器"></a>6. 原子化的累加器</h2><p><code>DoubleAccumulator</code>、<code>DoubleAdder</code>、<code>LongAccumulator</code> 和 <code>LongAdder</code>，这四个类仅仅用来执行累加操作，相比原子化的基本数据类型，速度更快，但是不支持 <code>compareAndSet()</code> 方法。如果你仅仅需要累加操作，使用原子化的累加器性能会更好，代价就是会消耗更多的内存空间。 </p>
+<p><code>LongAdder</code> 内部由一个 <code>base</code> 变量和一个 <code>cell[]</code> 数组组成。 </p>
+<ul>
+<li>当只有一个写线程，没有竞争的情况下，<code>LongAdder</code> 会直接使用 <code>base</code> 变量作为原子操作变量，通过 CAS 操作修改变量；</li>
+<li>当有多个写线程竞争的情况下，除了占用 <code>base</code> 变量的一个写线程之外，其它各个线程会将修改的变量写入到自己的槽 <code>cell[]</code> 数组中。</li>
+</ul>
+<p>我们可以发现，<code>LongAdder</code> 在操作后的返回值只是一个近似准确的数值，但是 <code>LongAdder</code> 最终返回的是一个准确的数值， 所以在一些对实时性要求比较高的场景下，<code>LongAdder</code> 并不能取代 <code>AtomicInteger</code> 或 <code>AtomicLong</code>。 </p>
+<h2 id="7-参考资料"><a href="#7-参考资料" class="headerlink" title="7. 参考资料"></a>7. 参考资料</h2><p><a target="_blank" rel="noopener" href="https://dunwu.github.io/javacore/concurrent/Java%E5%8E%9F%E5%AD%90%E7%B1%BB.html#_1-%E5%8E%9F%E5%AD%90%E5%8F%98%E9%87%8F%E7%B1%BB%E7%AE%80%E4%BB%8B">引自JavaCore的原子类并做一些修改</a></p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-util-concurrent/atomicinteger.html">http://tutorials.jenkov.com/java-util-concurrent/atomicinteger.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-util-concurrent/atomicintegerarray.html">http://tutorials.jenkov.com/java-util-concurrent/atomicintegerarray.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-util-concurrent/atomicreference.html">http://tutorials.jenkov.com/java-util-concurrent/atomicreference.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://tutorials.jenkov.com/java-util-concurrent/atomicstampedreference.htm">http://tutorials.jenkov.com/java-util-concurrent/atomicstampedreference.htm</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://book.douban.com/subject/10484692/">《Java 并发编程实战》</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://book.douban.com/subject/26591326/">《Java 并发编程的艺术》</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.itsoku.com/article/182">JUC 中的原子类</a></p>
+</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/">Java多线程与并发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Java%E5%B9%B6%E5%8F%91/">Java并发</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/02/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java并发容器</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/22/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+                        <span class="hidden-mobile">Java设计模式-适配器模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

@@ -6,7 +6,7 @@
   <link href="https://pudewu.github.io/atom.xml" rel="self"/>
   
   <link href="https://pudewu.github.io/"/>
-  <updated>2022-04-25T06:41:31.348Z</updated>
+  <updated>2022-06-11T02:25:23.126Z</updated>
   <id>https://pudewu.github.io/</id>
   
   <author>
@@ -17,11 +17,346 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Java线程池</title>
+    <link href="https://pudewu.github.io/2022/06/11/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
+    <id>https://pudewu.github.io/2022/06/11/Java%E7%BA%BF%E7%A8%8B%E6%B1%A0/</id>
+    <published>2022-06-11T02:16:07.000Z</published>
+    <updated>2022-06-11T02:25:23.126Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="线程池" scheme="https://pudewu.github.io/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-代理模式</title>
+    <link href="https://pudewu.github.io/2022/06/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/06/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-06-07T11:53:34.000Z</published>
+    <updated>2022-06-07T08:19:28.770Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="代理模式" scheme="https://pudewu.github.io/tags/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java并发容器</title>
+    <link href="https://pudewu.github.io/2022/06/02/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/"/>
+    <id>https://pudewu.github.io/2022/06/02/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/</id>
+    <published>2022-06-01T23:36:06.000Z</published>
+    <updated>2022-06-02T01:54:12.205Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="并发容器" scheme="https://pudewu.github.io/tags/%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java原子类</title>
+    <link href="https://pudewu.github.io/2022/05/27/Java%E5%8E%9F%E5%AD%90%E7%B1%BB/"/>
+    <id>https://pudewu.github.io/2022/05/27/Java%E5%8E%9F%E5%AD%90%E7%B1%BB/</id>
+    <published>2022-05-26T23:34:45.000Z</published>
+    <updated>2022-05-27T06:43:27.065Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="Java并发" scheme="https://pudewu.github.io/tags/Java%E5%B9%B6%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-适配器模式</title>
+    <link href="https://pudewu.github.io/2022/05/22/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/05/22/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-05-22T12:50:15.000Z</published>
+    <updated>2022-05-25T02:55:23.274Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="适配器模式" scheme="https://pudewu.github.io/tags/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-原型模式</title>
+    <link href="https://pudewu.github.io/2022/05/21/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/05/21/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-05-21T05:00:00.000Z</published>
+    <updated>2022-05-25T02:55:23.273Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="原型模式" scheme="https://pudewu.github.io/tags/%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java并发-锁核心AbstractQueuedSynchronizer详解</title>
+    <link href="https://pudewu.github.io/2022/05/20/Java%E5%B9%B6%E5%8F%91-%E9%94%81%E6%A0%B8%E5%BF%83AbstractQueuedSynchronizer%E8%AF%A6%E8%A7%A3/"/>
+    <id>https://pudewu.github.io/2022/05/20/Java%E5%B9%B6%E5%8F%91-%E9%94%81%E6%A0%B8%E5%BF%83AbstractQueuedSynchronizer%E8%AF%A6%E8%A7%A3/</id>
+    <published>2022-05-20T15:14:22.000Z</published>
+    <updated>2022-05-25T02:55:23.270Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="AQS" scheme="https://pudewu.github.io/tags/AQS/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java并发锁</title>
+    <link href="https://pudewu.github.io/2022/05/18/Java%E5%B9%B6%E5%8F%91%E9%94%81/"/>
+    <id>https://pudewu.github.io/2022/05/18/Java%E5%B9%B6%E5%8F%91%E9%94%81/</id>
+    <published>2022-05-18T15:11:57.000Z</published>
+    <updated>2022-05-25T02:55:23.273Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="Java并发锁" scheme="https://pudewu.github.io/tags/Java%E5%B9%B6%E5%8F%91%E9%94%81/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-单例模式</title>
+    <link href="https://pudewu.github.io/2022/05/10/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/05/10/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-05-10T06:30:32.000Z</published>
+    <updated>2022-05-13T00:49:36.543Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Java并发核心机制-CAS及ThreadLocal</title>
+    <link href="https://pudewu.github.io/2022/05/09/Java%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6-CAS%E5%8F%8AThreadLocal/"/>
+    <id>https://pudewu.github.io/2022/05/09/Java%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6-CAS%E5%8F%8AThreadLocal/</id>
+    <published>2022-05-09T13:47:31.000Z</published>
+    <updated>2022-05-12T06:11:27.351Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="并发核心机制" scheme="https://pudewu.github.io/tags/%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java并发核心机制-volatile关键字</title>
+    <link href="https://pudewu.github.io/2022/05/09/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B-volatile%E5%85%B3%E9%94%AE%E5%AD%97/"/>
+    <id>https://pudewu.github.io/2022/05/09/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B-volatile%E5%85%B3%E9%94%AE%E5%AD%97/</id>
+    <published>2022-05-09T06:55:28.000Z</published>
+    <updated>2022-05-10T01:11:09.518Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
+    
+    
+    <category term="并发核心机制" scheme="https://pudewu.github.io/tags/%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-抽象工厂模式</title>
+    <link href="https://pudewu.github.io/2022/05/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/05/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-05-06T14:12:46.000Z</published>
+    <updated>2022-05-07T06:04:48.098Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="抽象工厂模式" scheme="https://pudewu.github.io/tags/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java设计模式-工厂方法模式</title>
+    <link href="https://pudewu.github.io/2022/04/27/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/"/>
+    <id>https://pudewu.github.io/2022/04/27/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</id>
+    <published>2022-04-27T07:05:12.000Z</published>
+    <updated>2022-04-28T01:19:59.932Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>Java并发核心机制-synchronized关键字</title>
-    <link href="https://pudewu.github.io/2022/04/14/Java%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/"/>
-    <id>https://pudewu.github.io/2022/04/14/Java%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/</id>
-    <published>2022-04-14T02:19:51.000Z</published>
-    <updated>2022-04-25T06:41:31.348Z</updated>
+    <link href="https://pudewu.github.io/2022/04/25/Java%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/"/>
+    <id>https://pudewu.github.io/2022/04/25/Java%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/</id>
+    <published>2022-04-25T02:19:51.000Z</published>
+    <updated>2022-04-25T06:42:59.406Z</updated>
     
     
       
@@ -48,7 +383,7 @@
     <link href="https://pudewu.github.io/2022/04/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
     <id>https://pudewu.github.io/2022/04/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
     <published>2022-04-07T08:16:17.000Z</published>
-    <updated>2022-04-08T08:47:55.148Z</updated>
+    <updated>2022-04-25T07:02:58.424Z</updated>
     
     
       
@@ -62,8 +397,6 @@
     
     
     <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-    <category term="简单工厂模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
     
     
     <category term="简单工厂模式" scheme="https://pudewu.github.io/tags/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
@@ -75,7 +408,7 @@
     <link href="https://pudewu.github.io/2022/04/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
     <id>https://pudewu.github.io/2022/04/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/</id>
     <published>2022-04-06T03:10:59.000Z</published>
-    <updated>2022-04-06T08:23:42.526Z</updated>
+    <updated>2022-04-25T07:02:51.760Z</updated>
     
     
       
@@ -89,8 +422,6 @@
     
     
     <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-    <category term="策略模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
     
     
     <category term="策略模式" scheme="https://pudewu.github.io/tags/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/"/>
@@ -156,7 +487,7 @@
     <link href="https://pudewu.github.io/2022/02/28/Java%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/"/>
     <id>https://pudewu.github.io/2022/02/28/Java%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</id>
     <published>2022-02-28T12:39:55.000Z</published>
-    <updated>2022-03-23T06:47:52.949Z</updated>
+    <updated>2022-05-10T01:11:09.521Z</updated>
     
     
       
@@ -171,7 +502,7 @@
     
     <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
     
-    <category term="Socket" scheme="https://pudewu.github.io/categories/Java/Socket/"/>
+    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
     
     
     <category term="IO" scheme="https://pudewu.github.io/tags/IO/"/>
@@ -202,357 +533,6 @@
     
     
     <category term="StarRocks" scheme="https://pudewu.github.io/tags/StarRocks/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JavaIO之NIO</title>
-    <link href="https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BNIO/"/>
-    <id>https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BNIO/</id>
-    <published>2022-01-23T14:45:50.000Z</published>
-    <updated>2022-01-23T09:28:20.553Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
-    
-    
-    <category term="NIO" scheme="https://pudewu.github.io/tags/NIO/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JavaIO之BIO</title>
-    <link href="https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BBIO/"/>
-    <id>https://pudewu.github.io/2022/01/23/JavaIO%E4%B9%8BBIO/</id>
-    <published>2022-01-23T14:45:33.000Z</published>
-    <updated>2022-01-23T09:26:22.470Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
-    
-    
-    <category term="BIO" scheme="https://pudewu.github.io/tags/BIO/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java-IO模型</title>
-    <link href="https://pudewu.github.io/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/"/>
-    <id>https://pudewu.github.io/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/</id>
-    <published>2022-01-23T09:19:19.000Z</published>
-    <updated>2022-03-31T07:16:41.737Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="IO" scheme="https://pudewu.github.io/categories/Java/IO/"/>
-    
-    
-    <category term="IO模型,IO" scheme="https://pudewu.github.io/tags/IO%E6%A8%A1%E5%9E%8B-IO/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java容器之Queue</title>
-    <link href="https://pudewu.github.io/2021/12/16/Java%E5%AE%B9%E5%99%A8%E4%B9%8BQueue/"/>
-    <id>https://pudewu.github.io/2021/12/16/Java%E5%AE%B9%E5%99%A8%E4%B9%8BQueue/</id>
-    <published>2021-12-16T06:48:51.000Z</published>
-    <updated>2021-12-16T07:56:35.930Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java-容器" scheme="https://pudewu.github.io/categories/Java/Java-%E5%AE%B9%E5%99%A8/"/>
-    
-    
-    <category term="queue" scheme="https://pudewu.github.io/tags/queue/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java容器之Set</title>
-    <link href="https://pudewu.github.io/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/"/>
-    <id>https://pudewu.github.io/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/</id>
-    <published>2021-12-15T02:23:20.000Z</published>
-    <updated>2021-12-15T05:57:40.294Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java-容器" scheme="https://pudewu.github.io/categories/Java/Java-%E5%AE%B9%E5%99%A8/"/>
-    
-    
-    <category term="set" scheme="https://pudewu.github.io/tags/set/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java容器之Map</title>
-    <link href="https://pudewu.github.io/2021/12/14/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/"/>
-    <id>https://pudewu.github.io/2021/12/14/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/</id>
-    <published>2021-12-14T14:37:26.000Z</published>
-    <updated>2021-12-15T05:57:40.294Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java-容器" scheme="https://pudewu.github.io/categories/Java/Java-%E5%AE%B9%E5%99%A8/"/>
-    
-    
-    <category term="map" scheme="https://pudewu.github.io/tags/map/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java-容器之List</title>
-    <link href="https://pudewu.github.io/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/"/>
-    <id>https://pudewu.github.io/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/</id>
-    <published>2021-11-24T06:24:39.000Z</published>
-    <updated>2021-11-29T11:58:29.798Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java-容器" scheme="https://pudewu.github.io/categories/Java/Java-%E5%AE%B9%E5%99%A8/"/>
-    
-    
-    <category term="Java容器" scheme="https://pudewu.github.io/tags/Java%E5%AE%B9%E5%99%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java-容器之简介</title>
-    <link href="https://pudewu.github.io/2021/11/18/Java-%E5%AE%B9%E5%99%A8%E4%B9%8B%E7%AE%80%E4%BB%8B/"/>
-    <id>https://pudewu.github.io/2021/11/18/Java-%E5%AE%B9%E5%99%A8%E4%B9%8B%E7%AE%80%E4%BB%8B/</id>
-    <published>2021-11-18T08:51:05.000Z</published>
-    <updated>2021-11-24T03:19:22.687Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java-容器" scheme="https://pudewu.github.io/categories/Java/Java-%E5%AE%B9%E5%99%A8/"/>
-    
-    
-    <category term="Java容器" scheme="https://pudewu.github.io/tags/Java%E5%AE%B9%E5%99%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java基础-反射机制</title>
-    <link href="https://pudewu.github.io/2021/11/09/Java%E5%9F%BA%E7%A1%80-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/"/>
-    <id>https://pudewu.github.io/2021/11/09/Java%E5%9F%BA%E7%A1%80-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/</id>
-    <published>2021-11-09T09:00:10.000Z</published>
-    <updated>2021-11-18T08:57:01.750Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/categories/Java/Java%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/tags/Java%E5%9F%BA%E7%A1%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java基础-注解机制</title>
-    <link href="https://pudewu.github.io/2021/11/05/Java%E6%B3%A8%E8%A7%A3%E6%9C%BA%E5%88%B6/"/>
-    <id>https://pudewu.github.io/2021/11/05/Java%E6%B3%A8%E8%A7%A3%E6%9C%BA%E5%88%B6/</id>
-    <published>2021-11-05T03:06:26.000Z</published>
-    <updated>2021-11-05T08:58:01.534Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/categories/Java/Java%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/tags/Java%E5%9F%BA%E7%A1%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java基础-泛型</title>
-    <link href="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80-%E6%B3%9B%E5%9E%8B/"/>
-    <id>https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80-%E6%B3%9B%E5%9E%8B/</id>
-    <published>2021-10-24T13:00:15.000Z</published>
-    <updated>2021-10-28T09:52:46.908Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/categories/Java/Java%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/tags/Java%E5%9F%BA%E7%A1%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java基础概念</title>
-    <link href="https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/"/>
-    <id>https://pudewu.github.io/2021/10/24/Java%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5/</id>
-    <published>2021-10-24T03:37:08.000Z</published>
-    <updated>2021-10-24T06:36:46.479Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/categories/Java/Java%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/tags/Java%E5%9F%BA%E7%A1%80/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java基础-面向对象</title>
-    <link href="https://pudewu.github.io/2021/10/12/Java%E5%9F%BA%E7%A1%80/"/>
-    <id>https://pudewu.github.io/2021/10/12/Java%E5%9F%BA%E7%A1%80/</id>
-    <published>2021-10-12T12:29:25.000Z</published>
-    <updated>2021-10-14T05:45:13.980Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/categories/Java/Java%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="Java基础" scheme="https://pudewu.github.io/tags/Java%E5%9F%BA%E7%A1%80/"/>
     
   </entry>
   

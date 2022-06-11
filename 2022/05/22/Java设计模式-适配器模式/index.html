@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="概念适配器模式把一个类的接口变换成客户端所期待的另一种接口，从而使原本因接口不匹配而无法在一起工作的两个类能够在一起工作。  适配器模式的用途用电器做例子，笔记本电脑的插头一般都是三相的，即除了阳极、阴极外，还有一个地极。而有些地方的电源插座却只有两极，没有地极。电源插座与笔记本电脑的电源插头不匹配使得笔记本电脑无法使用。这时候一个三相到两相的转换器（适配器）就能解决此问题，而这正像是本模式所做的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java设计模式-适配器模式">
+<meta property="og:url" content="https://pudewu.github.io/2022/05/22/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="概念适配器模式把一个类的接口变换成客户端所期待的另一种接口，从而使原本因接口不匹配而无法在一起工作的两个类能够在一起工作。  适配器模式的用途用电器做例子，笔记本电脑的插头一般都是三相的，即除了阳极、阴极外，还有一个地极。而有些地方的电源插座却只有两极，没有地极。电源插座与笔记本电脑的电源插头不匹配使得笔记本电脑无法使用。这时候一个三相到两相的转换器（适配器）就能解决此问题，而这正像是本模式所做的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1653183356330.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1653183812284.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1653232383431.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1653232435596.png">
+<meta property="article:published_time" content="2022-05-22T12:50:15.000Z">
+<meta property="article:modified_time" content="2022-05-25T02:55:23.274Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="适配器模式">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/1653183356330.png">
+  
+  <title>Java设计模式-适配器模式 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/article.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java设计模式-适配器模式">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-22 20:50" pubdate>
+        2022年5月22日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      19 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java设计模式-适配器模式</h1>
+            
+            <div class="markdown-body">
+              <h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a><strong>概念</strong></h3><p><strong>适配器模式把一个类的接口变换成客户端所期待的另一种接口，从而使原本因接口不匹配而无法在一起工作的两个类能够在一起工作。</strong> </p>
+<h3 id="适配器模式的用途"><a href="#适配器模式的用途" class="headerlink" title="适配器模式的用途"></a><strong>适配器模式的用途</strong></h3><p>用电器做例子，笔记本电脑的插头一般都是三相的，即除了阳极、阴极外，还有一个地极。而有些地方的电源插座却只有两极，没有地极。电源插座与笔记本电脑的电源插头不匹配使得笔记本电脑无法使用。这时候一个三相到两相的转换器（适配器）就能解决此问题，而这正像是本模式所做的事情。 </p>
+<h3 id="适配器模式的结构"><a href="#适配器模式的结构" class="headerlink" title="适配器模式的结构"></a>适配器模式的结构</h3><p>适配器模式有<strong>类的适配器模式</strong>和<strong>对象的适配器模式</strong>两种不同的形式。 </p>
+<h3 id="类适配器模式"><a href="#类适配器模式" class="headerlink" title="类适配器模式"></a>类适配器模式</h3><p>类的适配器模式把适配的类的API转换成为目标类的API。 </p>
+<p><img src="/img/work/1653183356330.png" srcset="/img/loading.gif" lazyload></p>
+<p>在上图中可以看出，Adaptee类并没有sampleOperation2()方法，而客户端则期待这个方法。为使客户端能够使用Adaptee类，提供一个中间环节，即类Adapter，把Adaptee的API与Target类的API衔接起来。Adapter与Adaptee是继承关系，这决定了这个适配器模式是类的： </p>
+<p>模式所涉及的角色有： </p>
+<ul>
+<li> <strong>目标(Target)角色：</strong>这就是所期待得到的接口。注意：由于这里讨论的是类适配器模式，因此目标不可以是类。 </li>
+<li> <strong>源(Adaptee)角色：</strong>现在需要适配的接口。 </li>
+<li> <strong>适配器(Adapter)角色：</strong>适配器类是本模式的核心。适配器把源接口转换成目标接口。显然，这一角色不可以是接口，而必须是具体类。 </li>
+</ul>
+<p><strong>代码示例</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Target</span> </span>&#123;<br><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 这是源类Adaptee也有的方法</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation1</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 这是源类Adapteee没有的方法</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation2</span><span class="hljs-params">()</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面给出的是目标角色的源代码，这个角色是以一个JAVA接口的形式实现的。可以看出，这个接口声明了两个方法：sampleOperation1()和sampleOperation2()。而源角色Adaptee是一个具体类，它有一个sampleOperation1()方法，但是没有sampleOperation2()方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Adaptee</span> </span>&#123;<br>    <br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation1</span><span class="hljs-params">()</span></span>&#123;&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>适配器角色Adapter扩展了Adaptee,同时又实现了目标(Target)接口。由于Adaptee没有提供sampleOperation2()方法，而目标接口又要求这个方法，因此适配器角色Adapter实现了这个方法。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Adapter</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Adaptee</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Target</span> </span>&#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 由于源类Adaptee没有方法sampleOperation2()</span><br><span class="hljs-comment">     * 因此适配器补充上这个方法</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation2</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-comment">//写相关的代码</span><br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="对象适配器模式"><a href="#对象适配器模式" class="headerlink" title="对象适配器模式"></a>对象适配器模式</h3><p>与类的适配器模式一样，对象的适配器模式把被适配的类的API转换成为目标类的API，与类的适配器模式不同的是，对象的适配器模式不是使用继承关系连接到Adaptee类，而是使用委派关系连接到Adaptee类。 </p>
+<p><img src="/img/work/1653183812284.png" srcset="/img/loading.gif" lazyload></p>
+<p>从上图可以看出，Adaptee类并没有sampleOperation2()方法，而客户端则期待这个方法。为使客户端能够使用Adaptee类，需要提供一个包装(Wrapper)类Adapter。这个包装类包装了一个Adaptee的实例，从而此包装类能够把Adaptee的API与Target类的API衔接起来。Adapter与Adaptee是委派关系，这决定了适配器模式是对象的。 </p>
+<p><strong>代码示例</strong></p>
+<p>目标类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">Target</span> </span>&#123;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 这是源类Adaptee也有的方法</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation1</span><span class="hljs-params">()</span></span>; <br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 这是源类Adapteee没有的方法</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation2</span><span class="hljs-params">()</span></span>; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Adaptee</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation1</span><span class="hljs-params">()</span></span>&#123;&#125;<br>    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Adapter</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> Adaptee adaptee;<br>    <br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Adapter</span><span class="hljs-params">(Adaptee adaptee)</span></span>&#123;<br>        <span class="hljs-keyword">this</span>.adaptee = adaptee;<br>    &#125;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 源类Adaptee有方法sampleOperation1</span><br><span class="hljs-comment">     * 因此适配器类直接委派即可</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation1</span><span class="hljs-params">()</span></span>&#123;<br>        <span class="hljs-keyword">this</span>.adaptee.sampleOperation1();<br>    &#125;<br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 源类Adaptee没有方法sampleOperation2</span><br><span class="hljs-comment">     * 因此由适配器类需要补充此方法</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">sampleOperation2</span><span class="hljs-params">()</span></span>&#123;<br>        <span class="hljs-comment">//写相关的代码</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="类适配器和对象适配器的权衡"><a href="#类适配器和对象适配器的权衡" class="headerlink" title="类适配器和对象适配器的权衡"></a>类适配器和对象适配器的权衡</h3><p><strong>类适配器：</strong></p>
+<ul>
+<li><strong>类适配器</strong>使用对象继承的方式，是静态的定义方式；</li>
+<li> <strong>对于类适配器</strong>，由于适配器直接继承了Adaptee，使得适配器不能和Adaptee的子类一起工作，因为继承是静态的关系，当适配器继承了Adaptee后，就不可能再去处理 Adaptee的子类了。 </li>
+<li> 适配器可以重定义Adaptee的部分行为，相当于子类覆盖父类的部分实现方法。 </li>
+<li> <strong>对于类适配器</strong>，仅仅引入了一个对象，并不需要额外的引用来间接得到Adaptee。 </li>
+</ul>
+<p><strong>对象适配器:</strong></p>
+<ul>
+<li> <strong>对象适配器</strong>使用对象组合的方式，是动态组合的方式。 </li>
+<li>  <strong>对于对象适配器</strong>，一个适配器可以把多种不同的源适配到同一个目标。换言之，同一个适配器可以把源类和它的子类都适配到目标接口。因为对象适配器采用的是对象组合的关系，只要对象类型正确，是不是子类都无所谓。 </li>
+<li> <strong>对于对象适配器</strong>，要重定义Adaptee的行为比较困难，这种情况下，需要定义Adaptee的子类来实现重定义，然后让适配器组合子类。虽然重定义Adaptee的行为比较困难，但是想要增加一些新的行为则方便的很，而且新增加的行为可同时适用于所有的源。 </li>
+<li><strong>对于对象适配器</strong>，需要额外的引用来间接得到Adaptee。</li>
+</ul>
+<p>建议尽量使用对象适配器的实现方式，多用合成/聚合、少用继承。当然，具体问题具体分析，根据需要来选用实现方式，最适合的才是最好的。 </p>
+<h3 id="适配器模式的优点"><a href="#适配器模式的优点" class="headerlink" title="适配器模式的优点"></a>适配器模式的优点</h3><ul>
+<li><p> <strong>更好的复用性:</strong> 系统需要使用现有的类，而此类的接口不符合系统的需要。那么通过适配器模式就可以让这些功能得到更好的复用。 </p>
+</li>
+<li><p><strong>更好的扩展性:</strong>  在实现适配器功能的时候，可以调用自己开发的功能，从而自然地扩展系统的功能。 </p>
+</li>
+</ul>
+<h3 id="适配器模式的缺点"><a href="#适配器模式的缺点" class="headerlink" title="适配器模式的缺点"></a>适配器模式的缺点</h3><p>过多使用适配器会使得系统非常凌乱，明明调用的是A接口，内部却被适配成了B接口。因此除非必要，不推荐使用适配器，而是直接对系统重构 </p>
+<h3 id="适配器模式典型应用"><a href="#适配器模式典型应用" class="headerlink" title="适配器模式典型应用"></a><strong>适配器模式典型应用</strong></h3><p><strong>spring MVC中的适配器模式</strong> </p>
+<p>Spring MVC中的适配器模式主要用于执行目标 Controller 中的请求处理方法。 </p>
+<p>在Spring MVC中，DispatcherServlet 作为用户，HandlerAdapter 作为期望接口，具体的适配器实现类用于对目标类进行适配，Controller 作为需要适配的类。 </p>
+<p>为什么要在 Spring MVC 中使用适配器模式？Spring MVC 中的 Controller 种类众多，不同类型的 Controller 通过不同的方法来对请求进行处理。如果不利用适配器模式的话，DispatcherServlet 直接获取对应类型的 Controller，需要的自行来判断，像下面这段代码一样： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span>(mappedHandler.getHandler() <span class="hljs-keyword">instanceof</span> MultiActionController)&#123;  <br>   ((MultiActionController)mappedHandler.getHandler()).xxx  <br>&#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(mappedHandler.getHandler() <span class="hljs-keyword">instanceof</span> XXX)&#123;  <br>    ...  <br>&#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(...)&#123;  <br>   ...  <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这样假设如果我们增加一个 HardController,就要在代码中加入一行 if(mappedHandler.getHandler() instanceof HardController)，这种形式就使得程序难以维护，也违反了设计模式中的开闭原则 – 对扩展开放，对修改关闭。 </p>
+<p>我们来看看源码，首先是适配器接口 HandlerAdapter</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">HandlerAdapter</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">supports</span><span class="hljs-params">(Object var1)</span></span>;<br><br>    <span class="hljs-function">ModelAndView <span class="hljs-title">handle</span><span class="hljs-params">(HttpServletRequest var1, HttpServletResponse var2, Object var3)</span> <span class="hljs-keyword">throws</span> Exception</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">long</span> <span class="hljs-title">getLastModified</span><span class="hljs-params">(HttpServletRequest var1, Object var2)</span></span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>现该接口的适配器每一个 <code>Controller</code> 都有一个适配器与之对应，这样的话，每自定义一个 <code>Controller</code> 需要定义一个实现 <code>HandlerAdapter</code> 的适配器。 </p>
+<p>springmvc 中提供的 <code>Controller</code> 实现类有如下 </p>
+<p><img src="/img/work/1653232383431.png" srcset="/img/loading.gif" lazyload></p>
+<p>springmvc 中提供的 <code>HandlerAdapter</code> 实现类如下 </p>
+<p><img src="/img/work/1653232435596.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>HttpRequestHandlerAdapter</code> 这个适配器代码如下 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HttpRequestHandlerAdapter</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">HandlerAdapter</span> </span>&#123;<br><br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">supports</span><span class="hljs-params">(Object handler)</span> </span>&#123;<br>		<span class="hljs-keyword">return</span> (handler <span class="hljs-keyword">instanceof</span> HttpRequestHandler);<br>	&#125;<br><br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-meta">@Nullable</span><br>	<span class="hljs-function"><span class="hljs-keyword">public</span> ModelAndView <span class="hljs-title">handle</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span></span><br><span class="hljs-function">			<span class="hljs-keyword">throws</span> Exception </span>&#123;<br><br>		((HttpRequestHandler) handler).handleRequest(request, response);<br>		<span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;<br>	&#125;<br><br>	<span class="hljs-meta">@Override</span><br>	<span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">long</span> <span class="hljs-title">getLastModified</span><span class="hljs-params">(HttpServletRequest request, Object handler)</span> </span>&#123;<br>		<span class="hljs-keyword">if</span> (handler <span class="hljs-keyword">instanceof</span> LastModified) &#123;<br>			<span class="hljs-keyword">return</span> ((LastModified) handler).getLastModified(request);<br>		&#125;<br>		<span class="hljs-keyword">return</span> -<span class="hljs-number">1L</span>;<br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当Spring容器启动后，会将所有定义好的适配器对象存放在一个List集合中，当一个请求来临时，<code>DispatcherServlet</code> 会通过 <code>handler</code> 的类型找到对应适配器，并将该适配器对象返回给用户，然后就可以统一通过适配器的 <code>hanle()</code> 方法来调用 <code>Controller</code> 中的用于处理请求的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DispatcherServlet</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">FrameworkServlet</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> List&lt;HandlerAdapter&gt; handlerAdapters;<br>    <br>    <span class="hljs-comment">//初始化handlerAdapters</span><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">initHandlerAdapters</span><span class="hljs-params">(ApplicationContext context)</span> </span>&#123;<br>        <span class="hljs-comment">//..省略...</span><br>    &#125;<br>    <br>    <span class="hljs-comment">// 遍历所有的 HandlerAdapters，通过 supports 判断找到匹配的适配器</span><br>    <span class="hljs-function"><span class="hljs-keyword">protected</span> HandlerAdapter <span class="hljs-title">getHandlerAdapter</span><span class="hljs-params">(Object handler)</span> <span class="hljs-keyword">throws</span> ServletException </span>&#123;<br>		<span class="hljs-keyword">for</span> (HandlerAdapter ha : <span class="hljs-keyword">this</span>.handlerAdapters) &#123;<br>			<span class="hljs-keyword">if</span> (logger.isTraceEnabled()) &#123;<br>				logger.trace(<span class="hljs-string">&quot;Testing handler adapter [&quot;</span> + ha + <span class="hljs-string">&quot;]&quot;</span>);<br>			&#125;<br>			<span class="hljs-keyword">if</span> (ha.supports(handler)) &#123;<br>				<span class="hljs-keyword">return</span> ha;<br>			&#125;<br>		&#125;<br>	&#125;<br>	<br>	<span class="hljs-comment">// 分发请求，请求需要找到匹配的适配器来处理</span><br>	<span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doDispatch</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> Exception </span>&#123;<br>		HttpServletRequest processedRequest = request;<br>		HandlerExecutionChain mappedHandler = <span class="hljs-keyword">null</span>;<br><br>		<span class="hljs-comment">// Determine handler for the current request.</span><br>		mappedHandler = getHandler(processedRequest);<br>			<br>		<span class="hljs-comment">// 确定当前请求的匹配的适配器.</span><br>		HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());<br><br>		ha.getLastModified(request, mappedHandler.getHandler());<br>					<br>		mv = ha.handle(processedRequest, response, mappedHandler.getHandler());<br>    &#125;<br>	<span class="hljs-comment">// ...省略...</span><br>&#125;	<br><br></code></pre></td></tr></table></figure>
+
+<p>通过适配器模式我们将所有的 <code>controller</code> 统一交给 <code>HandlerAdapter</code> 处理，免去了写大量的 <code>if-else</code> 语句对 <code>Controller</code> 进行判断，也更利于扩展新的 <code>Controller</code> 类型。 </p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903682136342541#heading-12">https://juejin.cn/post/6844903682136342541#heading-12</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xrq730/p/4906487.html">https://www.cnblogs.com/xrq730/p/4906487.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/java-my-life/archive/2012/04/13/2442795.html">https://www.cnblogs.com/java-my-life/archive/2012/04/13/2442795.html</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">Java设计模式</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/">适配器模式</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/27/Java%E5%8E%9F%E5%AD%90%E7%B1%BB/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java原子类</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/21/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/">
+                        <span class="hidden-mobile">Java设计模式-原型模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

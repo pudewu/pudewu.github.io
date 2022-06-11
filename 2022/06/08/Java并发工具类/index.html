@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="1.CountDownLatch  字面意思为 递减计数锁。用于控制一个线程等待多个线程。   CountDownLatch 维护一个计数器 count，表示需要等待的事件数量。countDown 方法递减计数器，表示有一个事件已经发生。调用 await 方法的线程会一直阻塞直到计数器为零，或者等待中的线程中断，或者等待超时。   CountDownLatch 这个类是比较典型的 AQS 的共享模">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发工具类">
+<meta property="og:url" content="https://pudewu.github.io/2022/06/08/Java%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="1.CountDownLatch  字面意思为 递减计数锁。用于控制一个线程等待多个线程。   CountDownLatch 维护一个计数器 count，表示需要等待的事件数量。countDown 方法递减计数器，表示有一个事件已经发生。调用 await 方法的线程会一直阻塞直到计数器为零，或者等待中的线程中断，或者等待超时。   CountDownLatch 这个类是比较典型的 AQS 的共享模">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/5.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/2.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/3.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/4.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1.png">
+<meta property="article:published_time" content="2022-06-08T09:38:58.000Z">
+<meta property="article:modified_time" content="2022-06-11T03:45:19.394Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="并发工具类">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/5.png">
+  
+  <title>Java并发工具类 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/article.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java并发工具类">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-08 17:38" pubdate>
+        2022年6月8日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java并发工具类</h1>
+            
+            <div class="markdown-body">
+              <h2 id="1-CountDownLatch"><a href="#1-CountDownLatch" class="headerlink" title="1.CountDownLatch"></a>1.CountDownLatch</h2><blockquote>
+<p> 字面意思为 <strong>递减计数锁</strong>。用于<strong>控制一个线程等待多个线程</strong>。 </p>
+<p> <code>CountDownLatch</code> 维护一个计数器 count，表示需要等待的事件数量。<code>countDown</code> 方法递减计数器，表示有一个事件已经发生。调用 <code>await</code> 方法的线程会一直阻塞直到计数器为零，或者等待中的线程中断，或者等待超时。 </p>
+</blockquote>
+<p>CountDownLatch 这个类是比较典型的 AQS 的共享模式的使用，这是一个高频使用的类。 </p>
+<h3 id="1-1-使用例子"><a href="#1-1-使用例子" class="headerlink" title="1.1 使用例子"></a>1.1 使用例子</h3><p> 我们看下 Doug Lea 在 java doc 中给出的例子，这个例子非常实用，我经常会写到这个代码。 </p>
+<p>假设我们有 N ( N &gt; 0 ) 个任务，那么我们会用 N 来初始化一个 CountDownLatch，然后将这个 latch 的引用传递到各个线程中，在每个线程完成了任务后，调用 latch.countDown() 代表完成了一个任务。 </p>
+<p>调用 latch.await() 的方法的线程会阻塞，直到所有的任务完成。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Driver2</span> </span>&#123; <span class="hljs-comment">// ...</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        CountDownLatch doneSignal = <span class="hljs-keyword">new</span> CountDownLatch(N);<br>        Executor e = Executors.newFixedThreadPool(<span class="hljs-number">8</span>);<br><br>        <span class="hljs-comment">// 创建 N 个任务，提交给线程池来执行</span><br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; N; ++i) <span class="hljs-comment">// create and start threads</span><br>            e.execute(<span class="hljs-keyword">new</span> WorkerRunnable(doneSignal, i));<br><br>        <span class="hljs-comment">// 等待所有的任务完成，这个方法才会返回</span><br>        doneSignal.await();           <span class="hljs-comment">// wait for all to finish</span><br>    &#125;<br>&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WorkerRunnable</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CountDownLatch doneSignal;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> i;<br><br>    WorkerRunnable(CountDownLatch doneSignal, <span class="hljs-keyword">int</span> i) &#123;<br>        <span class="hljs-keyword">this</span>.doneSignal = doneSignal;<br>        <span class="hljs-keyword">this</span>.i = i;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            doWork(i);<br>            <span class="hljs-comment">// 这个线程的任务完成了，调用 countDown 方法</span><br>            doneSignal.countDown();<br>        &#125; <span class="hljs-keyword">catch</span> (InterruptedException ex) &#123;<br>        &#125; <span class="hljs-comment">// return;</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">doWork</span><span class="hljs-params">()</span> </span>&#123; ...&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>所以说 CountDownLatch 非常实用，我们常常会将一个比较大的任务进行拆分，然后开启多个线程来执行，等所有线程都执行完了以后，再往下执行其他操作。这里例子中，<strong>只有 main 线程调用了 await 方法</strong>。 </p>
+<p>我们再来看另一个例子，这个例子很典型，用了两个 CountDownLatch： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Driver</span> </span>&#123; <span class="hljs-comment">// ...</span><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        CountDownLatch startSignal = <span class="hljs-keyword">new</span> CountDownLatch(<span class="hljs-number">1</span>);<br>        CountDownLatch doneSignal = <span class="hljs-keyword">new</span> CountDownLatch(N);<br><br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; N; ++i) <span class="hljs-comment">// create and start threads</span><br>            <span class="hljs-keyword">new</span> Thread(<span class="hljs-keyword">new</span> Worker(startSignal, doneSignal)).start();<br><br>        <span class="hljs-comment">// 这边插入一些代码，确保上面的每个线程先启动起来，才执行下面的代码。</span><br>        doSomethingElse();            <span class="hljs-comment">// don&#x27;t let run yet</span><br>        <span class="hljs-comment">// 因为这里 N == 1，所以，只要调用一次，那么所有的 await 方法都可以通过</span><br>        startSignal.countDown();      <span class="hljs-comment">// let all threads proceed</span><br>        doSomethingElse();<br>        <span class="hljs-comment">// 等待所有任务结束</span><br>        doneSignal.await();           <span class="hljs-comment">// wait for all to finish</span><br>    &#125;<br>&#125;<br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Worker</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CountDownLatch startSignal;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CountDownLatch doneSignal;<br><br>    Worker(CountDownLatch startSignal, CountDownLatch doneSignal) &#123;<br>        <span class="hljs-keyword">this</span>.startSignal = startSignal;<br>        <span class="hljs-keyword">this</span>.doneSignal = doneSignal;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 为了让所有线程同时开始任务，我们让所有线程先阻塞在这里</span><br>            <span class="hljs-comment">// 等大家都准备好了，再打开这个门栓</span><br>            startSignal.await();<br>            doWork();<br>            doneSignal.countDown();<br>        &#125; <span class="hljs-keyword">catch</span> (InterruptedException ex) &#123;<br>        &#125; <span class="hljs-comment">// return;</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">doWork</span><span class="hljs-params">()</span> </span>&#123; ...&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个例子中，doneSignal 同第一个例子的使用，我们说说这里的 startSignal。N 个新开启的线程都调用了startSignal.await() 进行阻塞等待，它们阻塞在<strong>栅栏</strong>上，只有当条件满足的时候（startSignal.countDown()），它们才能同时通过这个栅栏，目的是让所有的线程站在一个起跑线上。 </p>
+<p> <img src="/img/work/5.png" srcset="/img/loading.gif" lazyload> </p>
+<p>如果始终只有一个线程调用 await 方法等待任务完成，那么 CountDownLatch 就会简单很多，所以之后的源码分析读者一定要在脑海中构建出这么一个场景：有 m 个线程是做任务的，有 n 个线程在某个栅栏上等待这 m 个线程做完任务，直到所有 m 个任务完成后，n 个线程同时通过栅栏。 </p>
+<h3 id="1-2-源码分析"><a href="#1-2-源码分析" class="headerlink" title="1.2 源码分析"></a>1.2 源码分析</h3><p>构造方法，需要传入一个不小于 0 的整数： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">CountDownLatch</span><span class="hljs-params">(<span class="hljs-keyword">int</span> count)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (count &lt; <span class="hljs-number">0</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> IllegalArgumentException(<span class="hljs-string">&quot;count &lt; 0&quot;</span>);<br>    <span class="hljs-keyword">this</span>.sync = <span class="hljs-keyword">new</span> Sync(count);<br>&#125;<br><span class="hljs-comment">// 老套路了，内部封装一个 Sync 类继承自 AQS</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Sync</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractQueuedSynchronizer</span> </span>&#123;<br>    Sync(<span class="hljs-keyword">int</span> count) &#123;<br>        <span class="hljs-comment">// 这样就 state == count 了</span><br>        setState(count);<br>    &#125;<br>    ...<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>代码都是套路，先分析套路：AQS 里面的 state 是一个整数值，这边用一个 int count 参数其实初始化就是设置了这个值，所有调用了 await 方法的等待线程会挂起，然后有其他一些线程会做 state = state - 1 操作，当 state 减到 0 的同时，那个将 state 减为 0 的线程会负责唤醒 所有调用了 await 方法的线程。都是套路啊，只是 Doug Lea 的套路很深，代码很巧妙，不然我们也没有要分析源码的必要。 </p>
+</blockquote>
+<p>对于 CountDownLatch，我们仅仅需要关心两个方法，一个是 countDown() 方法，另一个是 await() 方法。 </p>
+<p>countDown() 方法每次调用都会将 state 减 1，直到 state 的值为 0；而 await 是一个阻塞方法，当 state 减为 0 的时候，await 方法才会返回。await 可以被多个线程调用，读者这个时候脑子里要有个图：所有调用了 await 方法的线程阻塞在 AQS 的阻塞队列中，等待条件满足（state == 0），将线程从队列中一个个唤醒过来。</p>
+<p>我们用以下程序来分析源码，t1 和 t2 负责调用 countDown() 方法，t3 和 t4 调用 await 方法阻塞：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CountDownLatchDemo</span> </span>&#123;<br><br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        CountDownLatch latch = <span class="hljs-keyword">new</span> CountDownLatch(<span class="hljs-number">2</span>);<br><br>        Thread t1 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                System.out.println(<span class="hljs-string">&quot;线程t1 正在处理任务中。。。。&quot;</span>);<br>                Thread.sleep(<span class="hljs-number">5000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br><br>            System.out.println(<span class="hljs-string">&quot;线程t1 任务处理完毕.&quot;</span>);<br><br>            <span class="hljs-comment">//休息 5秒后(模拟线程工作了5秒),调用countDown()</span><br>            latch.countDown();<br>        &#125;, <span class="hljs-string">&quot;t1&quot;</span>);<br><br>        Thread t2 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                System.out.println(<span class="hljs-string">&quot;线程t2 正在处理任务中。。。。&quot;</span>);<br>                Thread.sleep(<span class="hljs-number">10000</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                e.printStackTrace();<br>            &#125;<br><br>            System.out.println(<span class="hljs-string">&quot;线程t2 处理任务完毕&quot;</span>);<br><br>            <span class="hljs-comment">//休息10秒(模拟线程工作了10秒)，调用countDown()</span><br>            latch.countDown();<br>        &#125;, <span class="hljs-string">&quot;t2&quot;</span>);<br><br>        t1.start();<br>        t2.start();<br><br>        Thread t3 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br><br>            <span class="hljs-comment">//阻塞，等待state为0</span><br>            <span class="hljs-keyword">try</span> &#123;<br>                latch.await();<br>                System.out.println(<span class="hljs-string">&quot;线程t3从await中返回了&quot;</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                System.out.println(<span class="hljs-string">&quot;线程 t3 await 被中断&quot;</span>);<br>                Thread.currentThread().interrupt();<br>            &#125;<br><br>        &#125;, <span class="hljs-string">&quot;t3&quot;</span>);<br><br>        Thread t4 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                latch.await();<br>                System.out.println(<span class="hljs-string">&quot;线程t4从await中返回了&quot;</span>);<br>            &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>                System.out.println(<span class="hljs-string">&quot;线程 t4 await 被中断&quot;</span>);<br>                Thread.currentThread().interrupt();<br>            &#125;<br>        &#125;, <span class="hljs-string">&quot;t4&quot;</span>);<br><br>        t3.start();<br>        t4.start();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出结果:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs txt">线程t1 正在处理任务中。。。。<br>线程t2 正在处理任务中。。。。<br>线程t1 任务处理完毕.<br>线程t2 处理任务完毕<br>线程t3从await中返回了<br>线程t4从await中返回了<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这两条输出，顺序不是绝对的 </p>
+<p>后面的分析，我们假设 t3 先进入阻塞队列 </p>
+</blockquote>
+<p>接下来，我们按照流程一步一步走：先 await 等待，然后被唤醒，await 方法返回。 </p>
+<p>首先，我们来看 await() 方法，它代表线程阻塞，等待 state 的值减为 0 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">await</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>    sync.acquireSharedInterruptibly(<span class="hljs-number">1</span>);<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title">acquireSharedInterruptibly</span><span class="hljs-params">(<span class="hljs-keyword">int</span> arg)</span></span><br><span class="hljs-function">        <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>    <span class="hljs-comment">// 这也是老套路了，我在第二篇的中断那一节说过了</span><br>    <span class="hljs-keyword">if</span> (Thread.interrupted())<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InterruptedException();<br><br>    <span class="hljs-comment">// t3 和 t4 调用 await 的时候，state 都大于 0（state 此时为 2）。</span><br>    <span class="hljs-comment">// 也就是说，这个 if 返回 true，然后往里看</span><br>    <span class="hljs-keyword">if</span> (tryAcquireShared(arg) &lt; <span class="hljs-number">0</span>)<br>        doAcquireSharedInterruptibly(arg);<br>&#125;<br><br><span class="hljs-comment">// 只有当 state == 0 的时候，这个方法才会返回 1</span><br><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">int</span> <span class="hljs-title">tryAcquireShared</span><span class="hljs-params">(<span class="hljs-keyword">int</span> acquires)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> (getState() == <span class="hljs-number">0</span>) ? <span class="hljs-number">1</span> : -<span class="hljs-number">1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>从方法名我们就可以看出，这个方法是获取共享锁，并且此方法是可中断的（中断的时候抛出 InterruptedException 退出这个方法）。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doAcquireSharedInterruptibly</span><span class="hljs-params">(<span class="hljs-keyword">int</span> arg)</span></span><br><span class="hljs-function">    <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>    <span class="hljs-comment">// 1. 入队</span><br>    <span class="hljs-keyword">final</span> Node node = addWaiter(Node.SHARED);<br>    <span class="hljs-keyword">boolean</span> failed = <span class="hljs-keyword">true</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">for</span> (;;) &#123;<br>            <span class="hljs-keyword">final</span> Node p = node.predecessor();<br>            <span class="hljs-keyword">if</span> (p == head) &#123;<br>                <span class="hljs-comment">// 同上，只要 state 不等于 0，那么这个方法返回 -1</span><br>                <span class="hljs-keyword">int</span> r = tryAcquireShared(arg);<br>                <span class="hljs-keyword">if</span> (r &gt;= <span class="hljs-number">0</span>) &#123;<br>                    setHeadAndPropagate(node, r);<br>                    p.next = <span class="hljs-keyword">null</span>; <span class="hljs-comment">// help GC</span><br>                    failed = <span class="hljs-keyword">false</span>;<br>                    <span class="hljs-keyword">return</span>;<br>                &#125;<br>            &#125;<br>            <span class="hljs-comment">// 2</span><br>            <span class="hljs-keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;<br>                parkAndCheckInterrupt())<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InterruptedException();<br>        &#125;<br>    &#125;<span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">if</span> (failed)<br>            cancelAcquire(node);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们来仔细分析这个方法，线程 t3 经过第 1 步 addWaiter 入队以后，我们应该可以得到这个： </p>
+<p> <img src="/img/work/2.png" srcset="/img/loading.gif" lazyload> </p>
+<p>由于 tryAcquireShared 这个方法会返回 -1，所以 if (r &gt;= 0) 这个分支不会进去。到 shouldParkAfterFailedAcquire 的时候，t3 将 head 的 waitStatus 值设置为 -1，如下： </p>
+<p> <img src="/img/work/3.png" srcset="/img/loading.gif" lazyload> </p>
+<p>然后进入到 parkAndCheckInterrupt 的时候，t3 挂起。 </p>
+<p>我们再分析 t4 入队，t4 会将前驱节点 t3 所在节点的 waitStatus 设置为 -1，t4 入队后，应该是这样的： </p>
+<p> <img src="/img/work/4.png" srcset="/img/loading.gif" lazyload> </p>
+<p>然后，t4 也挂起。接下来，t3 和 t4 就等待唤醒了。 </p>
+<p>接下来，我们来看唤醒的流程。为了让下面的示意图更丰富些，我们假设用 10 初始化 CountDownLatch。 </p>
+<p> <img src="/img/work/1.png" srcset="/img/loading.gif" lazyload> </p>
+<p>当然，我们的例子中，其实没有 10 个线程，只有 2 个线程 t1 和 t2，只是为了让图好看些罢了。 </p>
+<p>我们再一步步看具体的流程。首先，我们看 countDown() 方法: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">countDown</span><span class="hljs-params">()</span> </span>&#123;<br>    sync.releaseShared(<span class="hljs-number">1</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">releaseShared</span><span class="hljs-params">(<span class="hljs-keyword">int</span> arg)</span> </span>&#123;<br>    <span class="hljs-comment">// 只有当 state 减为 0 的时候，tryReleaseShared 才返回 true</span><br>    <span class="hljs-comment">// 否则只是简单的 state = state - 1 那么 countDown() 方法就结束了</span><br>    <span class="hljs-comment">//    将 state 减到 0 的那个操作才是最复杂的，继续往下吧</span><br>    <span class="hljs-keyword">if</span> (tryReleaseShared(arg)) &#123;<br>        <span class="hljs-comment">// 唤醒 await 的线程</span><br>        doReleaseShared();<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>&#125;<br><span class="hljs-comment">// 这个方法很简单，用自旋的方法实现 state 减 1</span><br><span class="hljs-function"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">tryReleaseShared</span><span class="hljs-params">(<span class="hljs-keyword">int</span> releases)</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>        <span class="hljs-keyword">int</span> c = getState();<br>        <span class="hljs-keyword">if</span> (c == <span class="hljs-number">0</span>)<br>            <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;<br>        <span class="hljs-keyword">int</span> nextc = c-<span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">if</span> (compareAndSetState(c, nextc))<br>            <span class="hljs-keyword">return</span> nextc == <span class="hljs-number">0</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>countDown 方法就是每次调用都将 state 值减 1，如果 state 减到 0 了，那么就调用下面的方法进行唤醒阻塞队列中的线程： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 调用这个方法的时候，state == 0</span><br><span class="hljs-comment">// 这个方法先不要看所有的代码，按照思路往下到我写注释的地方，我们先跑通一个流程，其他的之后还会仔细分析</span><br><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doReleaseShared</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>        Node h = head;<br>        <span class="hljs-keyword">if</span> (h != <span class="hljs-keyword">null</span> &amp;&amp; h != tail) &#123;<br>            <span class="hljs-keyword">int</span> ws = h.waitStatus;<br>            <span class="hljs-comment">// t3 入队的时候，已经将头节点的 waitStatus 设置为 Node.SIGNAL（-1） 了</span><br>            <span class="hljs-keyword">if</span> (ws == Node.SIGNAL) &#123;<br>                <span class="hljs-comment">// 将 head 的 waitStatue 设置为 0</span><br>                <span class="hljs-keyword">if</span> (!compareAndSetWaitStatus(h, Node.SIGNAL, <span class="hljs-number">0</span>))<br>                    <span class="hljs-keyword">continue</span>;            <span class="hljs-comment">// loop to recheck cases</span><br>                <span class="hljs-comment">// 就是这里，唤醒 head 的后继节点，也就是阻塞队列中的第一个节点</span><br>                <span class="hljs-comment">// 在这里，也就是唤醒 t3</span><br>                unparkSuccessor(h);<br>            &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ws == <span class="hljs-number">0</span> &amp;&amp;<br>                       !compareAndSetWaitStatus(h, <span class="hljs-number">0</span>, Node.PROPAGATE)) <span class="hljs-comment">// todo</span><br>                <span class="hljs-keyword">continue</span>;                <span class="hljs-comment">// loop on failed CAS</span><br>            <span class="hljs-keyword">if</span> (h == head)               <span class="hljs-comment">// loop if head changed</span><br>                <span class="hljs-keyword">break</span>;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>一旦 t3 被唤醒后，我们继续回到 await 的这段代码，parkAndCheckInterrupt 返回，我们先不考虑中断的情况： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doAcquireSharedInterruptibly</span><span class="hljs-params">(<span class="hljs-keyword">int</span> arg)</span></span><br><span class="hljs-function">    <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>    <span class="hljs-keyword">final</span> Node node = addWaiter(Node.SHARED);<br>    <span class="hljs-keyword">boolean</span> failed = <span class="hljs-keyword">true</span>;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">for</span> (;;) &#123;<br>            <span class="hljs-keyword">final</span> Node p = node.predecessor();<br>            <span class="hljs-keyword">if</span> (p == head) &#123;<br>                <span class="hljs-keyword">int</span> r = tryAcquireShared(arg);<br>                <span class="hljs-keyword">if</span> (r &gt;= <span class="hljs-number">0</span>) &#123;<br>                    setHeadAndPropagate(node, r); <span class="hljs-comment">// 2. 这里是下一步</span><br>                    p.next = <span class="hljs-keyword">null</span>; <span class="hljs-comment">// help GC</span><br>                    failed = <span class="hljs-keyword">false</span>;<br>                    <span class="hljs-keyword">return</span>;<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;<br>                <span class="hljs-comment">// 1. 唤醒后这个方法返回</span><br>                parkAndCheckInterrupt())<br>                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> InterruptedException();<br>        &#125;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">if</span> (failed)<br>            cancelAcquire(node);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接下来，t3 会进到 setHeadAndPropagate(node, r) 这个方法，先把 head 给占了，然后唤醒队列中其他的线程： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">setHeadAndPropagate</span><span class="hljs-params">(Node node, <span class="hljs-keyword">int</span> propagate)</span> </span>&#123;<br>    Node h = head; <span class="hljs-comment">// Record old head for check below</span><br>    setHead(node);<br><br>    <span class="hljs-comment">// 下面说的是，唤醒当前 node 之后的节点，即 t3 已经醒了，马上唤醒 t4</span><br>    <span class="hljs-comment">// 类似的，如果 t4 后面还有 t5，那么 t4 醒了以后，马上将 t5 给唤醒了</span><br>    <span class="hljs-keyword">if</span> (propagate &gt; <span class="hljs-number">0</span> || h == <span class="hljs-keyword">null</span> || h.waitStatus &lt; <span class="hljs-number">0</span> ||<br>        (h = head) == <span class="hljs-keyword">null</span> || h.waitStatus &lt; <span class="hljs-number">0</span>) &#123;<br>        Node s = node.next;<br>        <span class="hljs-keyword">if</span> (s == <span class="hljs-keyword">null</span> || s.isShared())<br>            <span class="hljs-comment">// 又是这个方法，只是现在的 head 已经不是原来的空节点了，是 t3 的节点了</span><br>            doReleaseShared();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>又回到这个方法了，那么接下来，我们好好分析 doReleaseShared 这个方法，我们根据流程，头节点 head 此时是 t3 节点了： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 调用这个方法的时候，state == 0</span><br><span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title">doReleaseShared</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">for</span> (;;) &#123;<br>      Node h = head;<br>      <span class="hljs-comment">// 1. h == null: 说明阻塞队列为空</span><br>      <span class="hljs-comment">// 2. h == tail: 说明头结点可能是刚刚初始化的头节点，</span><br>      <span class="hljs-comment">//   或者是普通线程节点，但是此节点既然是头节点了，那么代表已经被唤醒了，阻塞队列没有其他节点了</span><br>      <span class="hljs-comment">// 所以这两种情况不需要进行唤醒后继节点</span><br>      <span class="hljs-keyword">if</span> (h != <span class="hljs-keyword">null</span> &amp;&amp; h != tail) &#123;<br>        <span class="hljs-keyword">int</span> ws = h.waitStatus;<br>        <span class="hljs-comment">// t4 将头节点(此时是 t3)的 waitStatus 设置为 Node.SIGNAL（-1） 了</span><br>        <span class="hljs-keyword">if</span> (ws == Node.SIGNAL) &#123;<br>          <span class="hljs-comment">// 这里 CAS 失败的场景请看下面的解读</span><br>          <span class="hljs-keyword">if</span> (!compareAndSetWaitStatus(h, Node.SIGNAL, <span class="hljs-number">0</span>))<br>            <span class="hljs-keyword">continue</span>;            <span class="hljs-comment">// loop to recheck cases</span><br>          <span class="hljs-comment">// 就是这里，唤醒 head 的后继节点，也就是阻塞队列中的第一个节点</span><br>          <span class="hljs-comment">// 在这里，也就是唤醒 t4</span><br>          unparkSuccessor(h);<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (ws == <span class="hljs-number">0</span> &amp;&amp;<br>                 <span class="hljs-comment">// 这个 CAS 失败的场景是：执行到这里的时候，刚好有一个节点入队，入队会将这个 ws 设置为 -1</span><br>                 !compareAndSetWaitStatus(h, <span class="hljs-number">0</span>, Node.PROPAGATE))<br>          <span class="hljs-keyword">continue</span>;                <span class="hljs-comment">// loop on failed CAS</span><br>        <br>      &#125;<br>      <span class="hljs-comment">// 如果到这里的时候，前面唤醒的线程已经占领了 head，那么再循环</span><br>      <span class="hljs-comment">// 否则，就是 head 没变，那么退出循环，</span><br>      <span class="hljs-comment">// 退出循环是不是意味着阻塞队列中的其他节点就不唤醒了？当然不是，唤醒的线程之后还是会调用这个方法的</span><br>      <span class="hljs-keyword">if</span> (h == head)                   <span class="hljs-comment">// loop if head changed</span><br>        <span class="hljs-keyword">break</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们分析下最后一个 if 语句，然后才能解释第一个 CAS 为什么可能会失败：</p>
+<ol>
+<li>h == head：说明头节点还没有被刚刚用 unparkSuccessor 唤醒的线程（这里可以理解为 t4）占有，此时 break 退出循环。</li>
+<li>h != head：头节点被刚刚唤醒的线程（这里可以理解为 t4）占有，那么这里重新进入下一轮循环，唤醒下一个节点（这里是 t4 ）。我们知道，等到 t4 被唤醒后，其实是会主动唤醒 t5、t6、t7…，那为什么这里要进行下一个循环来唤醒 t5 呢？我觉得是出于吞吐量的考虑。</li>
+</ol>
+<p>满足上面的 2 的场景，那么我们就能知道为什么上面的 CAS 操作 compareAndSetWaitStatus(h, Node.SIGNAL, 0) 会失败了？</p>
+<p>因为当前进行 for 循环的线程到这里的时候，可能刚刚唤醒的线程 t4 也刚刚好到这里了，那么就有可能 CAS 失败了。</p>
+<p>for 循环第一轮的时候会唤醒 t4，t4 醒后会将自己设置为头节点，如果在 t4 设置头节点后，for 循环才跑到 if (h == head)，那么此时会返回 false，for 循环会进入下一轮。t4 唤醒后也会进入到这个方法里面，那么 for 循环第二轮和 t4 就有可能在这个 CAS 相遇，那么就只会有一个成功了。</p>
+<h2 id="2-CyclicBarrier"><a href="#2-CyclicBarrier" class="headerlink" title="2. CyclicBarrier"></a>2. CyclicBarrier</h2>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/">Java多线程与并发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B9%B6%E5%8F%91%E5%B7%A5%E5%85%B7%E7%B1%BB/">并发工具类</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

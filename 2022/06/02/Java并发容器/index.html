@@ -1,0 +1,908 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="1. 同步容器1.1. 同步容器简介在 Java 中，同步容器主要包括 2 类：    Vector、Stack、Hashtable   Vector - Vector 实现了 List 接口。 Vector 实际上就是一个数组，和 ArrayList 类似。但是 Vector 中的方法都是 synchronized 方法，即进行了同步措施。  Stack - Stack 也是一个同步容器，它的方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发容器">
+<meta property="og:url" content="https://pudewu.github.io/2022/06/02/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="1. 同步容器1.1. 同步容器简介在 Java 中，同步容器主要包括 2 类：    Vector、Stack、Hashtable   Vector - Vector 实现了 List 接口。 Vector 实际上就是一个数组，和 ArrayList 类似。但是 Vector 中的方法都是 synchronized 方法，即进行了同步措施。  Stack - Stack 也是一个同步容器，它的方">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/20200605214405.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/20200702204541.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/CopyOnWriteArrayList.png">
+<meta property="article:published_time" content="2022-06-01T23:36:06.000Z">
+<meta property="article:modified_time" content="2022-06-02T01:54:12.205Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="并发容器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/20200605214405.png">
+  
+  <title>Java并发容器 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/article.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Java并发容器">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-02 07:36" pubdate>
+        2022年6月2日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      75 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Java并发容器</h1>
+            
+            <div class="markdown-body">
+              <h2 id="1-同步容器"><a href="#1-同步容器" class="headerlink" title="1. 同步容器"></a>1. 同步容器</h2><h3 id="1-1-同步容器简介"><a href="#1-1-同步容器简介" class="headerlink" title="1.1. 同步容器简介"></a>1.1. 同步容器简介</h3><p>在 Java 中，同步容器主要包括 2 类： </p>
+<ul>
+<li> <code>Vector</code>、<code>Stack</code>、<code>Hashtable</code> </li>
+<li> <code>Vector</code> - <code>Vector</code> 实现了 <code>List</code> 接口。 <code>Vector</code> 实际上就是一个数组，和 <code>ArrayList</code> 类似。但是 <code>Vector</code> 中的方法都是 <code>synchronized</code> 方法，即进行了同步措施。 </li>
+<li><code>Stack</code> - <code>Stack</code> 也是一个同步容器，它的方法也用 <code>synchronized</code> 进行了同步，它实际上是继承于 <code>Vector</code> 类。</li>
+<li><code>Hashtable</code>- <code>Hashtable</code> 实现了 <code>Map</code> 接口，它和 <code>HashMap</code> 很相似，但是 <code>Hashtable</code> 进行了同步处理，而 <code>HashMap</code> 没有。</li>
+<li><code>Collections</code> 类中提供的静态工厂方法创建的类（由 <code>Collections.synchronizedXXX</code> 等方法）</li>
+</ul>
+<h3 id="1-2-同步容器的问题"><a href="#1-2-同步容器的问题" class="headerlink" title="1.2. 同步容器的问题"></a>1.2. 同步容器的问题</h3><p>同步容器的同步原理就是在其 <code>get</code>、<code>set</code>、<code>size</code> 等主要方法上用 <code>synchronized</code> 修饰。 <strong><code>synchronized</code> 可以保证在同一个时刻，只有一个线程可以执行某个方法或者某个代码块</strong>。 </p>
+<p><strong>性能问题</strong></p>
+<p><code>synchronized</code> 的互斥同步会产生阻塞和唤醒线程的开销。显然，这种方式比没有使用 <code>synchronized</code> 的容器性能要差很多。 </p>
+<blockquote>
+<p> 注：尤其是在 Java 1.6 没有对 <code>synchronized</code> 进行优化前，阻塞开销很高。 </p>
+</blockquote>
+<p><strong>安全问题</strong></p>
+<p>同步容器真的绝对安全吗？ </p>
+<p>其实也未必。在做复合操作（非原子操作）时，仍然需要加锁来保护。常见复合操作如下： </p>
+<ul>
+<li><strong>迭代</strong>：反复访问元素，直到遍历完全部元素；</li>
+<li><strong>跳转</strong>：根据指定顺序寻找当前元素的下一个（下 n 个）元素；</li>
+<li><strong>条件运算</strong>：例如若没有则添加等；</li>
+</ul>
+<p>❌ 不安全的示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VectorDemo</span> </span>&#123;<br><br>    <span class="hljs-keyword">static</span> Vector&lt;Integer&gt; vector = <span class="hljs-keyword">new</span> Vector&lt;&gt;();<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;<br>            vector.clear();<br><br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;<br>                vector.add(i);<br>            &#125;<br><br>            Thread t1 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; vector.size(); i++) &#123;<br>                    vector.remove(i);<br>                &#125;<br>            &#125;);<br><br>            Thread t2 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; vector.size(); i++) &#123;<br>                    vector.get(i);<br>                &#125;<br>            &#125;);<br><br>            t1.start();<br>            t2.start();<br><br>            <span class="hljs-keyword">while</span> (Thread.activeCount() &gt; <span class="hljs-number">10</span>) &#123;<br>                System.out.println(<span class="hljs-string">&quot;同时存在10个以上线程，退出！&quot;</span>);<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>以上程序执行时可能会出现数组越界错误。</p>
+<p><code>Vector</code> 是线程安全的，那为什么还会报这个错？ </p>
+<p>这是因为，对于 Vector，虽然能保证每一个时刻只能有一个线程访问它，但是不排除这种可能： </p>
+<p>当某个线程在某个时刻执行这句时： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;vector.size();i++)<br>    vector.get(i);<br></code></pre></td></tr></table></figure>
+
+<p>假若此时 vector 的 size 方法返回的是 10，i 的值为 9 </p>
+<p>然后另外一个线程执行了这句： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span>(<span class="hljs-keyword">int</span> i=<span class="hljs-number">0</span>;i&lt;vector.size();i++)<br>    vector.remove(i);<br></code></pre></td></tr></table></figure>
+
+<p>将下标为 9 的元素删除了。</p>
+<p>那么通过 get 方法访问下标为 9 的元素肯定就会出问题了。</p>
+<p><strong>线程安全示例</strong></p>
+<p>因此为了保证线程安全，必须在方法调用端做额外的同步措施，如下面所示： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VectorDemo2</span> </span>&#123;<br><br>    <span class="hljs-keyword">static</span> Vector&lt;Integer&gt; vector = <span class="hljs-keyword">new</span> Vector&lt;Integer&gt;();<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-keyword">true</span>) &#123;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;<br>                vector.add(i);<br>            &#125;<br><br>            Thread thread1 = <span class="hljs-keyword">new</span> Thread() &#123;<br>                <span class="hljs-meta">@Override</span><br>                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>                    <span class="hljs-keyword">synchronized</span> (VectorDemo2.class) &#123;   <span class="hljs-comment">//进行额外的同步</span><br>                        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; vector.size(); i++) &#123;<br>                            vector.remove(i);<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;;<br><br>            Thread thread2 = <span class="hljs-keyword">new</span> Thread() &#123;<br>                <span class="hljs-meta">@Override</span><br>                <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>                    <span class="hljs-keyword">synchronized</span> (VectorDemo2.class) &#123;<br>                        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; vector.size(); i++) &#123;<br>                            vector.get(i);<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;;<br><br>            thread1.start();<br>            thread2.start();<br><br>            <span class="hljs-keyword">while</span> (Thread.activeCount() &gt; <span class="hljs-number">10</span>) &#123;<br>                System.out.println(<span class="hljs-string">&quot;同时存在 10 个以上线程，退出&quot;</span>);<br>                <span class="hljs-keyword">return</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-并发容器简介"><a href="#2-并发容器简介" class="headerlink" title="2. 并发容器简介"></a>2. 并发容器简介</h2><p>同步容器将所有对容器状态的访问都串行化，以保证线程安全性，这种策略会严重降低并发性。 </p>
+<p>Java 1.5 后提供了多种并发容器，<strong>使用并发容器来替代同步容器，可以极大地提高伸缩性并降低风险</strong>。 </p>
+<p>J.U.C 包中提供了几个非常有用的并发容器作为线程安全的容器： </p>
+<table>
+<thead>
+<tr>
+<th align="center"><strong>并发容器</strong></th>
+<th align="center"><strong>对应的普通容器</strong></th>
+<th align="center"><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">ConcurrentHashMap</td>
+<td align="center">HashMap</td>
+<td align="center">Java 1.8 之前采用分段锁机制细化锁粒度，降低阻塞，从而提高并发性；Java 1.8 之后基于 CAS 实现。</td>
+</tr>
+<tr>
+<td align="center">ConcurrentSkipListMap</td>
+<td align="center">SortedMap</td>
+<td align="center">基于跳表实现的</td>
+</tr>
+<tr>
+<td align="center"><code>CopyOnWriteArrayList</code></td>
+<td align="center">ArrayList</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">CopyOnWriteArraySet</td>
+<td align="center">Set</td>
+<td align="center">基于 <code>CopyOnWriteArrayList</code> 实现。</td>
+</tr>
+<tr>
+<td align="center">ConcurrentSkipListSet</td>
+<td align="center">SortedSet</td>
+<td align="center">基于 <code>ConcurrentSkipListMap</code> 实现。</td>
+</tr>
+<tr>
+<td align="center">ConcurrentLinkedQueue</td>
+<td align="center">Queue</td>
+<td align="center">线程安全的无界队列。底层采用单链表。支持 FIFO。</td>
+</tr>
+<tr>
+<td align="center">ConcurrentLinkedDeque</td>
+<td align="center">Deque</td>
+<td align="center">线程安全的无界双端队列。底层采用双向链表。支持 FIFO 和 FILO。</td>
+</tr>
+<tr>
+<td align="center">ArrayBlockingQueue</td>
+<td align="center">Queue</td>
+<td align="center">数组实现的阻塞队列。</td>
+</tr>
+<tr>
+<td align="center">LinkedBlockingQueue</td>
+<td align="center">Queue</td>
+<td align="center">链表实现的阻塞队列。</td>
+</tr>
+<tr>
+<td align="center">LinkedBlockingDeque</td>
+<td align="center">Deque</td>
+<td align="center">双向链表实现的双端阻塞队列。</td>
+</tr>
+</tbody></table>
+<p>J.U.C 包中提供的并发容器命名一般分为三类： </p>
+<ul>
+<li> Concurrent </li>
+</ul>
+<ol>
+<li>这类型的锁竞争相对于 <code>CopyOnWrite</code> 要高一些，但写操作代价要小一些。</li>
+<li>此外，<code>Concurrent</code> 往往提供了较低的遍历一致性，即：当利用迭代器遍历时，如果容器发生修改，迭代器仍然可以继续进行遍历。代价就是，在获取容器大小 <code>size()</code> ，容器是否为空等方法，不一定完全精确，但这是为了获取并发吞吐量的设计取舍，可以理解。与之相比，如果是使用同步容器，就会出现 <code>fail-fast</code> 问题，即：检测到容器在遍历过程中发生了修改，则抛出 <code>ConcurrentModificationException</code>，不再继续遍历。</li>
+</ol>
+<ul>
+<li><code>CopyOnWrite</code> - 一个线程写，多个线程读。读操作时不加锁，写操作时通过在副本上加锁保证并发安全，空间开销较大。</li>
+<li><code>Blocking</code> - 内部实现一般是基于锁，提供阻塞队列的能力。</li>
+</ul>
+<p>错误示例，产生 <code>ConcurrentModificationException</code> 异常： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">removeKeys</span><span class="hljs-params">(Map&lt;String, Object&gt; map, <span class="hljs-keyword">final</span> String... keys)</span> </span>&#123;<br>    map.keySet().removeIf(key -&gt; ArrayUtil.contains(keys, key));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>错误示例，产生 <code>ConcurrentModificationException</code> 异常： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> &lt;K, V&gt; <span class="hljs-function">Map&lt;K, V&gt; <span class="hljs-title">removeKeys</span><span class="hljs-params">(Map&lt;String, Object&gt; map, <span class="hljs-keyword">final</span> String... keys)</span> </span>&#123;<br>	<span class="hljs-keyword">for</span> (K key : keys) &#123;<br>		map.remove(key);<br>	&#125;<br>	<span class="hljs-keyword">return</span> map;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-并发场景下的-Map"><a href="#2-1-并发场景下的-Map" class="headerlink" title="2.1. 并发场景下的 Map"></a>2.1. 并发场景下的 Map</h3><p>如果对数据有强一致要求，则需使用 <code>Hashtable</code>；在大部分场景通常都是弱一致性的情况下，使用 <code>ConcurrentHashMap</code> 即可；如果数据量在千万级别，且存在大量增删改操作，则可以考虑使用 <code>ConcurrentSkipListMap</code>。</p>
+<h3 id="2-2-并发场景下的-List"><a href="#2-2-并发场景下的-List" class="headerlink" title="2.2. 并发场景下的 List"></a>2.2. 并发场景下的 List</h3><p>读多写少用 <code>CopyOnWriteArrayList</code>。 </p>
+<p>写多读少用 <code>ConcurrentLinkedQueue</code> ，但由于是无界的，要有容量限制，避免无限膨胀，导致内存溢出。 </p>
+<h2 id="3-Map"><a href="#3-Map" class="headerlink" title="3. Map"></a>3. Map</h2><p>Map 接口的两个实现是 ConcurrentHashMap 和 ConcurrentSkipListMap，它们从应用的角度来看，主要区别在于<strong>ConcurrentHashMap 的 key 是无序的，而 ConcurrentSkipListMap 的 key 是有序的</strong>。所以如果你需要保证 key 的顺序，就只能使用 ConcurrentSkipListMap。 </p>
+<p>使用 ConcurrentHashMap 和 ConcurrentSkipListMap 需要注意的地方是，它们的 key 和 value 都不能为空，否则会抛出<code>NullPointerException</code>这个运行时异常。 </p>
+<h3 id="3-1-ConcurrentHashMap"><a href="#3-1-ConcurrentHashMap" class="headerlink" title="3.1. ConcurrentHashMap"></a>3.1. ConcurrentHashMap</h3><p><code>ConcurrentHashMap</code> 是线程安全的 <code>HashMap</code> ，用于替代 <code>Hashtable</code>。 </p>
+<p><strong><code>ConcurrentHashMap</code> 的特性</strong></p>
+<p><code>ConcurrentHashMap</code> <code>实现了</code> <code>ConcurrentMap</code> 接口，而 <code>ConcurrentMap</code> 接口扩展了 <code>Map</code> 接口。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConcurrentHashMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">ConcurrentMap</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt;, <span class="hljs-title">Serializable</span> </span>&#123;<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>ConcurrentHashMap</code> 的实现包含了 <code>HashMap</code> 所有的基本特性，如：数据结构、读写策略等。 </p>
+<p><code>ConcurrentHashMap</code> 没有实现对 <code>Map</code> 加锁以提供独占访问。因此无法通过在客户端加锁的方式来创建新的原子操作。但是，一些常见的复合操作，如：“若没有则添加”、“若相等则移除”、“若相等则替换”，都已经实现为原子操作，并且是围绕 <code>ConcurrentMap</code> 的扩展接口而实现。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">ConcurrentMap</span>&lt;<span class="hljs-title">K</span>, <span class="hljs-title">V</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">Map</span>&lt;<span class="hljs-title">K</span>, <span class="hljs-title">V</span>&gt; </span>&#123;<br><br>    <span class="hljs-comment">// 仅当 K 没有相应的映射值才插入</span><br>    <span class="hljs-function">V <span class="hljs-title">putIfAbsent</span><span class="hljs-params">(K key, V value)</span></span>;<br><br>    <span class="hljs-comment">// 仅当 K 被映射到 V 时才移除</span><br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">remove</span><span class="hljs-params">(Object key, Object value)</span></span>;<br><br>    <span class="hljs-comment">// 仅当 K 被映射到 oldValue 时才替换为 newValue</span><br>    <span class="hljs-function"><span class="hljs-keyword">boolean</span> <span class="hljs-title">replace</span><span class="hljs-params">(K key, V oldValue, V newValue)</span></span>;<br><br>    <span class="hljs-comment">// 仅当 K 被映射到某个值时才替换为 newValue</span><br>    <span class="hljs-function">V <span class="hljs-title">replace</span><span class="hljs-params">(K key, V value)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>不同于 <code>Hashtable</code>，<code>ConcurrentHashMap</code> 提供的迭代器不会抛出 <code>ConcurrentModificationException</code>，因此不需要在迭代过程中对容器加锁。 </p>
+<blockquote>
+<p> 注意：一些需要对整个 <code>Map</code> 进行计算的方法，如 <code>size</code> 和 <code>isEmpty</code> ，由于返回的结果在计算时可能已经过期，所以<strong>并非实时的精确值</strong>。这是一种策略上的权衡，在并发环境下，这类方法由于总在不断变化，所以获取其实时精确值的意义不大。<code>ConcurrentHashMap</code> 弱化这类方法，以换取更重要操作（如：<code>get</code>、<code>put</code>、<code>containesKey</code>、<code>remove</code> 等）的性能。 </p>
+</blockquote>
+<p><strong>ConcurrentHashMap 的用法</strong></p>
+<p>示例：不会出现 <code>ConcurrentModificationException</code> </p>
+<p><code>ConcurrentHashMap</code> 的基本操作与 <code>HashMap</code> 的用法基本一样。不同于 <code>HashMap</code>、<code>Hashtable</code>，<code>ConcurrentHashMap</code> 提供的迭代器不会抛出 <code>ConcurrentModificationException</code>，因此不需要在迭代过程中对容器加锁。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConcurrentHashMapDemo</span> </span>&#123;<br><br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        Map&lt;Integer, Character&gt; hashMap = <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;&gt;();<br>        Thread t1 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            System.out.println(<span class="hljs-string">&quot;写操作线程开始执行&quot;</span>);<br>            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">26</span>; i++) &#123;<br>                hashMap.put(i, (<span class="hljs-keyword">char</span>) (<span class="hljs-string">&#x27;a&#x27;</span> + <span class="hljs-number">1</span>));<br>            &#125;<br>        &#125;);<br><br>        Thread t2 = <span class="hljs-keyword">new</span> Thread(() -&gt; &#123;<br>            System.out.println(<span class="hljs-string">&quot;读操作线程开始执行&quot;</span>);<br>            <span class="hljs-keyword">for</span> (Integer key : hashMap.keySet()) &#123;<br>                System.out.println(key + <span class="hljs-string">&quot; - &quot;</span> + hashMap.get(key));<br>            &#125;<br>        &#125;);<br><br>        t1.start();<br>        t2.start();<br>        Thread.sleep(<span class="hljs-number">1000</span>);<br><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>ConcurrentHashMap 的原理</strong></p>
+<blockquote>
+<p> <code>ConcurrentHashMap</code> 一直在演进，尤其在 Java 1.7 和 Java 1.8，其数据结构和并发机制有很大的差异。 </p>
+</blockquote>
+<ul>
+<li>Java 1.7<ul>
+<li>数据结构：<strong>数组＋单链表</strong></li>
+<li>并发机制：采用分段锁机制细化锁粒度，降低阻塞，从而提高并发性。</li>
+</ul>
+</li>
+<li>Java 1.8<ul>
+<li>数据结构：<strong>数组＋单链表＋红黑树</strong></li>
+<li>并发机制：取消分段锁，之后基于 CAS + synchronized 实现。</li>
+</ul>
+</li>
+</ul>
+<p> <strong>Java 1.7 的实现</strong></p>
+<p>分段锁，是将内部进行分段（Segment），里面是 <code>HashEntry</code> 数组，和 <code>HashMap</code> 类似，哈希相同的条目也是以链表形式存放。 <code>HashEntry</code> 内部使用 <code>volatile</code> 的 <code>value</code> 字段来保证可见性，也利用了不可变对象的机制，以改进利用 <code>Unsafe</code> 提供的底层能力，比如 volatile access，去直接完成部分操作，以最优化性能，毕竟 <code>Unsafe</code> 中的很多操作都是 JVM intrinsic 优化过的。 </p>
+<p> <img src="/img/work/20200605214405.png" srcset="/img/loading.gif" lazyload> </p>
+<p>在进行并发写操作时，<code>ConcurrentHashMap</code> 会获取可重入锁（<code>ReentrantLock</code>），以保证数据一致性。所以，在并发修改期间，相应 <code>Segment</code> 是被锁定的。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConcurrentHashMap</span>&lt;<span class="hljs-title">K</span>, <span class="hljs-title">V</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractMap</span>&lt;<span class="hljs-title">K</span>, <span class="hljs-title">V</span>&gt;</span><br><span class="hljs-class">        <span class="hljs-keyword">implements</span> <span class="hljs-title">ConcurrentMap</span>&lt;<span class="hljs-title">K</span>, <span class="hljs-title">V</span>&gt;, <span class="hljs-title">Serializable</span> </span>&#123;<br><br>    <span class="hljs-comment">// 将整个hashmap分成几个小的map，每个segment都是一个锁；与hashtable相比，这么设计的目的是对于put, remove等操作，可以减少并发冲突，对不属于同一个片段的节点可以并发操作，大大提高了性能</span><br>    <span class="hljs-keyword">final</span> Segment&lt;K,V&gt;[] segments;<br><br>    <span class="hljs-comment">// 本质上Segment类就是一个小的hashmap，里面table数组存储了各个节点的数据，继承了ReentrantLock, 可以作为互拆锁使用</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Segment</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">ReentrantLock</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Serializable</span> </span>&#123;<br>        <span class="hljs-keyword">transient</span> <span class="hljs-keyword">volatile</span> HashEntry&lt;K,V&gt;[] table;<br>        <span class="hljs-keyword">transient</span> <span class="hljs-keyword">int</span> count;<br>    &#125;<br><br>    <span class="hljs-comment">// 基本节点，存储Key， Value值</span><br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HashEntry</span>&lt;<span class="hljs-title">K</span>,<span class="hljs-title">V</span>&gt; </span>&#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> hash;<br>        <span class="hljs-keyword">final</span> K key;<br>        <span class="hljs-keyword">volatile</span> V value;<br>        <span class="hljs-keyword">volatile</span> HashEntry&lt;K,V&gt; next;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>Java 1.8 的实现</strong></p>
+<ul>
+<li>数据结构改进：与 HashMap 一样，将原先 <strong>数组＋单链表</strong> 的数据结构，变更为 <strong>数组＋单链表＋红黑树</strong> 的结构。当出现哈希冲突时，数据会存入数组指定桶的单链表，当链表长度达到 8，则将其转换为红黑树结构，这样其查询的时间复杂度可以降低到 O(logN)，以改进性能。</li>
+<li> 并发机制改进： </li>
+<li>取消 segments 字段，<strong>直接采用 <code>transient volatile HashEntry[] table</code> 保存数据，采用 table 数组元素作为锁，从而实现了对每一行数据进行加锁，进一步减少并发冲突的概率</strong>。</li>
+<li>使用 CAS + <code>sychronized</code> 操作，在特定场景进行无锁并发操作。使用 Unsafe、LongAdder 之类底层手段，进行极端情况的优化。现代 JDK 中，synchronized 已经被不断优化，可以不再过分担心性能差异，另外，相比于 ReentrantLock，它可以减少内存消耗，这是个非常大的优势。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">final</span> V <span class="hljs-title">putVal</span><span class="hljs-params">(K key, V value, <span class="hljs-keyword">boolean</span> onlyIfAbsent)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (key == <span class="hljs-keyword">null</span> || value == <span class="hljs-keyword">null</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> NullPointerException();<br>    <span class="hljs-keyword">int</span> hash = spread(key.hashCode());<br>    <span class="hljs-keyword">int</span> binCount = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (Node&lt;K,V&gt;[] tab = table;;) &#123;<br>        Node&lt;K,V&gt; f; <span class="hljs-keyword">int</span> n, i, fh;<br>        <span class="hljs-comment">// 如果table为空，初始化；否则，根据hash值计算得到数组索引i，如果tab[i]为空，直接新建节点Node即可。注：tab[i]实质为链表或者红黑树的首节点。</span><br>        <span class="hljs-keyword">if</span> (tab == <span class="hljs-keyword">null</span> || (n = tab.length) == <span class="hljs-number">0</span>)<br>            tab = initTable();<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((f = tabAt(tab, i = (n - <span class="hljs-number">1</span>) &amp; hash)) == <span class="hljs-keyword">null</span>) &#123;<br>            <span class="hljs-keyword">if</span> (casTabAt(tab, i, <span class="hljs-keyword">null</span>,<br>                         <span class="hljs-keyword">new</span> Node&lt;K,V&gt;(hash, key, value, <span class="hljs-keyword">null</span>)))<br>                <span class="hljs-keyword">break</span>;                   <span class="hljs-comment">// no lock when adding to empty bin</span><br>        &#125;<br>        <span class="hljs-comment">// 如果tab[i]不为空并且hash值为MOVED，说明该链表正在进行transfer操作，返回扩容完成后的table。</span><br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> ((fh = f.hash) == MOVED)<br>            tab = helpTransfer(tab, f);<br>        <span class="hljs-keyword">else</span> &#123;<br>            V oldVal = <span class="hljs-keyword">null</span>;<br>            <span class="hljs-comment">// 针对首个节点进行加锁操作，而不是segment，进一步减少线程冲突</span><br>            <span class="hljs-keyword">synchronized</span> (f) &#123;<br>                <span class="hljs-keyword">if</span> (tabAt(tab, i) == f) &#123;<br>                    <span class="hljs-keyword">if</span> (fh &gt;= <span class="hljs-number">0</span>) &#123;<br>                        binCount = <span class="hljs-number">1</span>;<br>                        <span class="hljs-keyword">for</span> (Node&lt;K,V&gt; e = f;; ++binCount) &#123;<br>                            K ek;<br>                            <span class="hljs-comment">// 如果在链表中找到值为key的节点e，直接设置e.val = value即可。</span><br>                            <span class="hljs-keyword">if</span> (e.hash == hash &amp;&amp;<br>                                ((ek = e.key) == key ||<br>                                 (ek != <span class="hljs-keyword">null</span> &amp;&amp; key.equals(ek)))) &#123;<br>                                oldVal = e.val;<br>                                <span class="hljs-keyword">if</span> (!onlyIfAbsent)<br>                                    e.val = value;<br>                                <span class="hljs-keyword">break</span>;<br>                            &#125;<br>                            <span class="hljs-comment">// 如果没有找到值为key的节点，直接新建Node并加入链表即可。</span><br>                            Node&lt;K,V&gt; pred = e;<br>                            <span class="hljs-keyword">if</span> ((e = e.next) == <span class="hljs-keyword">null</span>) &#123;<br>                                pred.next = <span class="hljs-keyword">new</span> Node&lt;K,V&gt;(hash, key,<br>                                                          value, <span class="hljs-keyword">null</span>);<br>                                <span class="hljs-keyword">break</span>;<br>                            &#125;<br>                        &#125;<br>                    &#125;<br>                    <span class="hljs-comment">// 如果首节点为TreeBin类型，说明为红黑树结构，执行putTreeVal操作。</span><br>                    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (f <span class="hljs-keyword">instanceof</span> TreeBin) &#123;<br>                        Node&lt;K,V&gt; p;<br>                        binCount = <span class="hljs-number">2</span>;<br>                        <span class="hljs-keyword">if</span> ((p = ((TreeBin&lt;K,V&gt;)f).putTreeVal(hash, key,<br>                                                       value)) != <span class="hljs-keyword">null</span>) &#123;<br>                            oldVal = p.val;<br>                            <span class="hljs-keyword">if</span> (!onlyIfAbsent)<br>                                p.val = value;<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (binCount != <span class="hljs-number">0</span>) &#123;<br>                <span class="hljs-comment">// 如果节点数&gt;＝8，那么转换链表结构为红黑树结构。</span><br>                <span class="hljs-keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD)<br>                    treeifyBin(tab, i);<br>                <span class="hljs-keyword">if</span> (oldVal != <span class="hljs-keyword">null</span>)<br>                    <span class="hljs-keyword">return</span> oldVal;<br>                <span class="hljs-keyword">break</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">// 计数增加1，有可能触发transfer操作(扩容)。</span><br>    addCount(<span class="hljs-number">1L</span>, binCount);<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>ConcurrentHashMap 的实战</strong></p>
+<h5 id="ConcurrentHashMap-错误示例"><a href="#ConcurrentHashMap-错误示例" class="headerlink" title="ConcurrentHashMap 错误示例"></a>ConcurrentHashMap 错误示例</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ConcurrentHashMapErroDemo</span> </span>&#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> THREAD_COUNT = <span class="hljs-number">10</span>;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> ITEM_COUNT = <span class="hljs-number">1000</span>;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>        ConcurrentHashMap&lt;String,Long&gt; concurrentHashMap = getData(ITEM_COUNT - <span class="hljs-number">100</span>);<br>        <span class="hljs-comment">//初始化900个元素</span><br>        System.out.println(<span class="hljs-string">&quot;init size:&quot;</span> + concurrentHashMap.size());<br>        ForkJoinPool forkJoinPool = <span class="hljs-keyword">new</span> ForkJoinPool(THREAD_COUNT);<br>        forkJoinPool.execute(() -&gt; IntStream.rangeClosed(<span class="hljs-number">1</span>,<span class="hljs-number">10</span>).parallel().forEach(i -&gt; &#123;<br>            <span class="hljs-comment">//查询还需要补充多少个元素</span><br>            <span class="hljs-keyword">int</span> gap = ITEM_COUNT - concurrentHashMap.size();<br>            System.out.println(<span class="hljs-string">&quot;gap size:&quot;</span> + gap);<br>            <span class="hljs-comment">//补充元素</span><br>            concurrentHashMap.putAll(getData(gap));<br>        &#125;));<br><br>        <span class="hljs-comment">//等待所有任务完成</span><br>        forkJoinPool.shutdown();<br>        forkJoinPool.awaitTermination(<span class="hljs-number">1</span>,TimeUnit.HOURS);<br>        <span class="hljs-comment">//最后元素个数会是1000吗？</span><br>        System.out.println(<span class="hljs-string">&quot;finish size:&quot;</span> + concurrentHashMap.size());<br><br>    &#125;<br><br><br>    <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ConcurrentHashMap&lt;String, Long&gt; <span class="hljs-title">getData</span><span class="hljs-params">(<span class="hljs-keyword">int</span> count)</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> LongStream.rangeClosed(<span class="hljs-number">1</span>, count).boxed().collect(toConcurrentMap(i -&gt; UUID.randomUUID().toString(), i -&gt; i, (o1, o2) -&gt; o1, ConcurrentHashMap::<span class="hljs-keyword">new</span>));<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>初始大小 900 符合预期，还需要填充 100 个元素。</p>
+<p>预期结果为 1000 个元素，实际大于 1000 个元素。</p>
+<p>【分析】 </p>
+<p>ConcurrentHashMap 对外提供的方法或能力的限制： </p>
+<ul>
+<li>使用了 ConcurrentHashMap，不代表对它的多个操作之间的状态是一致的，是没有其他线程在操作它的，如果需要确保需要手动加锁。</li>
+<li>诸如 size、isEmpty 和 containsValue 等聚合方法，在并发情况下可能会反映 ConcurrentHashMap 的中间状态。因此在并发情况下，这些方法的返回值只能用作参考，而不能用于流程控制。显然，利用 size 方法计算差异值，是一个流程控制。</li>
+<li>诸如 putAll 这样的聚合方法也不能确保原子性，在 putAll 的过程中去获取数据可能会获取到部分数据。</li>
+</ul>
+<p><strong>ConcurrentHashMap 错误示例修正 1.0 版</strong></p>
+<p>通过 synchronized 加锁，当然可以保证数据一致性，但是牺牲了 ConcurrentHashMap 的性能，没有真正发挥出 ConcurrentHashMap 的特性。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//线程个数</span><br>   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> THREAD_COUNT = <span class="hljs-number">10</span>;<br>   <span class="hljs-comment">//总元素数量</span><br>   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> ITEM_COUNT = <span class="hljs-number">1000</span>;<br><br>   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>       ConcurrentHashMap&lt;String, Long&gt; concurrentHashMap = getData(ITEM_COUNT - <span class="hljs-number">100</span>);<br>       <span class="hljs-comment">//初始900个元素</span><br>       System.out.println(<span class="hljs-string">&quot;init size:&quot;</span> + concurrentHashMap.size());<br>       ForkJoinPool forkJoinPool = <span class="hljs-keyword">new</span> ForkJoinPool(THREAD_COUNT);<br>       <span class="hljs-comment">//使用线程池并发处理逻辑</span><br>       forkJoinPool.execute(() -&gt; IntStream.rangeClosed(<span class="hljs-number">1</span>, <span class="hljs-number">10</span>).parallel().forEach(i -&gt; &#123;<br>           <span class="hljs-comment">//查询还需要补充多少个元素</span><br>           <span class="hljs-keyword">synchronized</span> (concurrentHashMap) &#123;<br>               <span class="hljs-keyword">int</span> gap = ITEM_COUNT - concurrentHashMap.size();<br>               System.out.println(<span class="hljs-string">&quot;gap size:&quot;</span> + gap);<br>               <span class="hljs-comment">//补充元素</span><br>               concurrentHashMap.putAll(getData(gap));<br>           &#125;<br>       &#125;));<br>       <span class="hljs-comment">//等待所有任务完成</span><br>       forkJoinPool.shutdown();<br>       forkJoinPool.awaitTermination(<span class="hljs-number">1</span>, TimeUnit.HOURS);<br>       <span class="hljs-comment">//最后元素个数会是1000吗？</span><br>       System.out.println(<span class="hljs-string">&quot;finish size:&quot;</span> + concurrentHashMap.size());<br>   &#125;<br><br>   <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ConcurrentHashMap&lt;String, Long&gt; <span class="hljs-title">getData</span><span class="hljs-params">(<span class="hljs-keyword">int</span> count)</span> </span>&#123;<br>       <span class="hljs-keyword">return</span> LongStream.rangeClosed(<span class="hljs-number">1</span>, count)<br>           .boxed()<br>           .collect(<br>               Collectors.toConcurrentMap(<br>                   i -&gt; UUID.randomUUID().toString(),<br>                   i -&gt; i,<br>                   (o1, o2) -&gt; o1,<br>                   ConcurrentHashMap::<span class="hljs-keyword">new</span>));<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>ConcurrentHashMap 错误示例修正 2.0 版</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//循环次数</span><br>   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> LOOP_COUNT = <span class="hljs-number">10000000</span>;<br>   <span class="hljs-comment">//线程个数</span><br>   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> THREAD_COUNT = <span class="hljs-number">10</span>;<br>   <span class="hljs-comment">//总元素数量</span><br>   <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> ITEM_COUNT = <span class="hljs-number">1000</span>;<br><br>   <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>       StopWatch stopWatch = <span class="hljs-keyword">new</span> StopWatch();<br>       stopWatch.start(<span class="hljs-string">&quot;normaluse&quot;</span>);<br>       Map&lt;String, Long&gt; normaluse = normaluse();<br>       stopWatch.stop();<br>       Assert.isTrue(normaluse.size() == ITEM_COUNT, <span class="hljs-string">&quot;normaluse size error&quot;</span>);<br>       Assert.isTrue(normaluse.values().stream()<br>               .mapToLong(aLong -&gt; aLong).reduce(<span class="hljs-number">0</span>, Long::sum) == LOOP_COUNT<br>           , <span class="hljs-string">&quot;normaluse count error&quot;</span>);<br>       stopWatch.start(<span class="hljs-string">&quot;gooduse&quot;</span>);<br>       Map&lt;String, Long&gt; gooduse = gooduse();<br>       stopWatch.stop();<br>       Assert.isTrue(gooduse.size() == ITEM_COUNT, <span class="hljs-string">&quot;gooduse size error&quot;</span>);<br>       Assert.isTrue(gooduse.values().stream()<br>               .mapToLong(l -&gt; l)<br>               .reduce(<span class="hljs-number">0</span>, Long::sum) == LOOP_COUNT<br>           , <span class="hljs-string">&quot;gooduse count error&quot;</span>);<br>       System.out.println(stopWatch.prettyPrint());<br>   &#125;<br><br>   <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Map&lt;String, Long&gt; <span class="hljs-title">normaluse</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>       ConcurrentHashMap&lt;String, Long&gt; freqs = <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;&gt;(ITEM_COUNT);<br>       ForkJoinPool forkJoinPool = <span class="hljs-keyword">new</span> ForkJoinPool(THREAD_COUNT);<br>       forkJoinPool.execute(() -&gt; IntStream.rangeClosed(<span class="hljs-number">1</span>, LOOP_COUNT).parallel().forEach(i -&gt; &#123;<br>               String key = <span class="hljs-string">&quot;item&quot;</span> + ThreadLocalRandom.current().nextInt(ITEM_COUNT);<br>               <span class="hljs-keyword">synchronized</span> (freqs) &#123;<br>                   <span class="hljs-keyword">if</span> (freqs.containsKey(key)) &#123;<br>                       freqs.put(key, freqs.get(key) + <span class="hljs-number">1</span>);<br>                   &#125; <span class="hljs-keyword">else</span> &#123;<br>                       freqs.put(key, <span class="hljs-number">1L</span>);<br>                   &#125;<br>               &#125;<br>           &#125;<br>       ));<br>       forkJoinPool.shutdown();<br>       forkJoinPool.awaitTermination(<span class="hljs-number">1</span>, TimeUnit.HOURS);<br>       <span class="hljs-keyword">return</span> freqs;<br>   &#125;<br><br>   <span class="hljs-function"><span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Map&lt;String, Long&gt; <span class="hljs-title">gooduse</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException </span>&#123;<br>       ConcurrentHashMap&lt;String, LongAdder&gt; freqs = <span class="hljs-keyword">new</span> ConcurrentHashMap&lt;&gt;(ITEM_COUNT);<br>       ForkJoinPool forkJoinPool = <span class="hljs-keyword">new</span> ForkJoinPool(THREAD_COUNT);<br>       forkJoinPool.execute(() -&gt; IntStream.rangeClosed(<span class="hljs-number">1</span>, LOOP_COUNT).parallel().forEach(i -&gt; &#123;<br>               String key = <span class="hljs-string">&quot;item&quot;</span> + ThreadLocalRandom.current().nextInt(ITEM_COUNT);<br>               freqs.computeIfAbsent(key, k -&gt; <span class="hljs-keyword">new</span> LongAdder()).increment();<br>           &#125;<br>       ));<br>       forkJoinPool.shutdown();<br>       forkJoinPool.awaitTermination(<span class="hljs-number">1</span>, TimeUnit.HOURS);<br>       <span class="hljs-keyword">return</span> freqs.entrySet().stream()<br>           .collect(Collectors.toMap(<br>               e -&gt; e.getKey(),<br>               e -&gt; e.getValue().longValue())<br>           );<br>   &#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-List"><a href="#4-List" class="headerlink" title="4. List"></a>4. List</h2><h3 id="4-1-CopyOnWriteArrayList"><a href="#4-1-CopyOnWriteArrayList" class="headerlink" title="4.1. CopyOnWriteArrayList"></a>4.1. CopyOnWriteArrayList</h3><p><code>CopyOnWriteArrayList</code> 是线程安全的 <code>ArrayList</code>。<code>CopyOnWrite</code> 字面意思为<strong>写的时候会将共享变量新复制一份</strong>出来。复制的好处在于<strong>读操作是无锁的</strong>（也就是无阻塞）。 </p>
+<p>CopyOnWriteArrayList <strong>仅适用于写操作非常少的场景</strong>，而且能够容忍读写的短暂不一致。如果读写比例均衡或者有大量写操作的话，使用 CopyOnWriteArrayList 的性能会非常糟糕。 </p>
+<h4 id="4-1-1-CopyOnWriteArrayList-原理"><a href="#4-1-1-CopyOnWriteArrayList-原理" class="headerlink" title="4.1.1 CopyOnWriteArrayList 原理"></a>4.1.1 CopyOnWriteArrayList 原理</h4><p>CopyOnWriteArrayList 内部维护了一个数组，成员变量 array 就指向这个内部数组，所有的读操作都是基于 array 进行的，如下图所示，迭代器 Iterator 遍历的就是 array 数组。 </p>
+<p> <img src="/img/work/20200702204541.png" srcset="/img/loading.gif" lazyload> </p>
+<ul>
+<li>lock - 执行写时复制操作，需要使用可重入锁加锁</li>
+<li>array - 对象数组，用于存放元素</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/** The lock protecting all mutators */</span><br><span class="hljs-keyword">final</span> <span class="hljs-keyword">transient</span> ReentrantLock lock = <span class="hljs-keyword">new</span> ReentrantLock();<br><br><span class="hljs-comment">/** The array, accessed only via getArray/setArray. */</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> <span class="hljs-keyword">volatile</span> Object[] array;<br></code></pre></td></tr></table></figure>
+
+<p> <img src="/img/work/CopyOnWriteArrayList.png" srcset="/img/loading.gif" lazyload> </p>
+<p>（1）读操作 </p>
+<p>在 <code>CopyOnWriteAarrayList</code> 中，读操作不同步，因为它们在内部数组的快照上工作，所以多个迭代器可以同时遍历而不会相互阻塞 （图 1,2,4） 。 </p>
+<p>CopyOnWriteArrayList 的读操作是不用加锁的，性能很高。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">get</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> get(getArray(), index);<br>&#125;<br><span class="hljs-function"><span class="hljs-keyword">private</span> E <span class="hljs-title">get</span><span class="hljs-params">(Object[] a, <span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> (E) a[index];<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>（2）写操作 </p>
+<p>所有的写操作都是同步的。他们在备份数组（图 3）的副本上工作。写操作完成后，后备阵列将被替换为复制的阵列，并释放锁定。支持数组变得易变，所以替换数组的调用是原子（图 5）。 </p>
+<p>写操作后创建的迭代器将能够看到修改的结构（图 6,7）。 </p>
+<p>写时复制集合返回的迭代器不会抛出 <code>ConcurrentModificationException</code>，因为它们在数组的快照上工作，并且无论后续的修改（2,4）如何，都会像迭代器创建时那样完全返回元素。 </p>
+<p><strong>添加操作</strong> - 添加的逻辑很简单，先将原容器 copy 一份，然后在新副本上执行写操作，之后再切换引用。当然此过程是要加锁的。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">boolean</span> <span class="hljs-title">add</span><span class="hljs-params">(E e)</span> </span>&#123;<br>    <span class="hljs-comment">//ReentrantLock加锁，保证线程安全</span><br>    <span class="hljs-keyword">final</span> ReentrantLock lock = <span class="hljs-keyword">this</span>.lock;<br>    lock.lock();<br>    <span class="hljs-keyword">try</span> &#123;<br>        Object[] elements = getArray();<br>        <span class="hljs-keyword">int</span> len = elements.length;<br>        <span class="hljs-comment">//拷贝原容器，长度为原容器长度加一</span><br>        Object[] newElements = Arrays.copyOf(elements, len + <span class="hljs-number">1</span>);<br>        <span class="hljs-comment">//在新副本上执行添加操作</span><br>        newElements[len] = e;<br>        <span class="hljs-comment">//将原容器引用指向新副本</span><br>        setArray(newElements);<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-comment">//解锁</span><br>        lock.unlock();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>删除操作</strong> - 删除操作同理，将除要删除元素之外的其他元素拷贝到新副本中，然后切换引用，将原容器引用指向新副本。同属写操作，需要加锁。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> E <span class="hljs-title">remove</span><span class="hljs-params">(<span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>    <span class="hljs-comment">//加锁</span><br>    <span class="hljs-keyword">final</span> ReentrantLock lock = <span class="hljs-keyword">this</span>.lock;<br>    lock.lock();<br>    <span class="hljs-keyword">try</span> &#123;<br>        Object[] elements = getArray();<br>        <span class="hljs-keyword">int</span> len = elements.length;<br>        E oldValue = get(elements, index);<br>        <span class="hljs-keyword">int</span> numMoved = len - index - <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">if</span> (numMoved == <span class="hljs-number">0</span>)<br>            <span class="hljs-comment">//如果要删除的是列表末端数据，拷贝前len-1个数据到新副本上，再切换引用</span><br>            setArray(Arrays.copyOf(elements, len - <span class="hljs-number">1</span>));<br>        <span class="hljs-keyword">else</span> &#123;<br>            <span class="hljs-comment">//否则，将除要删除元素之外的其他元素拷贝到新副本中，并切换引用</span><br>            Object[] newElements = <span class="hljs-keyword">new</span> Object[len - <span class="hljs-number">1</span>];<br>            System.arraycopy(elements, <span class="hljs-number">0</span>, newElements, <span class="hljs-number">0</span>, index);<br>            System.arraycopy(elements, index + <span class="hljs-number">1</span>, newElements, index,<br>                              numMoved);<br>            setArray(newElements);<br>        &#125;<br>        <span class="hljs-keyword">return</span> oldValue;<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-comment">//解锁</span><br>        lock.unlock();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>使用示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CopyOnWriteArrayListDemo</span> </span>&#123;<br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ReadTask</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        List&lt;String&gt; list;<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ReadTask</span><span class="hljs-params">(List&lt;String&gt; list)</span> </span>&#123;<br>            <span class="hljs-keyword">this</span>.list = list;<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-keyword">for</span> (String str : list) &#123;<br>                System.out.println(str);<br>            &#125;<br>        &#125;<br>    &#125;<br><br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WriteTask</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Runnable</span> </span>&#123;<br><br>        List&lt;String&gt; list;<br><br>        <span class="hljs-keyword">int</span> index;<br><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">WriteTask</span><span class="hljs-params">(List&lt;String&gt; list, <span class="hljs-keyword">int</span> index)</span> </span>&#123;<br>            <span class="hljs-keyword">this</span>.list = list;<br>            <span class="hljs-keyword">this</span>.index = index;<br>        &#125;<br><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>            list.remove(index);<br>            list.add(index,<span class="hljs-string">&quot;Write_&quot;</span> + index);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title">run</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> NUM = <span class="hljs-number">10</span>;<br><br>        <span class="hljs-comment">// ArrayList 在并发迭代访问时会抛出 ConcurrentModificationException 异常</span><br>        <span class="hljs-comment">// List&lt;String&gt; list = new ArrayList&lt;&gt;();</span><br>        CopyOnWriteArrayList&lt;String&gt; list = <span class="hljs-keyword">new</span> CopyOnWriteArrayList&lt;&gt;();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM; i++) &#123;<br>            list.add(<span class="hljs-string">&quot;main_&quot;</span> + i);<br>            <br>        &#125;<br><br>        ExecutorService executorService = Executors.newFixedThreadPool(NUM);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM; i++) &#123;<br>            executorService.execute(<span class="hljs-keyword">new</span> ReadTask(list));<br>            executorService.execute(<span class="hljs-keyword">new</span> WriteTask(list,i));<br>        &#125;<br>        executorService.shutdown();<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-keyword">new</span> CopyOnWriteArrayListDemo().run();<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<h4 id="CopyOnWriteArrayList-实战"><a href="#CopyOnWriteArrayList-实战" class="headerlink" title="CopyOnWriteArrayList 实战"></a>CopyOnWriteArrayList 实战</h4><h2 id="5-Set"><a href="#5-Set" class="headerlink" title="5. Set"></a>5. Set</h2><p>Set 接口的两个实现是 CopyOnWriteArraySet 和 ConcurrentSkipListSet，使用场景可以参考前面讲述的 CopyOnWriteArrayList 和 ConcurrentSkipListMap，它们的原理都是一样的。 </p>
+<h2 id="6-Queue"><a href="#6-Queue" class="headerlink" title="6. Queue"></a>6. Queue</h2><p>Java 并发包里面 Queue 这类并发容器是最复杂的，你可以从以下两个维度来分类。一个维度是<strong>阻塞与非阻塞</strong>，所谓阻塞指的是：<strong>当队列已满时，入队操作阻塞；当队列已空时，出队操作阻塞</strong>。另一个维度是<strong>单端与双端</strong>，单端指的是只能队尾入队，队首出队；而双端指的是队首队尾皆可入队出队。Java 并发包里<strong>阻塞队列都用 Blocking 关键字标识，单端队列使用 Queue 标识，双端队列使用 Deque 标识</strong>。 </p>
+<h3 id="6-1-BlockingQueue"><a href="#6-1-BlockingQueue" class="headerlink" title="6.1. BlockingQueue"></a>6.1. BlockingQueue</h3><p><code>BlockingQueue</code> 顾名思义，是一个<strong>阻塞队列</strong>。**<code>BlockingQueue</code> 基本都是基于锁实现<strong>。在 <code>BlockingQueue</code> 中，</strong>当队列已满时，入队操作阻塞；当队列已空时，出队操作阻塞**。 </p>
+<p><code>BlockingQueue</code> 接口定义如下： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">interface</span> <span class="hljs-title">BlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">Queue</span>&lt;<span class="hljs-title">E</span>&gt; </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>核心API： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 获取并移除队列头结点，如果必要，其会等待直到队列出现元素</span><br><span class="hljs-function">E <span class="hljs-title">take</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;<br><br><span class="hljs-comment">// 插入元素，如果队列已满，则等待直到队列出现空闲空间</span><br><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">put</span><span class="hljs-params">(E e)</span> <span class="hljs-keyword">throws</span> InterruptedException</span>;<br></code></pre></td></tr></table></figure>
+
+<p><code>BlockingQueue</code> 对插入操作、移除操作、获取元素操作提供了四种不同的方法用于不同的场景中使用： </p>
+<ul>
+<li>抛出异常:  如果试图的操作无法立即执行，抛一个异常。 ；</li>
+<li>特定值:    如果试图的操作无法立即执行，返回一个特定的值(常常是 true / false)。 </li>
+<li> 阻塞:  如果试图的操作无法立即执行，该方法调用将会发生阻塞，直到能够执行。 </li>
+<li> 超时:   如果试图的操作无法立即执行，该方法调用将会发生阻塞，直到能够执行，但等待时间不会超过给定值。返回一个特定值以告知该操作是否成功(典型的是 true / false)。 </li>
+</ul>
+<p> 总结如下： </p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>抛异常</th>
+<th>特定值</th>
+<th>阻塞</th>
+<th>超时</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Insert</td>
+<td>add(e)</td>
+<td>offer(e)</td>
+<td>put(e)</td>
+<td>offer(e, time, unit)</td>
+</tr>
+<tr>
+<td>Remove</td>
+<td>remove()</td>
+<td>poll()</td>
+<td>take()</td>
+<td>poll(time, unit)</td>
+</tr>
+<tr>
+<td>Examine</td>
+<td>element()</td>
+<td>peek()</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><code>BlockingQueue</code> 的各个实现类都遵循了这些规则。</p>
+<p><code>BlockingQueue</code> 不接受 <code>null</code> 值元素。</p>
+<p>JDK 提供了以下阻塞队列： </p>
+<ul>
+<li><code>ArrayBlockingQueue</code> - 一个由<strong>数组结构组成的有界阻塞队列</strong>。</li>
+<li><code>LinkedBlockingQueue</code> - 一个由<strong>链表结构组成的有界阻塞队列</strong>。</li>
+<li><code>PriorityBlockingQueue</code> - 一个<strong>支持优先级排序的无界阻塞队列</strong>。</li>
+<li><code>SynchronousQueue</code> - 一个<strong>不存储元素的阻塞队列</strong>。</li>
+<li><code>DelayQueue</code> - 一个使用优先级队列实现的无界阻塞队列。</li>
+<li><code>LinkedTransferQueue</code> - 一个<strong>由链表结构组成的无界阻塞队列</strong>。</li>
+</ul>
+<p> <code>BlockingQueue</code> 基本都是基于锁实现。 </p>
+<h3 id="6-2-PriorityBlockingQueue-类"><a href="#6-2-PriorityBlockingQueue-类" class="headerlink" title="6.2. PriorityBlockingQueue 类"></a>6.2. PriorityBlockingQueue 类</h3><p><code>PriorityBlockingQueue</code> 类定义如下： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PriorityBlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractQueue</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">BlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span> </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-2-1-PriorityBlockingQueue-要点"><a href="#6-2-1-PriorityBlockingQueue-要点" class="headerlink" title="6.2.1 PriorityBlockingQueue 要点"></a>6.2.1 PriorityBlockingQueue 要点</h4><ul>
+<li><code>PriorityBlockingQueue</code> 可以视为 <code>PriorityQueue</code> 的线程安全版本。</li>
+<li><code>PriorityBlockingQueue</code> 实现了 <code>BlockingQueue</code>，也是一个阻塞队列。</li>
+<li><code>PriorityBlockingQueue</code> 实现了 <code>Serializable</code>，支持序列化。</li>
+<li><code>PriorityBlockingQueue</code> 不接受 <code>null</code> 值元素。</li>
+<li><code>PriorityBlockingQueue</code> 的插入操作 <code>put</code> 方法不会 block，因为它是无界队列（take 方法在队列为空的时候会阻塞）。</li>
+</ul>
+<h4 id="6-2-2-PriorityBlockingQueue-原理"><a href="#6-2-2-PriorityBlockingQueue-原理" class="headerlink" title="6.2.2 PriorityBlockingQueue 原理"></a>6.2.2 PriorityBlockingQueue 原理</h4><p> <code>PriorityBlockingQueue</code> 有两个重要成员： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> Object[] queue;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ReentrantLock lock;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>queue</code> 是一个 <code>Object</code> 数组，用于保存 <code>PriorityBlockingQueue</code> 的元素。</li>
+<li>而可重入锁 <code>lock</code> 则用于在执行插入、删除操作时，保证这个方法在当前线程释放锁之前，其他线程不能访问。</li>
+</ul>
+<p><code>PriorityBlockingQueue</code> 的容量虽然有初始化大小，但是不限制大小，如果当前容量已满，插入新元素时会自动扩容。 </p>
+<h3 id="6-3-ArrayBlockingQueue-类"><a href="#6-3-ArrayBlockingQueue-类" class="headerlink" title="6.3. ArrayBlockingQueue 类"></a>6.3. ArrayBlockingQueue 类</h3><p><code>ArrayBlockingQueue</code> 是由数组结构组成的<strong>有界阻塞队列</strong>。 </p>
+<h4 id="6-3-1-ArrayBlockingQueue-要点"><a href="#6-3-1-ArrayBlockingQueue-要点" class="headerlink" title="6.3.1 ArrayBlockingQueue 要点"></a>6.3.1 ArrayBlockingQueue 要点</h4><p><code>ArrayBlockingQueue</code> 类定义如下： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ArrayBlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractQueue</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">        <span class="hljs-keyword">implements</span> <span class="hljs-title">BlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span> </span>&#123;<br>    <span class="hljs-comment">// 数组的大小就决定了队列的边界，所以初始化时必须指定容量</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ArrayBlockingQueue</span><span class="hljs-params">(<span class="hljs-keyword">int</span> capacity)</span> </span>&#123; <span class="hljs-comment">//... &#125;</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ArrayBlockingQueue</span><span class="hljs-params">(<span class="hljs-keyword">int</span> capacity, <span class="hljs-keyword">boolean</span> fair)</span> </span>&#123; <span class="hljs-comment">//... &#125;</span><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">ArrayBlockingQueue</span><span class="hljs-params">(<span class="hljs-keyword">int</span> capacity, <span class="hljs-keyword">boolean</span> fair, Collection&lt;? extends E&gt; c)</span> </span>&#123; <span class="hljs-comment">//... &#125;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 说明： </p>
+<ul>
+<li><code>ArrayBlockingQueue</code> 实现了 <code>BlockingQueue</code>，也是一个阻塞队列。</li>
+<li><code>ArrayBlockingQueue</code> 实现了 <code>Serializable</code>，支持序列化。</li>
+<li><code>ArrayBlockingQueue</code> 是基于数组实现的有界阻塞队列。所以初始化时必须指定容量。</li>
+</ul>
+<h4 id="6-3-2-ArrayBlockingQueue-原理"><a href="#6-3-2-ArrayBlockingQueue-原理" class="headerlink" title="6.3.2 ArrayBlockingQueue 原理"></a>6.3.2 ArrayBlockingQueue 原理</h4><p><code>ArrayBlockingQueue</code> 的重要成员如下： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 用于存放元素的数组</span><br><span class="hljs-keyword">final</span> Object[] items;<br><span class="hljs-comment">// 下一次读取操作的位置</span><br><span class="hljs-keyword">int</span> takeIndex;<br><span class="hljs-comment">// 下一次写入操作的位置</span><br><span class="hljs-keyword">int</span> putIndex;<br><span class="hljs-comment">// 队列中的元素数量</span><br><span class="hljs-keyword">int</span> count;<br><br><span class="hljs-comment">// 以下几个就是控制并发用的同步器</span><br><span class="hljs-keyword">final</span> ReentrantLock lock;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Condition notEmpty;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Condition notFull;<br></code></pre></td></tr></table></figure>
+
+<p><code>ArrayBlockingQueue</code> 内部以 <code>final</code> 的数组保存数据，数组的大小就决定了队列的边界。 </p>
+<p><code>ArrayBlockingQueue</code> 实现并发同步的原理就是，读操作和写操作都需要获取到 AQS 独占锁才能进行操作。 </p>
+<ul>
+<li>如果队列为空，这个时候读操作的线程进入到读线程队列排队，等待写线程写入新的元素，然后唤醒读线程队列的第一个等待线程。</li>
+<li>如果队列已满，这个时候写操作的线程进入到写线程队列排队，等待读线程将队列元素移除，然后唤醒写线程队列的第一个等待线程。</li>
+</ul>
+<p>对于 <code>ArrayBlockingQueue</code>，我们可以在构造的时候指定以下三个参数： </p>
+<ul>
+<li>队列容量，其限制了队列中最多允许的元素个数；</li>
+<li>指定独占锁是公平锁还是非公平锁。非公平锁的吞吐量比较高，公平锁可以保证每次都是等待最久的线程获取到锁；</li>
+<li>可以指定用一个集合来初始化，将此集合中的元素在构造方法期间就先添加到队列中。</li>
+</ul>
+<h3 id="6-4-LinkedBlockingQueue-类"><a href="#6-4-LinkedBlockingQueue-类" class="headerlink" title="6.4. LinkedBlockingQueue 类"></a>6.4. LinkedBlockingQueue 类</h3><p><code>LinkedBlockingQueue</code> 是由链表结构组成的有界阻塞队列。容易被误解为无边界，但其实其行为和内部代码都是基于有界的逻辑实现的，只不过如果我们没有在创建队列时就指定容量，那么其容量限制就自动被设置为 <code>Integer.MAX_VALUE</code>，成为了无界队列。 </p>
+<h4 id="6-4-1-LinkedBlockingQueue-要点"><a href="#6-4-1-LinkedBlockingQueue-要点" class="headerlink" title="6.4.1 LinkedBlockingQueue 要点"></a>6.4.1 LinkedBlockingQueue 要点</h4><p><code>LinkedBlockingQueue</code> 类定义如下： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LinkedBlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractQueue</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">        <span class="hljs-keyword">implements</span> <span class="hljs-title">BlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span> </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>LinkedBlockingQueue</code> 实现了 <code>BlockingQueue</code>，也是一个阻塞队列。</p>
+</li>
+<li><p><code>LinkedBlockingQueue</code> 实现了 <code>Serializable</code>，支持序列化。</p>
+</li>
+<li><p><code>LinkedBlockingQueue</code> 是基于单链表实现的阻塞队列，可以当做无界队列也可以当做有界队列来使用。</p>
+</li>
+<li><p><code>LinkedBlockingQueue</code> 中元素按照插入顺序保存（FIFO）。</p>
+</li>
+</ul>
+<h4 id="6-4-2-LinkedBlockingQueue-原理"><a href="#6-4-2-LinkedBlockingQueue-原理" class="headerlink" title="6.4.2 LinkedBlockingQueue 原理"></a>6.4.2 LinkedBlockingQueue 原理</h4><p><code>LinkedBlockingQueue</code> 中的重要数据结构： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">// 队列容量</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">int</span> capacity;<br><span class="hljs-comment">// 队列中的元素数量</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AtomicInteger count = <span class="hljs-keyword">new</span> AtomicInteger(<span class="hljs-number">0</span>);<br><span class="hljs-comment">// 队头</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> Node&lt;E&gt; head;<br><span class="hljs-comment">// 队尾</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">transient</span> Node&lt;E&gt; last;<br><span class="hljs-comment">// take, poll, peek 等读操作的方法需要获取到这个锁</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ReentrantLock takeLock = <span class="hljs-keyword">new</span> ReentrantLock();<br><span class="hljs-comment">// 如果读操作的时候队列是空的，那么等待 notEmpty 条件</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Condition notEmpty = takeLock.newCondition();<br><span class="hljs-comment">// put, offer 等写操作的方法需要获取到这个锁</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ReentrantLock putLock = <span class="hljs-keyword">new</span> ReentrantLock();<br><span class="hljs-comment">// 如果写操作的时候队列是满的，那么等待 notFull 条件</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Condition notFull = putLock.newCondition();<br></code></pre></td></tr></table></figure>
+
+<p>这里用了两对 <code>Lock</code> 和 <code>Condition</code>，简单介绍如下： </p>
+<ul>
+<li><code>takeLock</code> 和 <code>notEmpty</code> 搭配：如果要获取（take）一个元素，需要获取 <code>takeLock</code> 锁，但是获取了锁还不够，如果队列此时为空，还需要队列不为空（<code>notEmpty</code>）这个条件（<code>Condition</code>）。</li>
+<li><code>putLock</code> 需要和 <code>notFull</code> 搭配：如果要插入（put）一个元素，需要获取 <code>putLock</code> 锁，但是获取了锁还不够，如果队列此时已满，还需要队列不是满的（notFull）这个条件（<code>Condition</code>）。</li>
+</ul>
+<h3 id="6-5-SynchronousQueue-类"><a href="#6-5-SynchronousQueue-类" class="headerlink" title="6.5. SynchronousQueue 类"></a>6.5. SynchronousQueue 类</h3><p>SynchronousQueue 是<strong>不存储元素的阻塞队列</strong>。每个删除操作都要等待插入操作，反之每个插入操作也都要等待删除动作。那么这个队列的容量是多少呢？是 1 吗？其实不是的，其内部容量是 0。 </p>
+<p><code>SynchronousQueue</code> 定义如下： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SynchronousQueue</span>&lt;<span class="hljs-title">E</span>&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title">AbstractQueue</span>&lt;<span class="hljs-title">E</span>&gt;</span><br><span class="hljs-class">    <span class="hljs-keyword">implements</span> <span class="hljs-title">BlockingQueue</span>&lt;<span class="hljs-title">E</span>&gt;, <span class="hljs-title">java</span>.<span class="hljs-title">io</span>.<span class="hljs-title">Serializable</span> </span>&#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<p> <code>SynchronousQueue</code> 这个类，在线程池的实现类 <code>ScheduledThreadPoolExecutor</code> 中得到了应用。 </p>
+<p> <code>SynchronousQueue</code> 的队列其实是虚的，即队列容量为 0。数据必须从某个写线程交给某个读线程，而不是写到某个队列中等待被消费。 </p>
+<p> <code>SynchronousQueue</code> 中不能使用 peek 方法（在这里这个方法直接返回 null），peek 方法的语义是只读取不移除，显然，这个方法的语义是不符合 SynchronousQueue 的特征的。 </p>
+<p> <code>SynchronousQueue</code> 也不能被迭代，因为根本就没有元素可以拿来迭代的。 </p>
+<p> 虽然 <code>SynchronousQueue</code> 间接地实现了 Collection 接口，但是如果你将其当做 Collection 来用的话，那么集合是空的。 </p>
+<p> 当然，<code>SynchronousQueue</code> 也不允许传递 null 值的（并发包中的容器类好像都不支持插入 null 值，因为 null 值往往用作其他用途，比如用于方法的返回值代表操作失败）。 </p>
+<h3 id="6-6-ConcurrentLinkedDeque-类"><a href="#6-6-ConcurrentLinkedDeque-类" class="headerlink" title="6.6. ConcurrentLinkedDeque 类"></a>6.6. ConcurrentLinkedDeque 类</h3><p><code>Deque</code> 的侧重点是支持对队列头尾都进行插入和删除，所以提供了特定的方法，如:</p>
+<ul>
+<li>尾部插入时需要的 <code>addLast(e)</code>、<code>offerLast(e)</code>。</li>
+<li>尾部删除所需要的 <code>removeLast()</code>、<code>pollLast()</code>。</li>
+</ul>
+<h3 id="6-7-Queue-的并发应用"><a href="#6-7-Queue-的并发应用" class="headerlink" title="6.7. Queue 的并发应用"></a>6.7. Queue 的并发应用</h3><p>Queue 被广泛使用在生产者 - 消费者场景。而在并发场景，利用 <code>BlockingQueue</code> 的阻塞机制，可以减少很多并发协调工作。 </p>
+<p>这么多并发 Queue 的实现，如何选择呢？ </p>
+<ul>
+<li>考虑应用场景中对队列边界的要求。<code>ArrayBlockingQueue</code> 是有明确的容量限制的，而 <code>LinkedBlockingQueue</code> 则取决于我们是否在创建时指定，<code>SynchronousQueue</code> 则干脆不能缓存任何元素。</li>
+<li>从空间利用角度，数组结构的 <code>ArrayBlockingQueue</code> 要比 <code>LinkedBlockingQueue</code> 紧凑，因为其不需要创建所谓节点，但是其初始分配阶段就需要一段连续的空间，所以初始内存需求更大。</li>
+<li>通用场景中，<code>LinkedBlockingQueue</code> 的吞吐量一般优于 <code>ArrayBlockingQueue</code>，因为它实现了更加细粒度的锁操作。</li>
+<li><code>ArrayBlockingQueue</code> 实现比较简单，性能更好预测，属于表现稳定的“选手”。</li>
+<li>可能令人意外的是，很多时候 <code>SynchronousQueue</code> 的性能表现，往往大大超过其他实现，尤其是在队列元素较小的场景。</li>
+</ul>
+<h2 id="7-参考资料"><a href="#7-参考资料" class="headerlink" title="7. 参考资料"></a>7. 参考资料</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://dunwu.github.io/javacore/concurrent/Java%E5%B9%B6%E5%8F%91%E5%92%8C%E5%AE%B9%E5%99%A8.html#_1-%E5%90%8C%E6%AD%A5%E5%AE%B9%E5%99%A8"> 顿悟|Java并发容器</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u010425776/article/details/54890215">https://blog.csdn.net/u010425776/article/details/54890215</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wangxiaotongfan/article/details/52074160">https://blog.csdn.net/wangxiaotongfan/article/details/52074160</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://my.oschina.net/hosee/blog/675884">https://my.oschina.net/hosee/blog/675884</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c0642afe03e0">https://www.jianshu.com/p/c0642afe03e0</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f6730d5784ad">https://www.jianshu.com/p/f6730d5784ad</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.javarticles.com/2012/06/copyonwritearraylist.html">http://www.javarticles.com/2012/06/copyonwritearraylist.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xrq730/p/5020760.html">https://www.cnblogs.com/xrq730/p/5020760.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/leesf456/p/5547853.html">https://www.cnblogs.com/leesf456/p/5547853.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/chengxiao/p/6881974.html">http://www.cnblogs.com/chengxiao/p/6881974.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/dolphin0520/p/3933404.html">http://www.cnblogs.com/dolphin0520/p/3933404.html</a></p>
+</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/">Java多线程与并发</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/">并发容器</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/07/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java设计模式-代理模式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/27/Java%E5%8E%9F%E5%AD%90%E7%B1%BB/">
+                        <span class="hidden-mobile">Java原子类</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

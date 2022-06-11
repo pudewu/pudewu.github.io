@@ -170,7 +170,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="不积跬步,无以至千里">
+            <span class="h2" id="subtitle" title="技术只是解决方式，重要的是人才">
               
             </span>
 
@@ -203,30 +203,31 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis缓存穿透和雪崩">
+        <a href="/2022/01/23/JavaIO%E4%B9%8BNIO/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="JavaIO之NIO">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" target="_self">
-          Redis缓存穿透和雪崩
+        <a href="/2022/01/23/JavaIO%E4%B9%8BNIO/" target="_self">
+          JavaIO之NIO
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" target="_self">
+        <a href="/2022/01/23/JavaIO%E4%B9%8BNIO/" target="_self">
           
           
             
           
-          服务的高可用问题​       Redis缓存的使用，极大的提升了应用程序的性能和效率，特别是数据查询方面。但同时，它也带来了一 些问题。其中，最要害的问题，就是数据的一致性问题，从严格意义上讲，这个问题无解。如果对数据的一致性要求很高，那么就不能使用缓存。 另外的一些典型问题就是，缓存穿透、缓存雪崩和缓存击穿。目前，业界也都有比较流行的解决方案。  
-缓存穿透
-概念  
+          Java NIO1 Java NIO就基本介绍
+Java NIO 全称 Java non-blocking IO ，是指 JDK 提供的新 API。从 JDK1.4 开始，Java 提供了一系列改进的输入/输出的新特性，被统称为 NIO（即 NewIO），是同步非阻塞的。
 
-​    缓存穿透的概
+NIO 相关类都被放在 java.nio 包及子包下，并且对原 java.io 包中的很多类进行改写。【基本案例】
+
+NIO
         </a>
       </p>
 
@@ -234,8 +235,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-10-11 14:26" pubdate>
-              2021-10-11
+            <time datetime="2022-01-23 22:45" pubdate>
+              2022-01-23
             </time>
           </div>
         
@@ -243,7 +244,9 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/IO/">IO</a>
             
           </div>
         
@@ -251,7 +254,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/NIO/">NIO</a>
             
           </div>
         
@@ -263,26 +266,29 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis三种集群模式之Cluster模式">
+        <a href="/2022/01/23/JavaIO%E4%B9%8BBIO/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="JavaIO之BIO">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/" target="_self">
-          Redis三种集群模式之Cluster模式
+        <a href="/2022/01/23/JavaIO%E4%B9%8BBIO/" target="_self">
+          JavaIO之BIO
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/" target="_self">
+        <a href="/2022/01/23/JavaIO%E4%B9%8BBIO/" target="_self">
           
           
             
           
-          1、redis-cluter设计 Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)哨兵模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-clus
+          Java BIO1 IO模型1.1 模型基本说明
+I/O 模型简单的理解：就是用什么样的通道进行数据的发送和接收，很大程度上决定了程序通信的性能。
+Java 共支持 3 种网络编程模型 I/O 模式：BIO、NIO、AIO。
+Java BIO：同步并阻塞（传统阻塞型），服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线
         </a>
       </p>
 
@@ -290,8 +296,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-10-07 15:56" pubdate>
-              2021-10-07
+            <time datetime="2022-01-23 22:45" pubdate>
+              2022-01-23
             </time>
           </div>
         
@@ -299,7 +305,9 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/IO/">IO</a>
             
           </div>
         
@@ -307,7 +315,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/BIO/">BIO</a>
             
           </div>
         
@@ -319,27 +327,45 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis三种集群模式之哨兵模式">
+        <a href="/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java-IO模型">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
-          Redis三种集群模式之哨兵模式
+        <a href="/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/" target="_self">
+          Java-IO模型
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
+        <a href="/2022/01/23/Java-IO%E6%A8%A1%E5%9E%8B/" target="_self">
           
           
             
           
-          1.概述 主从切换技术的方法是：当主服务器宕机后，需要手动把一台从服务器切换为主服务器，这就需要人工 干预，费事费力，还会造成一段时间内服务不可用。这不是一种推荐的方式，更多时候，我们优先考虑 哨兵模式。Redis从2.8开始正式提供了Sentinel（哨兵） 架构来解决这个问题 。
-哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独 立运行。其原理是
+          1 UNIX I/O 模型
+UNIX 系统下的 I/O 模型有 5 种:
+
+
+同步阻塞 I/O
+
+同步非阻塞 I/O
+
+I/O 多路复用
+
+信号驱动 I/O
+
+异步 I/O
+
+
+
+如何去理解 UNIX I/O 模型，大致有以下两个维度：
+
+
+区分同步或异步（synchronous/asynchronous）。简单来说，同步是一种可靠的有序运行机制，当我们进行同步操作时，后续的任务是等待当前调用返回
         </a>
       </p>
 
@@ -347,8 +373,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-10-06 23:12" pubdate>
-              2021-10-06
+            <time datetime="2022-01-23 17:19" pubdate>
+              2022-01-23
             </time>
           </div>
         
@@ -356,7 +382,9 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/IO/">IO</a>
             
           </div>
         
@@ -364,7 +392,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/IO%E6%A8%A1%E5%9E%8B-IO/">IO模型,IO</a>
             
           </div>
         
@@ -376,29 +404,28 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis三种集群模式之主从复制">
+        <a href="/2021/12/16/Java%E5%AE%B9%E5%99%A8%E4%B9%8BQueue/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java容器之Queue">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
-          Redis三种集群模式之主从复制
+        <a href="/2021/12/16/Java%E5%AE%B9%E5%99%A8%E4%B9%8BQueue/" target="_self">
+          Java容器之Queue
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+        <a href="/2021/12/16/Java%E5%AE%B9%E5%99%A8%E4%B9%8BQueue/" target="_self">
           
           
             
           
-          1.概念主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master/leader),后者称为从节点(slave/flollower);数据的复制是单向的，只能由主节点到从节点，Master以写为主，Slave以读为主。
-1.1主从复制的作用主要包括：
-数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。
-故障恢复：当主节点出现问题时，可
+          1.什么是QueueQueue也就是队列，是一种基本的线性数据结构，与之类似的其他数据结构还有数组、链表、栈等。
+Queue是一种遵循先进先出（FIFO: First In, First Out）原则的数据集合，数据在Queue中的流动是单向的，从队尾流向队首。
+如下图所示，元素的插入发生在队尾，删除发生在队首；通常一个元素从队首中取出后，该元素从Queue中删除；非队首的元素，无法直接对其进行读
         </a>
       </p>
 
@@ -406,8 +433,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-10-06 18:35" pubdate>
-              2021-10-06
+            <time datetime="2021-12-16 14:48" pubdate>
+              2021-12-16
             </time>
           </div>
         
@@ -415,7 +442,9 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
             
           </div>
         
@@ -423,7 +452,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/queue/">queue</a>
             
           </div>
         
@@ -435,30 +464,28 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis持久化">
+        <a href="/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java容器之Set">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
-          Redis持久化
+        <a href="/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/" target="_self">
+          Java容器之Set
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+        <a href="/2021/12/15/Java%E5%AE%B9%E5%99%A8%E4%B9%8BSet/" target="_self">
           
           
             
           
-          Redis有两种持久化的方式：快照（RDB文件）和追加式文件（AOF文件）：
-
-RDB持久化方式会在一个特定的间隔保存那个时间点的一个数据快照。
-AOF持久化方式则会记录每一个服务器收到的写操作。在服务启动时，这些记录的操作会逐条执行从而重建出原来的数据。写操作命令记录的格式跟Redis协议一致，以追加的方式进行保存。
-Redis的持久化是可以禁用的，就是说你可以让数据的生命周期只存在于服务器的运
+          基于jdk1.8介绍Set接口下的常用实现类。
+1 java 集合框架
+由类图我们可以看到，set接口继承自Collection接口且有四个实现类，分别为AbstractSet、HashSet、LinkedHashSet和TreeSet，其中AbstractSet为抽象类，继承自AbstractCollection，实现了最基本的Collection骨架。下面我们分别来看一下其余三个实现类的实现原
         </a>
       </p>
 
@@ -466,8 +493,8 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-30 16:47" pubdate>
-              2021-09-30
+            <time datetime="2021-12-15 10:23" pubdate>
+              2021-12-15
             </time>
           </div>
         
@@ -475,7 +502,9 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
             
           </div>
         
@@ -483,7 +512,7 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/set/">set</a>
             
           </div>
         
@@ -495,30 +524,27 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis.conf详解">
+        <a href="/2021/12/14/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java容器之Map">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/" target="_self">
-          Redis.conf详解
+        <a href="/2021/12/14/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/" target="_self">
+          Java容器之Map
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/" target="_self">
+        <a href="/2021/12/14/Java%E5%AE%B9%E5%99%A8%E4%B9%8BMap/" target="_self">
           
           
             
           
-          以下将从配置文件中顺序往下讲解,涉及主从复制，持久化将会另起讲解
-单位
-1.配置文件unit单位大小写不敏感
-包含
-类似我们nginx中的include中的包含文件
+          1.Map集合概述1.1概述
+如果程序中存储了几百万个学生，而且经常需要使用学号来搜索某个学生，那么这个需求有效的数据结构就是Map。Map是一种依照键（key）存储元素的容器，键（key）很像下标，在List中下标是整数。在Map中键（key）可以使任意类型的对象。Map中不能有重复的键（Key），每个键（key）都有一个对应的值（value）。一个键（key）和它对应的值构成map集合中的一个
         </a>
       </p>
 
@@ -526,8 +552,8 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-29 22:00" pubdate>
-              2021-09-29
+            <time datetime="2021-12-14 22:37" pubdate>
+              2021-12-14
             </time>
           </div>
         
@@ -535,7 +561,9 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
             
           </div>
         
@@ -543,7 +571,7 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/map/">map</a>
             
           </div>
         
@@ -555,38 +583,29 @@ Redis的持久化是可以禁用的，就是说你可以让数据的生命周期
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis事务">
+        <a href="/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java-容器之List">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
-          Redis事务
+        <a href="/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/" target="_self">
+          Java-容器之List
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+        <a href="/2021/11/24/Java-%E5%AE%B9%E5%99%A8%E4%B9%8BList/" target="_self">
           
           
             
           
-          
-事务
-
- redis单条命令是原子性的，但是事务不保证原子性 
-redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行
- 一次性、顺序性、排他性！执行一系列命令！ 
-1------ 队列 set set set 执行------
-
-
-
- 事务没有隔离级别的概念 
-所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec
-Red
+          1. List 简介
+List 是一个接口，它继承于 Collection 的接口。它代表着有序的队列。
+AbstractList 是一个抽象类，它继承于 AbstractCollection。AbstractList 实现了 List 接口中除 size()、get(int location) 之外的函数。
+AbstractSequentialList 是一个抽象类，它继承于 AbstractL
         </a>
       </p>
 
@@ -594,8 +613,8 @@ Red
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-28 22:01" pubdate>
-              2021-09-28
+            <time datetime="2021-11-24 14:24" pubdate>
+              2021-11-24
             </time>
           </div>
         
@@ -603,7 +622,9 @@ Red
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
             
           </div>
         
@@ -611,7 +632,7 @@ Red
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/Java%E5%AE%B9%E5%99%A8/">Java容器</a>
             
           </div>
         
@@ -623,26 +644,40 @@ Red
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis的三种特殊类型">
+        <a href="/2021/11/18/Java-%E5%AE%B9%E5%99%A8%E4%B9%8B%E7%AE%80%E4%BB%8B/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java-容器之简介">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/" target="_self">
-          Redis的三种特殊类型
+        <a href="/2021/11/18/Java-%E5%AE%B9%E5%99%A8%E4%B9%8B%E7%AE%80%E4%BB%8B/" target="_self">
+          Java-容器之简介
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/" target="_self">
+        <a href="/2021/11/18/Java-%E5%AE%B9%E5%99%A8%E4%B9%8B%E7%AE%80%E4%BB%8B/" target="_self">
           
           
             
           
-          三种特殊数据类型Geospatial 地理位置朋友的定位，附近的人，打车距离计算？ Redis 的 Geo 在Redis3.2 版本就推出了！ 这个功能可以推算地理位置的信息，两地之间的距离，方圆 几里的人！ 
+          1.容器简介1.1. 数组与容器Java 中常用的存储容器就是数组和容器，二者有以下区别：
+
+存储大小是否固定
+数组的长度固定；
+容器的长度可变。
+
+
+数据类型
+数组可以存储基本数据类型，也可以存储引用数据类型；
+容器只能存储引用数据类型，基本数据类型的变量要转换成对应的包装类才能放入容器类中。
+
+
+
+1.2. 容器框架
+Java 容器框架主要分为 Collection 和 Map 两种。其中，C
         </a>
       </p>
 
@@ -650,8 +685,8 @@ Red
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-26 20:50" pubdate>
-              2021-09-26
+            <time datetime="2021-11-18 16:51" pubdate>
+              2021-11-18
             </time>
           </div>
         
@@ -659,7 +694,7 @@ Red
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java-%E5%AE%B9%E5%99%A8/">Java-容器</a>
             
           </div>
         
@@ -667,7 +702,7 @@ Red
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/Java%E5%AE%B9%E5%99%A8/">Java容器</a>
             
           </div>
         
@@ -679,30 +714,29 @@ Red
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/09/25/redis%E5%9F%BA%E7%A1%80/" target="_self">
-          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis基础">
+        <a href="/2021/11/09/Java%E5%9F%BA%E7%A1%80-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java基础-反射机制">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/09/25/redis%E5%9F%BA%E7%A1%80/" target="_self">
-          Redis基础
+        <a href="/2021/11/09/Java%E5%9F%BA%E7%A1%80-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" target="_self">
+          Java基础-反射机制
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/09/25/redis%E5%9F%BA%E7%A1%80/" target="_self">
+        <a href="/2021/11/09/Java%E5%9F%BA%E7%A1%80-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" target="_self">
           
           
             
           
-          概述
-Redis是什么？
+          1.反射简介1.1 什么是反射
+Java的反射（reflection）机制是指在程序的运行状态中，可以构造任意一个类的对象，可以了解任意一个对象所属的类，可以了解任意一个类的成员变量和方法，可以调用任意一个对象的属性和方法。这种动态获取程序信息以及动态调用对象的功能称为Java语言的反射机制。反射被视为动态语言的关键。（引自百度百科）
 
- Redis（Remote Dictionary Server )，即远程字典服务，是一个开源的使用ANSI C语言编写、支持网络、可基于内存亦可持久化的日志型、Key-Value数据库，并提供多种语言的API。从2010年3月15日起，Redis的开发工作由VMware主持。从2013年5月开始，Redis的开发由Pivotal赞助。 
- 免费和开源！是当下最热门的 
+核心反射机制 java.lang.reflect提供对任意类
         </a>
       </p>
 
@@ -710,8 +744,8 @@ Redis是什么？
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-25 20:08" pubdate>
-              2021-09-25
+            <time datetime="2021-11-09 17:00" pubdate>
+              2021-11-09
             </time>
           </div>
         
@@ -719,7 +753,9 @@ Redis是什么？
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Redis/">Redis</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
             
           </div>
         
@@ -727,7 +763,7 @@ Redis是什么？
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Redis/">Redis</a>
+              <a href="/tags/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
             
           </div>
         
@@ -739,27 +775,32 @@ Redis是什么？
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/" target="_self">
-          <img src="/img/springboot.png" srcset="/img/loading.gif" lazyload alt="SpringBoot整合Flowable工作流(1)">
+        <a href="/2021/11/05/Java%E6%B3%A8%E8%A7%A3%E6%9C%BA%E5%88%B6/" target="_self">
+          <img src="/img/java.png" srcset="/img/loading.gif" lazyload alt="Java基础-注解机制">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/" target="_self">
-          SpringBoot整合Flowable工作流(1)
+        <a href="/2021/11/05/Java%E6%B3%A8%E8%A7%A3%E6%9C%BA%E5%88%B6/" target="_self">
+          Java基础-注解机制
         </a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/2021/09/17/SpringBoot%E6%95%B4%E5%90%88Flowable%E5%B7%A5%E4%BD%9C%E6%B5%81/" target="_self">
+        <a href="/2021/11/05/Java%E6%B3%A8%E8%A7%A3%E6%9C%BA%E5%88%B6/" target="_self">
           
           
             
           
-          Flowable流程图Flowable是什么？ Flowable是一个使用Java编写的轻量级业务流程引擎。Flowable流程引擎可用于部署BPMN 2.0流程定义（用于定义流程的行业XML标准）， 创建这些流程定义的流程实例，进行查询，访问运行中或历史的流程实例与相关数据，等等。
- Flowable可以十分灵活地加入你的应用/服务/构架。可以将JAR形式发布的Flowable库加入应用或服务，
+          1.概述1.1 注解：
+从本质上来说，注解是一种标签，其实质上可以视为一种特殊的注释，如果没有解析它的代码，它并不比普通注释强。。
+
+解析一个注解往往有两种形式：
+
+编译期直接的扫描 - 编译器的扫描指的是编译器在对 java 代码编译字节码的过程中会检测到某个类或者方法被一些注解修饰，这时它就会对于这些注解进行某些处理。这种情况只适用于 JDK 内置的注解类。
+运行期的反射 - 如果要自定义注解
         </a>
       </p>
 
@@ -767,8 +808,8 @@ Redis是什么？
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-17 16:36" pubdate>
-              2021-09-17
+            <time datetime="2021-11-05 11:06" pubdate>
+              2021-11-05
             </time>
           </div>
         
@@ -776,7 +817,9 @@ Redis是什么？
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/SpringBoot/">SpringBoot</a>
+              <a href="/categories/Java/">Java</a>
+            
+              <a href="/categories/Java/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
             
           </div>
         
@@ -784,7 +827,7 @@ Redis是什么？
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/SpringBoot/">SpringBoot</a>
+              <a href="/tags/Java%E5%9F%BA%E7%A1%80/">Java基础</a>
             
           </div>
         
@@ -796,7 +839,7 @@ Redis是什么？
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span>
+      <a class="extend prev" rel="prev" href="/page/2/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/#board">4</a><a class="page-number" href="/page/5/#board">5</a><a class="extend next" rel="next" href="/page/4/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
