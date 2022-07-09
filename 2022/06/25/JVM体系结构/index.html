@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="1. 虚拟机与Java虚拟机所谓虚拟机（Virtual Machine），就是一台虚拟的计算机。它是一款软件，用来执行一系列虚拟计算机指令。大体上，虚拟机可以分为系统虚拟机和程序虚拟机。  Visaual Box，VMware 就属于系统虚拟机，它们完全是对物理计算机的仿真，提供了一个可运行完整操作系统的软件平台 程序虚拟机的典型代表就是 Java 虚拟机，它专门为执行单个计算机程序而设计，在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM体系结构">
+<meta property="og:url" content="https://pudewu.github.io/2022/06/25/JVM%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="1. 虚拟机与Java虚拟机所谓虚拟机（Virtual Machine），就是一台虚拟的计算机。它是一款软件，用来执行一系列虚拟计算机指令。大体上，虚拟机可以分为系统虚拟机和程序虚拟机。  Visaual Box，VMware 就属于系统虚拟机，它们完全是对物理计算机的仿真，提供了一个可运行完整操作系统的软件平台 程序虚拟机的典型代表就是 Java 虚拟机，它专门为执行单个计算机程序而设计，在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220622203711721.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220623090738586.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220622205607578.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220622205956516.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220622210054216.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1656081717643.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220622211258907.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1656081900581.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1656084051077.png">
+<meta property="article:published_time" content="2022-06-25T01:31:34.000Z">
+<meta property="article:modified_time" content="2022-07-02T03:02:13.709Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="JVM体系">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/image-20220622203711721.png">
+  
+  <title>JVM体系结构 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/article.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="JVM体系结构">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-06-25 09:31" pubdate>
+        2022年6月25日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      22 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">JVM体系结构</h1>
+            
+            <div class="markdown-body">
+              <p><img src="/img/work/image-20220622203711721.png" srcset="/img/loading.gif" lazyload alt="JVM体系"></p>
+<h2 id="1-虚拟机与Java虚拟机"><a href="#1-虚拟机与Java虚拟机" class="headerlink" title="1. 虚拟机与Java虚拟机"></a>1. 虚拟机与Java虚拟机</h2><p>所谓虚拟机（Virtual Machine），就是一台虚拟的计算机。它是一款软件，用来执行一系列虚拟计算机指令。大体上，虚拟机可以分为<strong>系统虚拟机</strong>和<strong>程序虚拟机</strong>。</p>
+<ul>
+<li>Visaual Box，VMware 就属于系统虚拟机，它们完全是对物理计算机的仿真，提供了一个可运行完整操作系统的软件平台</li>
+<li>程序虚拟机的典型代表就是 Java 虚拟机，它专门为执行单个计算机程序而设计，在 Java 虚拟机中执行的指令我们称为 Java 字节码指令</li>
+</ul>
+<p><img src="/img/work/image-20220623090738586.png" srcset="/img/loading.gif" lazyload alt="JVM虚拟机所处位置"></p>
+<h2 id="2-JVM-是什么"><a href="#2-JVM-是什么" class="headerlink" title="2. JVM 是什么"></a>2. JVM 是什么</h2><p><code>JVM</code> 是 <code>Java Virtual Machine</code>（<strong>Java虚拟机</strong>)的缩写，<code>JVM</code>是一种用于计算设备的<strong>规范</strong>，它是一个<strong>虚构</strong>的计算机，是通过在实际的计算机上仿真模拟各种计算机功能来实现的。</p>
+<p>Java 虚拟机是二进制字节码的运行环境，负责装载<strong>字节码</strong>到其内部，解释/编译为对应平台的机器指令执行。每一条 Java 指令，Java 虚拟机规范中都有详细定义，如怎么取操作数，怎么处理操作数，处理结果放在哪里。</p>
+<h3 id="2-1-特点"><a href="#2-1-特点" class="headerlink" title="2.1 特点"></a>2.1 特点</h3><ul>
+<li>一次编译，到处运次（跨平台）</li>
+<li>自动内存管理</li>
+<li>自动垃圾回收功能</li>
+</ul>
+<h3 id="2-2-字节码"><a href="#2-2-字节码" class="headerlink" title="2.2 字节码"></a>2.2 字节码</h3><p>我们平时所说的 java 字节码，指的是用 java 语言编写的字节码，准确的说任何能在 jvm 平台上执行的字节码格式都是一样的，所以应该统称为 <strong>jvm字节码</strong>。</p>
+<p>不同的编译器可以编译出相同的字节码文件，字节码文件也可以在不同的 jvm 上运行。</p>
+<p>Java 虚拟机与 Java 语言没有必然的联系，它只与特定的二进制文件格式——Class 文件格式关联，Class 文件中包含了 Java 虚拟机指令集（或者称为字节码、Bytecodes）和符号集，还有一些其他辅助信息。</p>
+<h3 id="2-3-Java-代码执行过程"><a href="#2-3-Java-代码执行过程" class="headerlink" title="2.3 Java 代码执行过程"></a>2.3 Java 代码执行过程</h3><p><img src="/img/work/image-20220622205607578.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="3-JVM-的位置"><a href="#3-JVM-的位置" class="headerlink" title="3.  JVM 的位置"></a>3.  JVM 的位置</h2><p>JVM 是运行在操作系统之上的，它与硬件没有直接的交互。</p>
+<p><code>JDK</code>(Java Development Kit) 是 <code>Java</code> 语言的软件开发工具包（<code>SDK</code>）。<code>JDK</code> 物理存在，是 <code>Java Language</code>、<code>Tools</code>、<code>JRE</code> 和 <code>JVM</code> 的一个集合。</p>
+<p><img src="/img/work/image-20220622205956516.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/image-20220622210054216.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-JVM-整体结构"><a href="#4-JVM-整体结构" class="headerlink" title="4. JVM 整体结构"></a>4. JVM 整体结构</h2><p>HotSpot VM是现在市面上高性能虚拟机的代表作之一，它采用解释器和即时编译器并存的架构。 下图是JVM的执行流程：</p>
+<p><img src="/img/work/1656081717643.png" srcset="/img/loading.gif" lazyload></p>
+<p>图中的方法区和堆是多线程共享的，而Java栈（现改名为虚拟机栈）、本地方法栈、程序计数器是每个线程独有一份的。</p>
+<p><img src="/img/work/image-20220622211258907.png" srcset="/img/loading.gif" lazyload alt="JVM结构"></p>
+<p><strong>Java代码执行过程:</strong></p>
+<p><img src="/img/work/1656081900581.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="5-JVM-的架构模型"><a href="#5-JVM-的架构模型" class="headerlink" title="5. JVM 的架构模型"></a>5. JVM 的架构模型</h2><p>Java 编译器输入的指令流基本上是一种基于<strong>栈的指令集架构</strong>，另外一种指令集架构则是基于<strong>寄存器的指令集架构</strong>。 </p>
+<p>两种架构之间的区别： </p>
+<p><strong>基于栈式架构的特点</strong> </p>
+<ul>
+<li>设计和实现更简单，适用于资源受限的系统；</li>
+<li>避开了寄存器的分配难题，使用零地址指令方式分配；</li>
+<li>指令流中的指令大部分是零地址指令，其执行过程依赖于操作栈。指令集更小，编译器容易实现；</li>
+<li>不需要硬件支持，可移植性更好，更好实现跨平台</li>
+</ul>
+<p><strong>基于寄存器架构的特点</strong> </p>
+<ul>
+<li>典型的应用是X86的二进制指令集：比如传统的 PC 以及 Android 的 Davlik 虚拟机；</li>
+<li>指令集架构则完全依赖硬件，可移植性差；</li>
+<li>性能优秀和执行更高效；</li>
+<li>花费更少的指令去完成一项操作；</li>
+<li>大部分情况下，基于寄存器架构的指令集往往都以一地址指令、二地址指令和三地址指令为主，而基于栈式架构的指令集却是以零地址指令为主</li>
+</ul>
+<p>由于跨平台性的设计，Java 的指令都是根据栈来设计的。不同平台 CPU 架构不同，所以不能设计为基于寄存器的，优点是跨平台，指令集小，编译器容易实现，缺点是性能下降，实现同样的功能需要更多的指令。 </p>
+<h3 id="5-1-分析基于栈式架构的JVM代码执行过程"><a href="#5-1-分析基于栈式架构的JVM代码执行过程" class="headerlink" title="5.1 分析基于栈式架构的JVM代码执行过程"></a>5.1 分析基于栈式架构的JVM代码执行过程</h3><p>进入 class 文件所在目录，执行<code>javap -v xx.class</code>反解析（或者通过IDEA插件<code>Jclasslib</code>直接查看），可以看到当前类对应的 code 区（汇编指令）、本地变量表、异常表和代码行偏移量映射表、常量池等信息。 </p>
+<p><img src="/img/work/1656084051077.png" srcset="/img/loading.gif" lazyload></p>
+<p>以上图中的 1+2 为例说明: </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><code class="hljs java">Classfile /Users/starfish/workspace/myCode/starfish-learning/starfish-learn/target/classes/priv/starfish/jvm/JVM1.class<br>  Last modified <span class="hljs-number">2020</span>-<span class="hljs-number">2</span>-<span class="hljs-number">7</span>; size <span class="hljs-number">487</span> bytes<br>  MD5 checksum 1a9653128b55585b2745270d13b17aaf<br>  Compiled from <span class="hljs-string">&quot;JVM1.java&quot;</span><br><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">priv</span>.<span class="hljs-title">starfish</span>.<span class="hljs-title">jvm</span>.<span class="hljs-title">JVM1</span></span><br><span class="hljs-class">  <span class="hljs-title">SourceFile</span>: &quot;<span class="hljs-title">JVM1</span>.<span class="hljs-title">java</span>&quot;</span><br><span class="hljs-class">  <span class="hljs-title">minor</span> <span class="hljs-title">version</span>: 0</span><br><span class="hljs-class">  <span class="hljs-title">major</span> <span class="hljs-title">version</span>: 52</span><br><span class="hljs-class">  <span class="hljs-title">flags</span>: <span class="hljs-title">ACC_PUBLIC</span>, <span class="hljs-title">ACC_SUPER</span></span><br><span class="hljs-class"><span class="hljs-title">Constant</span> <span class="hljs-title">pool</span>:</span><br><span class="hljs-class">   #1 </span>= Methodref          #<span class="hljs-number">3.</span>#<span class="hljs-number">22</span>         <span class="hljs-comment">//  java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br>   #<span class="hljs-number">2</span> = Class              #<span class="hljs-number">23</span>            <span class="hljs-comment">//  priv/starfish/jvm/JVM1</span><br>   #<span class="hljs-number">3</span> = Class              #<span class="hljs-number">24</span>            <span class="hljs-comment">//  java/lang/Object</span><br>   #<span class="hljs-number">4</span> = Utf8               &lt;init&gt;<br>   #<span class="hljs-number">5</span> = Utf8               ()V<br>   #<span class="hljs-number">6</span> = Utf8               Code<br>   #<span class="hljs-number">7</span> = Utf8               LineNumberTable<br>   #<span class="hljs-number">8</span> = Utf8               LocalVariableTable<br>   #<span class="hljs-number">9</span> = Utf8               <span class="hljs-keyword">this</span><br>  #<span class="hljs-number">10</span> = Utf8               Lpriv/starfish/jvm/JVM1;<br>  #<span class="hljs-number">11</span> = Utf8               main<br>  #<span class="hljs-number">12</span> = Utf8               ([Ljava/lang/String;)V<br>  #<span class="hljs-number">13</span> = Utf8               args<br>  #<span class="hljs-number">14</span> = Utf8               [Ljava/lang/String;<br>  #<span class="hljs-number">15</span> = Utf8               i<br>  #<span class="hljs-number">16</span> = Utf8               I<br>  #<span class="hljs-number">17</span> = Utf8               j<br>  #<span class="hljs-number">18</span> = Utf8               k<br>  #<span class="hljs-number">19</span> = Utf8               MethodParameters<br>  #<span class="hljs-number">20</span> = Utf8               SourceFile<br>  #<span class="hljs-number">21</span> = Utf8               JVM1.java<br>  #<span class="hljs-number">22</span> = NameAndType        #<span class="hljs-number">4</span>:#<span class="hljs-number">5</span>          <span class="hljs-comment">//  &quot;&lt;init&gt;&quot;:()V</span><br>  #<span class="hljs-number">23</span> = Utf8               priv/starfish/jvm/JVM1<br>  #<span class="hljs-number">24</span> = Utf8               java/lang/Object<br>&#123;<br>  <span class="hljs-keyword">public</span> priv.starfish.jvm.JVM1();<br>    flags: ACC_PUBLIC<br>    Code:<br>      stack=<span class="hljs-number">1</span>, locals=<span class="hljs-number">1</span>, args_size=<span class="hljs-number">1</span><br>         <span class="hljs-number">0</span>: aload_0       <br>         <span class="hljs-number">1</span>: invokespecial #<span class="hljs-number">1</span>                  <span class="hljs-comment">// Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</span><br>         <span class="hljs-number">4</span>: <span class="hljs-keyword">return</span>        <br>      LineNumberTable:<br>        line <span class="hljs-number">3</span>: <span class="hljs-number">0</span><br>      LocalVariableTable:<br>        Start  Length  Slot  Name   Signature<br>               <span class="hljs-number">0</span>       <span class="hljs-number">5</span>     <span class="hljs-number">0</span>  <span class="hljs-keyword">this</span>   Lpriv/starfish/jvm/JVM1;<br><br>  <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(java.lang.String[])</span></span>;<br>    flags: ACC_PUBLIC, ACC_STATIC<br>    Code:<br>      stack=<span class="hljs-number">2</span>, locals=<span class="hljs-number">4</span>, args_size=<span class="hljs-number">1</span><br>         <span class="hljs-number">0</span>: iconst_1      <span class="hljs-comment">//冒号前的数字表示程序计数器的数，常量1入栈</span><br>         <span class="hljs-number">1</span>: istore_1      <span class="hljs-comment">//保存到1的操作数栈中,这里的1表示操作数栈的索引位置</span><br>         <span class="hljs-number">2</span>: iconst_2      <br>         <span class="hljs-number">3</span>: istore_2      <br>         <span class="hljs-number">4</span>: iload_1       <span class="hljs-comment">//加载</span><br>         <span class="hljs-number">5</span>: iload_2       <br>         <span class="hljs-number">6</span>: iadd          <span class="hljs-comment">//常量出栈，求和</span><br>         <span class="hljs-number">7</span>: istore_3      <span class="hljs-comment">//存储到索引为3的操作数栈</span><br>         <span class="hljs-number">8</span>: <span class="hljs-keyword">return</span>        <br>      LineNumberTable:<br>        line <span class="hljs-number">6</span>: <span class="hljs-number">0</span><br>        line <span class="hljs-number">7</span>: <span class="hljs-number">2</span><br>        line <span class="hljs-number">8</span>: <span class="hljs-number">4</span><br>        line <span class="hljs-number">9</span>: <span class="hljs-number">8</span><br>      LocalVariableTable:<br>        Start  Length  Slot  Name   Signature<br>               <span class="hljs-number">0</span>       <span class="hljs-number">9</span>     <span class="hljs-number">0</span>  args   [Ljava/lang/String;<br>               <span class="hljs-number">2</span>       <span class="hljs-number">7</span>     <span class="hljs-number">1</span>     i   I<br>               <span class="hljs-number">4</span>       <span class="hljs-number">5</span>     <span class="hljs-number">2</span>     j   I<br>               <span class="hljs-number">8</span>       <span class="hljs-number">1</span>     <span class="hljs-number">3</span>     k   I<br>      MethodParameters: length = <span class="hljs-number">0x5</span><br>       <span class="hljs-number">01</span> <span class="hljs-number">00</span> <span class="hljs-number">0D</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-JVM-生命周期"><a href="#6-JVM-生命周期" class="headerlink" title="6. JVM 生命周期"></a>6. JVM 生命周期</h2><h3 id="6-1-虚拟机的启动"><a href="#6-1-虚拟机的启动" class="headerlink" title="6.1 虚拟机的启动"></a>6.1 虚拟机的启动</h3><p>Java 虚拟机的启动是通过引导类加载器（Bootstrap Class Loader）创建一个初始类（initial class）来完成的，这个类是由虚拟机的具体实现指定的。 </p>
+<h3 id="6-2-虚拟机的执行"><a href="#6-2-虚拟机的执行" class="headerlink" title="6.2 虚拟机的执行"></a>6.2 虚拟机的执行</h3><ul>
+<li>一个运行中的 Java 虚拟机有着一个清晰的任务：执行 Java 程序</li>
+<li>程序开始执行时它才运行，程序结束时它就停止</li>
+<li>执行一个所谓的 Java 程序的时候，真正执行的是一个叫做 Java 虚拟机的进程</li>
+<li>你在同一台机器上运行三个程序，就会有三个运行中的 Java 虚拟机。 Java 虚拟机总是开始于一个 <strong>main()</strong> 方法，这个方法必须是公有、返回 void、只接受一个字符串数组。在程序执行时，你必须给 Java 虚拟机指明这个包含 main() 方法的类名。</li>
+</ul>
+<h3 id="6-3-虚拟机的退出"><a href="#6-3-虚拟机的退出" class="headerlink" title="6.3 虚拟机的退出"></a>6.3 虚拟机的退出</h3><p>有以下几种情况： </p>
+<ul>
+<li>程序正常执行结束</li>
+<li>程序在执行过程中遇到了异常或错误而异常终止</li>
+<li>由于操作系统出现错误而导致 Java 虚拟机进程终止</li>
+<li>某线程调用 Runtime 类或 System 类的 exit 方法，或 Runtime 类的 halt 方法，并且 Java 安全管理器也允许这次 exit 或 halt 操作</li>
+<li>除此之外，JNI(Java Native Interface)规范描述了用<code>JNI Invocation API</code>来加载或卸载 Java 虚拟机时，Java 虚拟机的退出情况</li>
+</ul>
+<h2 id="7-JVM-发展历程"><a href="#7-JVM-发展历程" class="headerlink" title="7. JVM 发展历程"></a>7. JVM 发展历程</h2><p>JDK 版本升级不仅仅体现在语言和功能特性上，还包括了其编译和执行的 Java 虚拟机的升级。 </p>
+<ul>
+<li>1990 年，在 Sun 计算机公司中，由 Patrick Naughton、MikeSheridan 及 James Gosling 领导的小组 Green Team，开发出的新的程序语言，命名为 Oak，后期命名为 Java</li>
+<li>1995 年，Sun 正式发布 Java 和 HotJava 产品，Java 首次公开亮相</li>
+<li>1996 年，JDK 1.0 发布时，提供了纯解释执行的 Java 虚拟机实现：Sun Classic VM。</li>
+<li>1997 年，JDK 1.1 发布时，虚拟机没有做变更，依然使用 Sun Classic VM 作为默认的虚拟机</li>
+<li>1998 年，JDK 1.2 发布时，提供了运行在 Solaris 平台的 Exact VM 虚拟机，但此时还是用 Sun Classic VM 作为默认的 Java 虚拟机，同时发布了JSP/Servlet、EJB规范，以及将Java分成J2EE、J2SE、J2ME</li>
+<li>2000 年，JDK1.3 发布，默认的 Java 虚拟机由 Sun Classic VM 改为 Sun HotSopt VM，而 Sun Classic VM 则作为备用虚拟机</li>
+<li>2002 年，JDK 1.4 发布，Sun Classic VM 退出商用虚拟机舞台，直接使用 Sun HotSpot VM 作为默认虚拟机一直到现在</li>
+<li>2003 年，Java 平台的 Scala 正式发布，同年 Groovy 也加入了 Java 阵营</li>
+<li>2004 年，JDK1.5 发布，同时 JDK1.5 改名为 JDK5.0</li>
+<li>2006 年，JDK6 发布，同年，Java 开源并建立了 OpenJDK。顺理成章，Hotspot 虚拟机也成为了 OpenJDK 默认虚拟机</li>
+<li>2008 年，Oracle 收购 BEA，得到了 JRockit 虚拟机</li>
+<li>2010 年，Oracle 收购了 Sun，获得 Java 商标和 HotSpot 虚拟机</li>
+<li>2011 年，JDK7 发布，在 JDK1.7u4 中，正式启用了新的垃圾回收器 G1</li>
+<li>2014 年，JDK8 发布，用元空间 MetaSpace 取代了 PermGen</li>
+<li>2017 年，JDK9 发布，将 G1 设置为默认 GC，替代 CMS</li>
+<li>2018年3月，JDK10发布， 垃圾收集器改善、GC改进、性能提升、线程管控等一批新特性 。</li>
+<li> 2018年9月,JDK11发布， Java 11是Java的一个长期支持版本LTS（Long Term Support），而上一个长期支持版本是2014年发布的Java 8 。 Java 11的技术支持时间直到2023年9月份，补丁和扩展支持直到2026年9月份。同时甲骨文公司公布的Java后续版本路线图展示新的长期支持版本将每三年发布一次，根据后续的发布计划，下一个长期支持版Java 17将于2021年发布。 </li>
+<li> 2019年3月19日，Java 12正式发布， 针对G1，提供可中止的混合垃圾收集,及时释放已申请但未使用的内存 。 </li>
+<li> 2019年9月17日，Java 13发布,   ZGC取消提交未使用存储器, 重新实现旧版 Socket API  。 </li>
+<li> 2020年3月17日，在全球抗疫背景下，Java 14正式发布。 </li>
+</ul>
+<h3 id="7-1-Sun-Classic-VM"><a href="#7-1-Sun-Classic-VM" class="headerlink" title="7.1 Sun Classic VM"></a>7.1 Sun Classic VM</h3><ul>
+<li>世界上第一款商用 Java 虚拟机。1996年随着Java1.0的发布而发布，JDK1.4时完全被淘汰；</li>
+<li>这款虚拟机内部只提供解释器；</li>
+<li>如果使用 JIT 编译器，就需要进行外挂。但是一旦使用了 JIT 编译器，JIT 就会接管虚拟机的执行系统，解释器就不再工作，解释器和编译器不能配合工作；</li>
+<li>现在 hotspot 内置了此虚拟机</li>
+</ul>
+<h3 id="7-2-Exact-VM"><a href="#7-2-Exact-VM" class="headerlink" title="7.2 Exact VM"></a>7.2 Exact VM</h3><ul>
+<li>它的执行系统已经具备了现代高性能虚拟机的雏形：如热点探测、两级即时编译器、编译器与解析器混合工作模式等；</li>
+<li>使用准确式内存管理：虚拟机可以知道内存中某个位置的数据具体是什么类型；</li>
+<li>在商业应用上只存在了很短暂的时间就被更优秀的 HotSpot VM 所取代</li>
+</ul>
+<h3 id="7-3-Sun-HotSpot-VM"><a href="#7-3-Sun-HotSpot-VM" class="headerlink" title="7.3 Sun HotSpot VM"></a>7.3 Sun HotSpot VM</h3><ul>
+<li>HotSpot历史 最初由一家名为“Longview Technologies”的小公司设计 1997年，该公司被Sun收购；2009年，Sun公司被甲骨文收购… JDK1.3时，HotSpot VM 成为默认虚拟机</li>
+</ul>
+<ul>
+<li>它是 Sun JDK 和 OpenJDK 中所带的虚拟机，也是目前使用范围最广的 Java 虚拟机；</li>
+<li>继承了 Sun 之前两款商用虚拟机的优点（如准确式内存管理），也使用了许多自己新的技术优势，如热点代码探测技术（通过执行计数器找出最具有编译价值的代码，然后通知 JIT 编译器以方法为单位进行编译；</li>
+<li>Oracle 公司分别收购了 BEA 和 Sun，并在 JDK8 的时候，整合了 JRokit VM 和 HotSpot VM，如使用了 JRokit 的垃圾回收器与 MissionControl 服务，使用了 HotSpot 的 JIT 编译器与混合的运行时系统。</li>
+</ul>
+<h3 id="7-4-BEA-JRockit-VM"><a href="#7-4-BEA-JRockit-VM" class="headerlink" title="7.4 BEA JRockit VM"></a>7.4 BEA JRockit VM</h3><ul>
+<li><p>专注于服务器端应用 它可以不太关注程序启动速度，因此JRockit内部不包含解析器实现，全部代码都靠即时编译器编译后执行</p>
+</li>
+<li><p>大量的行业基准测试显示，JRockit JVM是世界上最快的JVM 使用JRockit产品，客户已经体验到显著的性能提高和硬件成本的减少</p>
+</li>
+<li><p>优势：全面的Java运行时解决方案组合 JRockit面向延迟敏感型应用的解决方案JRockit Real Time提供以毫秒或微秒级的JVM响应时间，适合财务、军事指挥、电信网络的需要 MissionControl服务套件，它是一组以极低的开销来监控、管理和分析生产环境中的应用程序的工具。</p>
+</li>
+<li><p>Oracle表达了整合了两大优秀虚拟机的工作，大致在JDK 8中完成。整合的方式是在HotSpot的基础上，移植JRockit的优秀特性。</p>
+</li>
+</ul>
+<h3 id="7-5-IBM-J9-VM"><a href="#7-5-IBM-J9-VM" class="headerlink" title="7.5 IBM J9 VM"></a>7.5 IBM J9 VM</h3><ul>
+<li>全称：IBM Technology for Java Virtual Machine，简称IT4J，内部代号：J9</li>
+<li>市场定位于HotSpot接近，服务器端、桌面应用、嵌入式等多用途VM</li>
+<li>目前是有影响力的三大商用虚拟机之一</li>
+</ul>
+<p>虚拟机有很多，此外还有Azul VM、Liquid VM、Apache Harmony、TaobaoJVM、Graal VM等 </p>
+<h3 id="7-6-TaobaoJVM"><a href="#7-6-TaobaoJVM" class="headerlink" title="7.6 TaobaoJVM"></a>7.6 TaobaoJVM</h3><ul>
+<li>由AliJVM团队发布。阿里，国内使用Java最强大的公司，覆盖云计算、金融、物流、电商等众多领域，需要解决高并发、高可用、分布式的复合问题。有大量的开源产品。</li>
+<li>基于OpenJDK开发了自己的定制版本的AlibabaJDK，简称AJDK。是整个阿里Java体系的基石。</li>
+<li>基于OpenJDK HotSpot VM发布的国内第一个优化、深度定制且开源的高性能服务器版Java虚拟机 创新的GCIH（GC invisible heap）技术实现了off-heap，即将生命周期较长的Java对象从heap中移到heap之外，并且GC不能管理GCIH内部的Java对象，以此达到降低GC的回收频率和提升GC的回收效率的目的。 GCIH中的对象还能够在多个Java虚拟机进程中实现共享 使用crc32指令实现JVM intrinsic 降低JNI的调用开销 PMU hardware的Java profiling tool和诊断协调功能 针对大数据场景的ZenGC</li>
+<li>taobao vm应用在阿里产品上性能高，硬件严重依赖Intel的CPU，损失了兼容性，但提高了性能 目前已经在淘宝、天猫上线，把Oracle官方JVM版本全部替换了</li>
+</ul>
+<h2 id="8-参考"><a href="#8-参考" class="headerlink" title="8. 参考"></a>8. 参考</h2><p> 《深入理解Java虚拟机》 </p>
+<p> 《尚硅谷JVM》 </p>
+<p><a target="_blank" rel="noopener" href="https://javakeeper.starfish.ink/java/JVM/JVM-Java.html#bea-jrockit-vm">https://javakeeper.starfish.ink/java/JVM/JVM-Java.html#bea-jrockit-vm</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.xiaoguantongxue.com/blog/9">https://www.xiaoguantongxue.com/blog/9</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/JVM/">JVM</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/JVM%E4%BD%93%E7%B3%BB/">JVM体系</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/01/MySQL%E9%94%81/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL锁</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/22/MySQL%E4%BA%8B%E5%8A%A1/">
+                        <span class="hidden-mobile">MySQL事务</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

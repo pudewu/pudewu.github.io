@@ -203,6 +203,426 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis缓存穿透和雪崩">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" target="_self">
+          Redis缓存穿透和雪崩
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/10/11/Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E5%92%8C%E9%9B%AA%E5%B4%A9/" target="_self">
+          
+          
+            
+          
+          服务的高可用问题​       Redis缓存的使用，极大的提升了应用程序的性能和效率，特别是数据查询方面。但同时，它也带来了一 些问题。其中，最要害的问题，就是数据的一致性问题，从严格意义上讲，这个问题无解。如果对数据的一致性要求很高，那么就不能使用缓存。 另外的一些典型问题就是，缓存穿透、缓存雪崩和缓存击穿。目前，业界也都有比较流行的解决方案。  
+缓存穿透
+概念  
+
+​    缓存穿透的概
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-10-11 14:26" pubdate>
+              2021-10-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis三种集群模式之Cluster模式">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/" target="_self">
+          Redis三种集群模式之Cluster模式
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/10/07/redis-cluster%E9%9B%86%E7%BE%A4/" target="_self">
+          
+          
+            
+          
+          1、redis-cluter设计 Redis集群搭建的方式有多种，开始使用主从模式做集群，若master宕机需要手动配置slave转为master；后来为了高可用提出来(redis-sentinel)哨兵模式，该模式下有一个哨兵监视master和slave，若master宕机可自动将slave转为master，但它也有一个问题，就是不能动态扩充；从redis 3.0之后版本支持redis-clus
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-10-07 15:56" pubdate>
+              2021-10-07
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis三种集群模式之哨兵模式">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
+          Redis三种集群模式之哨兵模式
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/10/06/redis%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/" target="_self">
+          
+          
+            
+          
+          1.概述 主从切换技术的方法是：当主服务器宕机后，需要手动把一台从服务器切换为主服务器，这就需要人工 干预，费事费力，还会造成一段时间内服务不可用。这不是一种推荐的方式，更多时候，我们优先考虑 哨兵模式。Redis从2.8开始正式提供了Sentinel（哨兵） 架构来解决这个问题 。
+哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独 立运行。其原理是
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-10-06 23:12" pubdate>
+              2021-10-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis三种集群模式之主从复制">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+          Redis三种集群模式之主从复制
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/10/06/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/" target="_self">
+          
+          
+            
+          
+          1.概念主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为主节点(master/leader),后者称为从节点(slave/flollower);数据的复制是单向的，只能由主节点到从节点，Master以写为主，Slave以读为主。
+1.1主从复制的作用主要包括：
+数据冗余：主从复制实现了数据的热备份，是持久化之外的一种数据冗余方式。
+故障恢复：当主节点出现问题时，可
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-10-06 18:35" pubdate>
+              2021-10-06
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis持久化">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          Redis持久化
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/09/30/Redis%E6%8C%81%E4%B9%85%E5%8C%96/" target="_self">
+          
+          
+            
+          
+          Redis有两种持久化的方式：快照（RDB文件）和追加式文件（AOF文件）：
+
+RDB持久化方式会在一个特定的间隔保存那个时间点的一个数据快照。
+AOF持久化方式则会记录每一个服务器收到的写操作。在服务启动时，这些记录的操作会逐条执行从而重建出原来的数据。写操作命令记录的格式跟Redis协议一致，以追加的方式进行保存。
+Redis的持久化是可以禁用的，就是说你可以让数据的生命周期只存在于服务器的运
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-09-30 16:47" pubdate>
+              2021-09-30
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis.conf详解">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/" target="_self">
+          Redis.conf详解
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/09/29/redis-conf%E8%AF%A6%E8%A7%A3/" target="_self">
+          
+          
+            
+          
+          以下将从配置文件中顺序往下讲解,涉及主从复制，持久化将会另起讲解
+单位
+1.配置文件unit单位大小写不敏感
+包含
+类似我们nginx中的include中的包含文件
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-09-29 22:00" pubdate>
+              2021-09-29
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+          <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis事务">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+          Redis事务
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2021/09/28/Redis%E4%BA%8B%E5%8A%A1/" target="_self">
+          
+          
+            
+          
+          
+事务
+
+ redis单条命令是原子性的，但是事务不保证原子性 
+redis事务本质：一组命令的集合！一个事务中的所有命令都会被序列化，在事务执行的过程中，会按照顺序执行
+ 一次性、顺序性、排他性！执行一系列命令！ 
+1------ 队列 set set set 执行------
+
+
+
+ 事务没有隔离级别的概念 
+所有的命令在事务中，并没有被执行！只有发起执行的命令的时候才会执行！Exec
+Red
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-09-28 22:01" pubdate>
+              2021-09-28
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Redis/">Redis</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Redis/">Redis</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2021/09/26/Redis%E7%9A%84%E4%B8%89%E7%A7%8D%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B/" target="_self">
           <img src="/img/redis.png" srcset="/img/loading.gif" lazyload alt="Redis的三种特殊类型">
         </a>
