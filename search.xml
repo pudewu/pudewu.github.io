@@ -8696,7 +8696,7 @@
 <li>老年代（养老区）：被长时间使用的对象，老年代的内存空间应该要比年轻代更大</li>
 <li>元空间（JDK1.8 之前叫永久代）：像一些方法中的操作临时对象等，JDK1.8 之前是占用 JVM 内存，JDK1.8 之后直接使用物理内存</li>
 </ul>
-<p><img src="D:\software06\blog\themes\fluid\source\img\work\1657943468538.png"></p>
+<p><img src="/img/work/1657943468538.png"></p>
 <p>Java 虚拟机规范规定，Java 堆可以是处于物理上不连续的内存空间中，只要逻辑上是连续的即可，像磁盘空间一样。实现时，既可以是固定大小，也可以是可扩展的，主流虚拟机都是可扩展的（通过 <code>-Xmx</code> 和 <code>-Xms</code> 控制），如果堆中没有完成实例分配，并且堆无法再扩展时，就会抛出 <code>OutOfMemoryError</code> 异常。  </p>
 <p><strong>年轻代 (Young Generation)</strong></p>
 <p>年轻代是所有新对象创建的地方。当填充年轻代时，执行垃圾收集。这种垃圾收集称为 <strong>Minor GC</strong>。年轻一代被分为三个部分——伊甸园（<strong>Eden Memory</strong>）和两个幸存区（<strong>Survivor Memory</strong>，被称为from/to或s0/s1），默认比例是<code>8:1:1</code></p>
@@ -8709,7 +8709,7 @@
 <p><strong>老年代(Old Generation)</strong></p>
 <p>旧的一代内存包含那些经过许多轮小型 GC 后仍然存活的对象。通常，垃圾收集是在老年代内存满时执行的。老年代垃圾收集称为 主GC（Major GC），通常需要更长的时间。 </p>
 <p>大对象直接进入老年代（大对象是指需要大量连续内存空间的对象）。这样做的目的是避免在 Eden 区和两个Survivor 区之间发生大量的内存拷贝 </p>
-<p><img src="D:\software06\blog\themes\fluid\source\img\work\1657945327669.png"></p>
+<p><img src="/img/work/1657945327669.png"></p>
 <p><strong>元空间</strong></p>
 <p>不管是 JDK8 之前的永久代，还是 JDK8 及以后的元空间，都可以看作是 Java 虚拟机规范中方法区的实现。</p>
 <p>虽然 Java 虚拟机规范把方法区描述为堆的一个逻辑部分，但是它却有一个别名叫 Non-Heap（非堆），目的应该是与 Java 堆区分开。</p>
@@ -8937,7 +8937,7 @@
 <p><strong>为什么需要常量池？</strong></p>
 <p>一个 Java 源文件中的类、接口，编译后产生一个字节码文件。而 Java 中的字节码需要数据支持，通常这种数据会很大以至于不能直接存到字节码里，换另一种方式，可以存到常量池，这个字节码包含了指向常量池的引用。在动态链接的时候用到的就是运行时常量池。  </p>
 <p>如下，我们通过 jclasslib 查看一个只有 Main 方法的简单类，字节码中的 #2 指向的就是 Constant Pool </p>
-<p><img src="D:\software06\blog\themes\fluid\source\img\work\1658068250032.png"></p>
+<p><img src="/img/work/1658068250032.png"></p>
 <p>常量池可以看作是一张表，虚拟机指令根据这张常量表找到要执行的类名、方法名、参数类型、字面量等类型。 </p>
 <p><strong>运行时常量池</strong></p>
 <ul>
@@ -8969,7 +8969,7 @@
 </tbody></table>
 <p><strong>移除永久代原因</strong></p>
 <p><a href="http://openjdk.java.net/jeps/122">http://openjdk.java.net/jeps/122</a> </p>
-<p> <img src="D:\software06\blog\themes\fluid\source\img\work\007S8ZIlly1gg04ve34c2j30z00u0dp7.jpg"> </p>
+<p> <img src="/img/work/007S8ZIlly1gg04ve34c2j30z00u0dp7.jpg"> </p>
 <ul>
 <li>为永久代设置空间大小是很难确定的。 </li>
 </ul>
