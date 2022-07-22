@@ -6,7 +6,7 @@
   <link href="https://pudewu.github.io/atom.xml" rel="self"/>
   
   <link href="https://pudewu.github.io/"/>
-  <updated>2022-07-06T01:55:57.073Z</updated>
+  <updated>2022-07-22T06:52:42.939Z</updated>
   <id>https://pudewu.github.io/</id>
   
   <author>
@@ -17,11 +17,88 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>JavaSPI机制</title>
+    <link href="https://pudewu.github.io/2022/07/20/JavaSPI%E6%9C%BA%E5%88%B6/"/>
+    <id>https://pudewu.github.io/2022/07/20/JavaSPI%E6%9C%BA%E5%88%B6/</id>
+    <published>2022-07-20T13:29:51.000Z</published>
+    <updated>2022-07-22T06:52:42.939Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
+    
+    <category term="Java基础" scheme="https://pudewu.github.io/categories/Java/Java%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="Java基础" scheme="https://pudewu.github.io/tags/Java%E5%9F%BA%E7%A1%80/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JVM内存结构</title>
+    <link href="https://pudewu.github.io/2022/07/17/JVM%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/"/>
+    <id>https://pudewu.github.io/2022/07/17/JVM%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/</id>
+    <published>2022-07-17T14:03:05.000Z</published>
+    <updated>2022-07-22T07:08:15.990Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="JVM" scheme="https://pudewu.github.io/categories/JVM/"/>
+    
+    
+    <category term="JVM" scheme="https://pudewu.github.io/tags/JVM/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JVM类加载子系统</title>
+    <link href="https://pudewu.github.io/2022/07/11/JVM%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/"/>
+    <id>https://pudewu.github.io/2022/07/11/JVM%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/</id>
+    <published>2022-07-11T13:36:27.000Z</published>
+    <updated>2022-07-12T00:20:46.557Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="JVM" scheme="https://pudewu.github.io/categories/JVM/"/>
+    
+    
+    <category term="JVM" scheme="https://pudewu.github.io/tags/JVM/"/>
+    
+  </entry>
+  
+  <entry>
     <title>MySQL索引</title>
     <link href="https://pudewu.github.io/2022/07/05/MySQL%E7%B4%A2%E5%BC%95/"/>
     <id>https://pudewu.github.io/2022/07/05/MySQL%E7%B4%A2%E5%BC%95/</id>
     <published>2022-07-05T07:31:56.000Z</published>
-    <updated>2022-07-06T01:55:57.073Z</updated>
+    <updated>2022-07-11T00:53:13.970Z</updated>
     
     
       
@@ -460,81 +537,6 @@
     
     
     <category term="并发核心机制" scheme="https://pudewu.github.io/tags/%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java并发核心机制-volatile关键字</title>
-    <link href="https://pudewu.github.io/2022/05/09/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B-volatile%E5%85%B3%E9%94%AE%E5%AD%97/"/>
-    <id>https://pudewu.github.io/2022/05/09/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B-volatile%E5%85%B3%E9%94%AE%E5%AD%97/</id>
-    <published>2022-05-09T06:55:28.000Z</published>
-    <updated>2022-05-10T01:11:09.518Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java" scheme="https://pudewu.github.io/categories/Java/"/>
-    
-    <category term="Java多线程与并发" scheme="https://pudewu.github.io/categories/Java/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E5%B9%B6%E5%8F%91/"/>
-    
-    
-    <category term="并发核心机制" scheme="https://pudewu.github.io/tags/%E5%B9%B6%E5%8F%91%E6%A0%B8%E5%BF%83%E6%9C%BA%E5%88%B6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java设计模式-抽象工厂模式</title>
-    <link href="https://pudewu.github.io/2022/05/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://pudewu.github.io/2022/05/06/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</id>
-    <published>2022-05-06T14:12:46.000Z</published>
-    <updated>2022-05-07T06:04:48.098Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-    
-    <category term="抽象工厂模式" scheme="https://pudewu.github.io/tags/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java设计模式-工厂方法模式</title>
-    <link href="https://pudewu.github.io/2022/04/27/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/"/>
-    <id>https://pudewu.github.io/2022/04/27/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</id>
-    <published>2022-04-27T07:05:12.000Z</published>
-    <updated>2022-04-28T01:19:59.932Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="Java设计模式" scheme="https://pudewu.github.io/categories/Java%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
     
   </entry>
   

@@ -19,20 +19,22 @@
   <meta name="description" content="1. 类加载机制概念Java 虚拟机把描述类的数据从 Class 文件加载到内存，并对数据进行校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的加载机制。Class 文件由类装载器装载后，在 JVM 中将形成一份描述 Class 结构的元信息对象，通过该元信息对象可以获知 Class 的结构信息：如构造函数，属性和方法等，Java 允许用户借由这个 Class">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM类加载子系统">
-<meta property="og:url" content="https://pudewu.github.io/2022/07/02/JVM%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:url" content="https://pudewu.github.io/2022/07/11/JVM%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="远方">
 <meta property="og:description" content="1. 类加载机制概念Java 虚拟机把描述类的数据从 Class 文件加载到内存，并对数据进行校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的加载机制。Class 文件由类装载器装载后，在 JVM 中将形成一份描述 Class 结构的元信息对象，通过该元信息对象可以获知 Class 的结构信息：如构造函数，属性和方法等，Java 允许用户借由这个 Class">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="d:/software06/blog/themes/fluid/source/img/work/1656939084149.png">
-<meta property="og:image" content="d:/software06/blog/themes/fluid/source/img/work/1656941430035.png">
-<meta property="og:image" content="d:/software06/blog/themes/fluid/source/img/work/1656943479793.png">
-<meta property="og:image" content="https://pudewu.github.io/themes/fluid/source/img/work/image-20220707172105603.png">
-<meta property="article:published_time" content="2022-07-02T07:36:27.000Z">
-<meta property="article:modified_time" content="2022-07-09T07:48:20.315Z">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1656939084149.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1656941430035.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1656943479793.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/image-20220707172105603.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1657545214711.png">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1657546743314.png">
+<meta property="article:published_time" content="2022-07-11T13:36:27.000Z">
+<meta property="article:modified_time" content="2022-07-12T00:20:46.557Z">
 <meta property="article:author" content="pudewu">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="d:/software06/blog/themes/fluid/source/img/work/1656939084149.png">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/1656939084149.png">
   
   <title>JVM类加载子系统 - 远方</title>
 
@@ -203,8 +205,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-07-02 15:36" pubdate>
-        2022年7月2日 下午
+      <time datetime="2022-07-11 21:36" pubdate>
+        2022年7月11日 晚上
       </time>
     </span>
   
@@ -218,7 +220,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      26 分钟
+      50 分钟
     </span>
   
 
@@ -250,7 +252,7 @@
             <h1 style="display: none">JVM类加载子系统</h1>
             
             <div class="markdown-body">
-              <p><img src="D:\software06\blog\themes\fluid\source\img\work\1656939084149.png" srcset="/img/loading.gif" lazyload></p>
+              <p><img src="/img/work/1656939084149.png" srcset="/img/loading.gif" lazyload></p>
 <h2 id="1-类加载机制概念"><a href="#1-类加载机制概念" class="headerlink" title="1. 类加载机制概念"></a>1. 类加载机制概念</h2><p><strong>Java 虚拟机把描述类的数据从 Class 文件加载到内存，并对数据进行校验、转换解析和初始化，最终形成可以被虚拟机直接使用的 Java 类型，这就是虚拟机的加载机制</strong>。Class 文件由类装载器装载后，在 JVM 中将形成一份描述 Class 结构的元信息对象，通过该元信息对象可以获知 Class 的结构信息：如构造函数，属性和方法等，Java 允许用户借由这个 Class 相关的元信息对象间接调用 Class 对象的功能，这里就是我们经常能见到的 Class 类。 </p>
 <h2 id="2-类加载子系统作用"><a href="#2-类加载子系统作用" class="headerlink" title="2. 类加载子系统作用"></a>2. 类加载子系统作用</h2><ul>
 <li>类加载子系统负责从文件系统或者网络中加载 class 文件，class 文件在文件开头有特定的文件标识（0xCAFEBABE）</li>
@@ -263,14 +265,14 @@
 <li>class file 加载到 JVM 中，被称为 DNA 元数据模板，放在方法区</li>
 <li>在 .calss 文件 -&gt; JVM -&gt; 最终成为元数据模板，此过程就要一个运输工具（类装载器），扮演一个快递员的角色</li>
 </ol>
-<h2 id="4-类加载过程"><a href="#4-类加载过程" class="headerlink" title="4. 类加载过程"></a>4. 类加载过程</h2><p>类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：<strong>加载、验证、准备、解析、初始化、使用和卸载</strong>七个阶段。(验证、准备和解析又统称为连接，为了支持 Java 语言的<strong>运行时绑定</strong>，所以<strong>解析阶段也可以是在初始化之后进行的</strong>。以上顺序都只是说开始的顺序，实际过程中是交叉的混合式进行的，加载过程中可能就已经开始验证了) </p>
-<p><img src="D:\software06\blog\themes\fluid\source\img\work\1656941430035.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="4-类的生命周期"><a href="#4-类的生命周期" class="headerlink" title="4. 类的生命周期"></a>4. 类的生命周期</h2><p>类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：<strong>加载、验证、准备、解析、初始化、使用和卸载</strong>七个阶段。(验证、准备和解析又统称为连接，为了支持 Java 语言的<strong>运行时绑定</strong>，所以<strong>解析阶段也可以是在初始化之后进行的</strong>。以上顺序都只是说开始的顺序，实际过程中是交叉的混合式进行的，加载过程中可能就已经开始验证了) </p>
+<p><img src="/img/work/1656941430035.png" srcset="/img/loading.gif" lazyload></p>
 <h3 id="4-1-加载-Loading-查找并加载类的二进制数据"><a href="#4-1-加载-Loading-查找并加载类的二进制数据" class="headerlink" title="4.1 加载(Loading): 查找并加载类的二进制数据"></a>4.1 加载(Loading): 查找并加载类的二进制数据</h3><ol>
 <li>通过一个类的全限定名获取定义此类的二进制字节流（简单点说就是找到文件系统中/jar 包中/或存在于任何地方的“<code>class 文件</code>”。 如果找不到二进制表示形式，则会抛出 <code>NoClassDefFound</code> 错误。）</li>
 <li>将这个字节流所代表的的静态存储结构转化为方法区的运行时数据结构</li>
 <li><strong>在内存中生成一个代表这个类的 <code>java.lang.Class</code> 对象</strong>，作为方法区这个类的各种数据的访问入口</li>
 </ol>
-<p><img src="D:\software06\blog\themes\fluid\source\img\work\1656943479793.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/1656943479793.png" srcset="/img/loading.gif" lazyload></p>
 <p>相对于类加载的其他阶段而言，<em>加载阶段(准确地说，是加载阶段获取类的二进制字节流的动作)是可控性最强的阶段</em>，因为开发人员既可以使用系统提供的类加载器来完成加载，也可以自定义自己的类加载器来完成加载。 </p>
 <p>加载阶段完成后，虚拟机外部的 二进制字节流就按照虚拟机所需的格式存储在方法区之中，而且在Java堆中也创建一个<code>java.lang.Class</code>类的对象，这样便可以通过该对象访问方法区中的这些数据。 </p>
 <p>类加载器并不需要等到某个类被“首次主动使用”时再加载它，JVM规范允许类加载器在预料某个类将要被使用时就预先加载它，如果在预先加载的过程中遇到了.class文件缺失或存在错误，类加载器必须在程序首次主动使用该类时才报告错误(LinkageError错误)如果这个类一直没有被程序主动使用，那么类加载器就不会报告错误。</p>
@@ -418,7 +420,7 @@
 <li>应用类加载器（AppClassLoader）</li>
 </ul>
 <p>一般启动类加载器是由 JVM 内部实现的，在 Java 的 API 里无法拿到，但是我们可以侧面看到和影响它。后 2 种类加载器在 Oracle Hotspot JVM 里，都是在中<code>sun.misc.Launcher</code>定义的，扩展类加载器和应用类加载器一般都继承自<code>URLClassLoader</code>类，这个类也默认实现了从各种不同来源加载 class 字节码转换成 Class 的方法。</p>
-<p><img src="/../../themes/fluid/source/img/work/image-20220707172105603.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="/img/work/image-20220707172105603.png" srcset="/img/loading.gif" lazyload></p>
 <p>不同类加载器看似是继承(Inheritance)关系，实际是采用组合关系来复用父类加载器的相关代码</p>
 <h4 id="6-1-启动类加载器（引导类加载器，Bootstrap-ClassLoader）"><a href="#6-1-启动类加载器（引导类加载器，Bootstrap-ClassLoader）" class="headerlink" title="6.1 启动类加载器（引导类加载器，Bootstrap ClassLoader）"></a>6.1 启动类加载器（引导类加载器，Bootstrap ClassLoader）</h4><ul>
 <li>这个类加载使用 C/C++ 语言实现，嵌套在 JVM 内部</li>
@@ -443,6 +445,155 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ClassLoaderTest</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-comment">//获取系统类加载器</span><br>        ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();<br>        System.out.println(systemClassLoader);  <span class="hljs-comment">//sun.misc.Launcher$AppClassLoader@135fbaa4</span><br><br>        <span class="hljs-comment">//获取其上层：扩展类加载器</span><br>        ClassLoader extClassLoader = systemClassLoader.getParent();<br>        System.out.println(extClassLoader);  <span class="hljs-comment">//sun.misc.Launcher$ExtClassLoader@2503dbd3</span><br><br>        <span class="hljs-comment">//再获取其上层：获取不到引导类加载器</span><br>        ClassLoader bootstrapClassLoader = extClassLoader.getParent();<br>        System.out.println(bootstrapClassLoader);     <span class="hljs-comment">//null</span><br><br>        <span class="hljs-comment">//对于用户自定义类来说，默认使用系统类加载器进行加载，输出和systemClassLoader一样</span><br>        ClassLoader classLoader = ClassLoaderTest.class.getClassLoader();<br>        System.out.println(classLoader);  <span class="hljs-comment">//sun.misc.Launcher$AppClassLoader@135fbaa4</span><br><br>        <span class="hljs-comment">//String 类使用引导类加载器进行加载。Java的核心类库都使用引导类加载器进行加载，所以也获取不到</span><br>        ClassLoader classLoader1 = String.class.getClassLoader();<br>        System.out.println(classLoader1);  <span class="hljs-comment">//null</span><br><br>        <span class="hljs-comment">//获取BootstrapClassLoader可以加载的api的路径</span><br>        URL[] urls = sun.misc.Launcher.getBootstrapClassPath().getURLs();<br>        <span class="hljs-keyword">for</span> (URL url : urls) &#123;<br>            System.out.println(url.toExternalForm());<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<h4 id="6-4-用户自定义类加载器"><a href="#6-4-用户自定义类加载器" class="headerlink" title="6.4 用户自定义类加载器"></a>6.4 用户自定义类加载器</h4><p>在 Java 的日常应用程序开发中，类的加载几乎是由 3 种类加载器相互配合执行的，在必要时，我们还可以自定义类加载器，来定制类的加载方式</p>
+<blockquote>
+<p>如果用户自定义了类加载器，则自定义类加载器都以应用类加载器作为父加载器。应用类加载器的父类加载器为扩展类加载器。这些类加载器是有层次关系的，启动加载器又叫根加载器，是扩展加载器的父加载器，但是直接从 ExClassLoader 里拿不到它的引用，同样会返回 null。</p>
+</blockquote>
+<p><strong>为什么要自定义类加载器？</strong></p>
+<ul>
+<li>隔离加载类</li>
+<li>修改类加载的方式</li>
+<li>扩展加载源（可以从数据库、云端等指定来源加载类）</li>
+<li>防止源码泄露（Java 代码容易被反编译，如果加密后，自定义加载器加载类的时候就可以先解密，再加载）</li>
+</ul>
+<p><strong>用户自定义加载器实现步骤</strong></p>
+<ol>
+<li>开发人员可以通过继承抽象类 <code>java.lang.ClassLoader</code> 类的方式，实现自己的类加载器，以满足一些特殊的需求</li>
+<li>在 JDK1.2 之前，在自定义类加载器时，总会去继承 ClassLoader 类并重写 loadClass() 方法，从而实现自定义的类加载类，但是 JDK1.2 之后已经不建议用户去覆盖 <code>loadClass()</code> 方式，而是建议把自定义的类加载逻辑写在 <code>findClass()</code> 方法中</li>
+<li> 编写自定义类加载器时, 如果没有太过于复杂的需求, 可以直接继承 URLClassLoader 类，这样就可以避免自己去编写 findClass() 方法及其获取字节码流的方式，使自定义类加载器编写更加简洁 </li>
+</ol>
+<p><strong>eg</strong>: </p>
+<p>比如我们试着实现一个可以用来处理简单加密的字节码的类加载器，用来保护我们的 class 字节码文件不被使用者直接拿来破解 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Hello</span> </span>&#123;<br>    <span class="hljs-keyword">static</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Hello Class Initialized!&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这个 Hello 类非常简单，就是在自己被初始化的时候，打印出来一句“Hello Class Initialized!”。假设这个类的内容非常重要，我们不想把编译到得到的 Hello.class 给别人，但是我们还是想别人可以调用或执行这个类，应该怎么办呢？一个简单的思路是，我们把这个类的 class 文件二进制作为字节流先加密一下，然后尝试通过自定义的类加载器来加载加密后的数据。为了演示简单，我们使用 jdk 自带的 Base64 算法，把字节码加密成一个文本。在下面这个例子里，我们实现一个 HelloClassLoader，它继承自 ClassLoader 类，但是我们希望它通过我们提供的一段 Base64 字符串，来还原出来，并执行我们的 Hello 类里的打印一串字符串的逻辑。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HelloClassLoader</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">ClassLoader</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">new</span> HelloClassLoader().findClass(<span class="hljs-string">&quot;jvm.Hello&quot;</span>).newInstance(); <span class="hljs-comment">// 加载并初始化Hello类</span><br>        &#125; <span class="hljs-keyword">catch</span> (ClassNotFoundException e) &#123;<br>            e.printStackTrace();<br>        &#125; <span class="hljs-keyword">catch</span> (IllegalAccessException e) &#123;<br>            e.printStackTrace();<br>        &#125; <span class="hljs-keyword">catch</span> (InstantiationException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="hljs-keyword">throws</span> ClassNotFoundException &#123;<br><br>        String helloBase64 = <span class="hljs-string">&quot;yv66vgAAADQAHwoABgARCQASABMIABQKABUAFgcAFwcAGAEABjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBABJMb2NhbFZhcmlhYmxlVGFibGUBAAR0aGlzAQALTGp2bS9IZWxsbzsBAAg8Y2xpbml0PgEAClNvdXJjZUZpbGUBAApIZWxsby5qYXZhDAAHAAgHABkMABoAGwEAGEhlbGxvIENsYXNzIEluaXRpYWxpemVkIQcAHAwAHQAeAQAJanZtL0hlbGxvAQAQamF2YS9sYW5nL09iamVjdAEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgAhAAUABgAAAAAAAgABAAcACAABAAkAAAAvAAEAAQAAAAUqtwABsQAAAAIACgAAAAYAAQAAAAMACwAAAAwAAQAAAAUADAANAAAACAAOAAgAAQAJAAAAJQACAAAAAAAJsgACEgO2AASxAAAAAQAKAAAACgACAAAABgAIAAcAAQAPAAAAAgAQ&quot;</span>;<br><br>        <span class="hljs-keyword">byte</span>[] bytes = decode(helloBase64);<br>        <span class="hljs-keyword">return</span> defineClass(name,bytes,<span class="hljs-number">0</span>,bytes.length);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">byte</span>[] decode(String base64)&#123;<br>        <span class="hljs-keyword">return</span> Base64.getDecoder().decode(base64);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>直接执行这个类： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">java jvm.HelloClassLoader Hello Class Initialized!<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-ClassLoader-常用方法"><a href="#6-5-ClassLoader-常用方法" class="headerlink" title="6.5 ClassLoader 常用方法"></a>6.5 ClassLoader 常用方法</h4><p>ClassLoader 类，是一个抽象类，其后所有的类加载器都继承自 ClassLoader（不包括启动类加载器） </p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>getParent()</td>
+<td>返回该类加载器的超类加载器</td>
+</tr>
+<tr>
+<td>loadClass(String name)</td>
+<td>加载名称为name的类，返回java.lang.Class类的实例</td>
+</tr>
+<tr>
+<td>findClass(String name)</td>
+<td>查找名称为name的类，返回java.lang.Class类的实例</td>
+</tr>
+<tr>
+<td>findLoadedClass(String name)</td>
+<td>查找名称为name的已经被加载过的类，返回java.lang.Class类的实例</td>
+</tr>
+<tr>
+<td>defineClass(String name, byte[] b, int off, int len)</td>
+<td>把字节数组b中内容转换为一个Java类，返回java.lang.Class类的实例</td>
+</tr>
+<tr>
+<td>resolveClass(Class&lt;?&gt; c)</td>
+<td>连接指定的一个Java类</td>
+</tr>
+</tbody></table>
+<h4 id="6-6-对类加载器的引用"><a href="#6-6-对类加载器的引用" class="headerlink" title="6.6 对类加载器的引用"></a>6.6 对类加载器的引用</h4><p>JVM 必须知道一个类型是由启动加载器加载的还是由用户类加载器加载的。如果一个类型是由用户类加载器加载的，那么 JVM 会<strong>将这个类加载器的一个引用作为类型信息的一部分保存在方法区中</strong>。当解析一个类型到另一个类型的引用的时候，JVM 需要保证这两个类型的类加载器是相同的。 </p>
+<h2 id="7-双亲委派机制"><a href="#7-双亲委派机制" class="headerlink" title="7. 双亲委派机制"></a>7. 双亲委派机制</h2><p>Java 虚拟机对 class 文件采用的是<strong>按需加载</strong>的方式，也就是说当需要使用该类的时候才会将它的 class 文件加载到内存生成 class 对象。而且加载某个类的 class 文件时，Java 虚拟机采用的是双亲委派模式，即把请求交给父类处理，它是一种任务委派模式。</p>
+<p>【示例】寻找类加载示例 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>    ClassLoader loader = Thread.currentThread().getContextClassLoader();<br>    System.out.println(loader);<br>    System.out.println(loader.getParent());<br>    System.out.println(loader.getParent().getParent());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs text">sun.misc.Launcher$AppClassLoader@18b4aac2<br>sun.misc.Launcher$ExtClassLoader@19e1023e<br>null<br></code></pre></td></tr></table></figure>
+
+<p>从上面的结果可以看出，并没有获取到 <code>ExtClassLoader</code> 的父 Loader，原因是 <code>Bootstrap Loader</code>（引导类加载器）是用 C 语言实现的，找不到一个确定的返回父 Loader 的方式，于是就返回 null。 </p>
+<h3 id="7-1-工作过程"><a href="#7-1-工作过程" class="headerlink" title="7.1 工作过程"></a>7.1 工作过程</h3><ul>
+<li>如果一个类加载器收到了类加载请求，它并不会自己先去加载，而是把这个请求委托给父类的加载器去执行；</li>
+<li>如果父类加载器还存在其父类加载器，则进一步向上委托，依次递归，请求最终将到达顶层的启动类加载器；</li>
+<li>如果父类加载器可以完成类加载任务，就成功返回，倘若父类加载器无法完成此加载任务，子加载器才会尝试自己去加载，这就是双亲委派模式</li>
+</ul>
+<p><img src="/img/work/1657545214711.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="7-2-优势"><a href="#7-2-优势" class="headerlink" title="7.2 优势"></a>7.2 优势</h3><ul>
+<li><strong>避免类的重复加载</strong>：JVM 中区分不同类，不仅仅是根据类名，相同的 class 文件被不同的 ClassLoader 加载就属于两个不同的类(比如,Java中的Object类 ,无论哪一个类加载器要加载这个类，最终都是委派给处于模型最顶端的启动类加载器进行加载，如果不采用双亲委派模型，由各个类加载器自己去加载的话，系统中会存在多种不同的 Object 类)</li>
+<li><strong>保护程序安全，防止核心 API 被随意篡改</strong>: 避免用户自己编写的类动态替换 Java 的一些核心类，比如我们自定义类：<code>java.lang.String</code>      </li>
+</ul>
+<p>在 JVM 中表示两个 class 对象是否为同一个类存在两个必要条件： </p>
+<ul>
+<li>类的完整类名必须一致，包括包名</li>
+<li>加载这个类的 ClassLoader（指ClassLoader实例对象）必须相同</li>
+</ul>
+<h3 id="7-3-沙箱安全机制"><a href="#7-3-沙箱安全机制" class="headerlink" title="7.3 沙箱安全机制"></a>7.3 沙箱安全机制</h3><p>如果我们自定义 String 类，但是在加载自定义 String 类的时候会率先使用引导类加载器加载，而引导类加载器在加载的过程中会先加载 jdk 自带的文件（rt.jar包中 <code>java\lang\String.class</code>），报错信息说没有 main 方法就是因为加载的是<code>rt.jar</code>包中的 String 类。这样就可以保证对 java 核心源代码的保护，这就是简单的沙箱安全机制。 </p>
+<h3 id="7-4-破坏双亲委派模型"><a href="#7-4-破坏双亲委派模型" class="headerlink" title="7.4 破坏双亲委派模型"></a>7.4 破坏双亲委派模型</h3><ul>
+<li>双亲委派模型并不是一个强制性的约束模型，而是 Java 设计者推荐给开发者的类加载器实现方式，可以“被破坏”，只要我们自定义类加载器，<strong>重写 <code>loadClass()</code> 方法</strong>，指定新的加载逻辑就破坏了，重写 <code>findClass()</code> 方法不会破坏双亲委派。</li>
+<li> 双亲委派模型有一个问题：顶层 ClassLoader，无法加载底层 ClassLoader 的类。典型例子 JNDI、JDBC，所以加入了线程上下文类加载器(Thread Context ClassLoader),可以通过<code>Thread.setContextClassLoaser()</code> 设置该类加载器，然后顶层ClassLoader 再使用<code>Thread.getContextClassLoader()</code> 获得底层的 ClassLoader 进行加载。       </li>
+<li> Tomcat 中使用了自定 ClassLoader，并且也破坏了双亲委托机制。每个应用使用 WebAppClassloader 进行单独加载，他首先使用 WebAppClassloader 进行类加载，如果加载不了再委托父加载器去加载，这样可以保证每个应用中的类不冲突。每个 tomcat 中可以部署多个项目，每个项目中存在很多相同的 class 文件（很多相同的jar包），他们加载到 jvm 中可以做到互不干扰。 </li>
+</ul>
+<p><img src="/img/work/1657546743314.png" srcset="/img/loading.gif" lazyload></p>
+<ul>
+<li>利用破坏双亲委派来实现<strong>代码热替换</strong>（每次修改类文件，不需要重启服务）。因为一个 Class 只能被一个 ClassLoader 加载一次，否则会报 <code>java.lang.LinkageError</code>。当我们想要实现代码热部署时，可以每次都 new 一个自定义的 ClassLoader 来加载新的 Class文件。JSP 的实现动态修改就是使用此特性实现。</li>
+</ul>
+<h2 id="8-类的加载"><a href="#8-类的加载" class="headerlink" title="8.类的加载"></a>8.类的加载</h2><h3 id="8-1-类加载方式"><a href="#8-1-类加载方式" class="headerlink" title="8.1 类加载方式"></a>8.1 类加载方式</h3><p>类加载有三种方式： </p>
+<ul>
+<li>命令行启动应用时候由 JVM 初始化加载</li>
+<li>通过 <code>Class.forName()</code> 方法动态加载</li>
+<li>通过 <code>ClassLoader.loadClass()</code> 方法动态加载</li>
+</ul>
+<p><strong><code>Class.forName()</code> 和 <code>ClassLoader.loadClass()</code> 区别</strong> </p>
+<ul>
+<li><code>Class.forName()</code> 将类的 <code>.class</code> 文件加载到 jvm 中之外，还会对类进行解释，执行类中的 <code>static</code> 块；</li>
+<li><code>ClassLoader.loadClass()</code> 只干一件事情，就是将 <code>.class</code> 文件加载到 jvm 中，不会执行 <code>static</code> 中的内容，只有在 <code>newInstance</code> 才会去执行 <code>static</code> 块。</li>
+<li><code>Class.forName(name, initialize, loader)</code> 带参函数也可控制是否加载 <code>static</code> 块。并且只有调用了 <code>newInstance()</code> 方法采用调用构造函数，创建类的对象 。</li>
+</ul>
+<h3 id="8-2-加载类错误"><a href="#8-2-加载类错误" class="headerlink" title="8.2 加载类错误"></a>8.2 加载类错误</h3><p><strong>ClassNotFoundException</strong></p>
+<p><code>ClassNotFoundException</code> 异常出镜率极高。**<code>ClassNotFoundException</code> 表示当前 <code>classpath</code> 下找不到指定类**。 </p>
+<p>常见问题原因： </p>
+<ul>
+<li>调用 <code>Class</code> 的 <code>forName()</code> 方法，未找到类。</li>
+<li>调用 <code>ClassLoader</code> 中的 <code>loadClass()</code> 方法，未找到类。</li>
+<li>调用 <code>ClassLoader</code> 中的 <code>findSystemClass()</code> 方法，未找到类。</li>
+</ul>
+<p>【示例】执行以下代码，会抛出 <code>ClassNotFoundException</code> 异常： </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ClassNotFoundExceptionDemo</span> </span>&#123;<br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            Class.forName(<span class="hljs-string">&quot;NotFound&quot;</span>);<br>        &#125; <span class="hljs-keyword">catch</span> (ClassNotFoundException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>解决方法：检查 <code>classpath</code> 下有没有相应的 class 文件。 </p>
+<p><strong>NoClassDefFoundError</strong></p>
+<p>常见问题原因： </p>
+<ul>
+<li>类依赖的 Class 或者 jar 不存在。</li>
+<li>类文件存在，但是存在不同的域中。</li>
+</ul>
+<p>解决方法: 现在Java  项目，一般使用 <code>maven</code>、<code>gradle</code> 等构建工具管理项目，仔细检查找不到的类所在的 jar 包是否已添加为依赖。 </p>
+<p><strong>UnsatisfiedLinkError</strong></p>
+<p>这个异常倒不是很常见，但是出错的话，通常是在 JVM 启动的时候如果一不小心将在 JVM 中的某个 lib 删除了，可能就会报这个错误了。 </p>
+<p> 【示例】执行以下代码，会抛出 <code>UnsatisfiedLinkError</code> 错误 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UnsatisfiedLinkErrorDemo</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">native</span> <span class="hljs-keyword">void</span> <span class="hljs-title">nativeMethod</span><span class="hljs-params">()</span></span>;<br><br>    <span class="hljs-keyword">static</span> &#123;<br>        System.loadLibrary(<span class="hljs-string">&quot;NoLib&quot;</span>);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        <span class="hljs-keyword">new</span> UnsatisfiedLinkErrorDemo().nativeMethod();<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> 【输出】 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java">java.lang.UnsatisfiedLinkError: no NoLib in java.library.path<br>	at java.lang.ClassLoader.loadLibrary(ClassLoader.java:<span class="hljs-number">1867</span>)<br>	at java.lang.Runtime.loadLibrary0(Runtime.java:<span class="hljs-number">870</span>)<br>	at java.lang.System.loadLibrary(System.java:<span class="hljs-number">1122</span>)<br>	at io.github.dunwu.javacore.jvm.classloader.exception.UnsatisfiedLinkErrorDemo.&lt;clinit&gt;(UnsatisfiedLinkErrorDemo.java:<span class="hljs-number">12</span>)<br></code></pre></td></tr></table></figure>
+
+<p><strong>ClassCastException</strong></p>
+<p> <code>ClassCastException</code> 异常通常是在程序中强制类型转换失败时出现。 </p>
+<p> 【示例】执行以下代码，会抛出 <code>ClassCastException</code> 异常。 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ClassCastExceptionDemo</span> </span>&#123;<br><br>    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(String[] args)</span> </span>&#123;<br>        Object obj = <span class="hljs-keyword">new</span> Object();<br>        EmptyClass newObj = (EmptyClass) obj;<br>    &#125;<br><br>    <span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EmptyClass</span> </span>&#123;&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>【输出】 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">Exception in thread <span class="hljs-string">&quot;main&quot;</span> java.lang.ClassCastException: java.lang.Object cannot be cast to io.github.dunwu.javacore.jvm.classloader.exception.ClassCastExceptionDemo$EmptyClass<br>	at io.github.dunwu.javacore.jvm.classloader.exception.ClassCastExceptionDemo.main(ClassCastExceptionDemo.java:<span class="hljs-number">11</span>)<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-如何替换-JDK-的类"><a href="#9-如何替换-JDK-的类" class="headerlink" title="9.如何替换 JDK 的类"></a>9.如何替换 JDK 的类</h2><p>如何替换 JDK 中的类？比如，我们现在就拿 HashMap为例。 </p>
+<p>当 Java 的原生 API 不能满足需求时，比如我们要修改 HashMap 类，就必须要使用到 Java 的 endorsed 技术。我们需要将自己的 HashMap 类，打包成一个 jar 包，然后放到 -Djava.endorsed.dirs 指定的目录中。注意类名和包名，应该和 JDK 自带的是一样的。但是，java.lang 包下面的类除外，因为这些都是特殊保护的。</p>
+<p>因为我们上面提到的双亲委派机制，是无法直接在应用中替换 JDK 的原生类的。但是，有时候又不得不进行一下增强、替换，比如你想要调试一段代码，或者比 Java 团队早发现了一个 Bug。所以，Java 提供了 endorsed 技术，用于替换这些类。这个目录下的 jar 包，会比 rt.jar 中的文件，优先级更高，可以被最先加载到。</p>
+<h2 id="10-参考"><a href="#10-参考" class="headerlink" title="10 参考"></a>10 参考</h2><ul>
+<li> <a target="_blank" rel="noopener" href="http://blog.itpub.net/31561269/viewspace-2222522/">Java ClassLoader</a> </li>
+<li><a target="_blank" rel="noopener" href="https://javakeeper.starfish.ink/java/JVM/Class-Loading.html#%E7%9B%B4%E5%87%BB%E9%9D%A2%E8%AF%95">类加载子系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://dunwu.github.io/javacore/jvm/jvm-class-loader.html#_1-%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6">JVM 类加载</a></li>
+</ul>
 
             </div>
             <hr>
@@ -466,6 +617,29 @@
                 
               </div>
               
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/07/17/JVM%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">JVM内存结构</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/05/MySQL%E7%B4%A2%E5%BC%95/">
+                        <span class="hidden-mobile">MySQL索引</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
               
             </div>
 
