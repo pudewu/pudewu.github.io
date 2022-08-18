@@ -16,20 +16,20 @@
   <meta name="description" content="pudewu的技术分享">
   <meta name="author" content="pudewu">
   <meta name="keywords" content="">
-  <meta name="description" content="1. 数据结构优化良好的逻辑设计和物理设计是高性能的基石。 1.1. 数据类型优化数据类型优化基本原则 更小的通常更好  - 越小的数据类型通常会更快，占用更少的磁盘、内存，处理时需要的 CPU 周期也更少。">
+  <meta name="description" content="1、数据结构的历史背景​    在计算机发展的初期，人们使用计算机的目的主要是处理数值计算问题。当我们使用计算机来解决一个具体问题时，一般需要经过下列几个步骤： 首先要从该具体问题抽象出一个适当的数学模型，然后设计或选择一个解此数学模型的算法，最后编出程序进行调试、测试，直至得到最终的解答。例如，求解梁架结构中应力的数学模型的线性方程组，可以使用迭代算法来求解。  ​     由于当时所涉及的运算">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL性能优化">
-<meta property="og:url" content="https://pudewu.github.io/2022/07/13/MySQL%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:title" content="为什么要学习数据结构和算法">
+<meta property="og:url" content="https://pudewu.github.io/2022/07/28/%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%AD%A6%E4%B9%A0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="远方">
-<meta property="og:description" content="1. 数据结构优化良好的逻辑设计和物理设计是高性能的基石。 1.1. 数据类型优化数据类型优化基本原则 更小的通常更好  - 越小的数据类型通常会更快，占用更少的磁盘、内存，处理时需要的 CPU 周期也更少。">
+<meta property="og:description" content="1、数据结构的历史背景​    在计算机发展的初期，人们使用计算机的目的主要是处理数值计算问题。当我们使用计算机来解决一个具体问题时，一般需要经过下列几个步骤： 首先要从该具体问题抽象出一个适当的数学模型，然后设计或选择一个解此数学模型的算法，最后编出程序进行调试、测试，直至得到最终的解答。例如，求解梁架结构中应力的数学模型的线性方程组，可以使用迭代算法来求解。  ​     由于当时所涉及的运算">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-07-13T13:36:48.000Z">
-<meta property="article:modified_time" content="2022-07-22T06:52:42.941Z">
+<meta property="article:published_time" content="2022-07-28T12:58:48.000Z">
+<meta property="article:modified_time" content="2022-08-10T00:40:35.068Z">
 <meta property="article:author" content="pudewu">
-<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="数据结构和算法">
 <meta name="twitter:card" content="summary_large_image">
   
-  <title>MySQL性能优化 - 远方</title>
+  <title>为什么要学习数据结构和算法 - 远方</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
 
@@ -188,7 +188,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="MySQL性能优化">
+            <span class="h2" id="subtitle" title="为什么要学习数据结构和算法">
               
             </span>
 
@@ -198,8 +198,8 @@
   
     <span class="post-meta">
       <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-      <time datetime="2022-07-13 21:36" pubdate>
-        2022年7月13日 晚上
+      <time datetime="2022-07-28 20:58" pubdate>
+        2022年7月28日 晚上
       </time>
     </span>
   
@@ -213,7 +213,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1 分钟
+      5 分钟
     </span>
   
 
@@ -242,13 +242,22 @@
         <div class="py-5" id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">MySQL性能优化</h1>
+            <h1 style="display: none">为什么要学习数据结构和算法</h1>
             
             <div class="markdown-body">
-              <h2 id="1-数据结构优化"><a href="#1-数据结构优化" class="headerlink" title="1. 数据结构优化"></a>1. 数据结构优化</h2><p>良好的逻辑设计和物理设计是高性能的基石。</p>
-<h3 id="1-1-数据类型优化"><a href="#1-1-数据类型优化" class="headerlink" title="1.1. 数据类型优化"></a>1.1. 数据类型优化</h3><h4 id="数据类型优化基本原则"><a href="#数据类型优化基本原则" class="headerlink" title="数据类型优化基本原则"></a>数据类型优化基本原则</h4><ul>
-<li><strong>更小的通常更好</strong>  - 越小的数据类型通常会更快，占用更少的磁盘、内存，处理时需要的 CPU 周期也更少。 </li>
-</ul>
+              <h2 id="1、数据结构的历史背景"><a href="#1、数据结构的历史背景" class="headerlink" title="1、数据结构的历史背景"></a>1、数据结构的历史背景</h2><p>​    在计算机发展的初期，人们使用计算机的目的主要是处理数值计算问题。当我们使用计算机来解决一个具体问题时，一般需要经过下列几个步骤： 首先要从该具体问题抽象出一个适当的数学模型，然后设计或选择一个解此数学模型的算法，最后编出程序进行调试、测试，直至得到最终的解答。例如，求解梁架结构中应力的数学模型的线性方程组，可以使用迭代算法来求解。 </p>
+<p>​     由于当时所涉及的运算对象是简单的整型、实型或布尔类型数据，所以程序设计者的主要精力是集中于程序设计的技巧上，而无须重视数据结构。随着计算机应用领域的扩大和软、硬件的发展，非数值计算问题越来越显得重要。据统计，当今处理非数值计算性问题占用了85%以上的机器时间。这类问题涉及到的数据结构更为复杂，数据元素之间的相互关系一般无法用数学方程式加以描述。因此，解决这类问题的关键不再是数学分析和计算方法，而是要设计出合适的数据结构，才能有效地解决问题。</p>
+<h2 id="2-数据结构与算法到底是什么"><a href="#2-数据结构与算法到底是什么" class="headerlink" title="2. 数据结构与算法到底是什么"></a>2. 数据结构与算法到底是什么</h2><h3 id="2-1-数据结构"><a href="#2-1-数据结构" class="headerlink" title="2.1  数据结构"></a>2.1  <strong>数据结构</strong></h3><p>数据结构指的是计算机中数据的组织形式，分为逻辑结构和物理结构两个维度。其中，逻辑结构是对数据组织形式在逻辑上的抽象，物理结构则是基于存储设备对数据真实的组织管理，因此又被成为存储结构。学习和研究数据结构，就是研究数据的逻辑结构、物理结构及二者之间的关系。因此，数据结构中的”结构“二字，可以理解为数据之间存在的关系。  </p>
+<h3 id="2-2-算法"><a href="#2-2-算法" class="headerlink" title="2.2 算法"></a>2.2 <strong>算法</strong></h3><p>算法在计算机领域指的是对特定问题的解决方案的一系列指令化描述。算法必须是明确且有穷的，即一个算法必须要有明确的定义，一定的输入在有限的步骤内可以获得要求的输出。 </p>
+<h3 id="2-3-数据结构与算法的关系"><a href="#2-3-数据结构与算法的关系" class="headerlink" title="2.3 数据结构与算法的关系"></a>2.3 <strong>数据结构与算法的关系</strong></h3><p>算法是对一定的数据结构进行的特定操作，数据结构是算法的基础。在解决问题时，没有最好的算法，只有最合适的算法，数据结构也是。 </p>
+<h2 id="3-学习数据结构有什么用处"><a href="#3-学习数据结构有什么用处" class="headerlink" title="3. 学习数据结构有什么用处"></a>3. 学习数据结构有什么用处</h2><h3 id="3-1学习数据有效存储的方法"><a href="#3-1学习数据有效存储的方法" class="headerlink" title="3.1学习数据有效存储的方法"></a>3.1<strong>学习数据有效存储的方法</strong></h3><p>通过学习数据结构，更加准确和深刻地理解不同数据结构之间的共性和联系，学会选择和改进数据结构，高效地设计并实现各种算法，这才是数据结构的精髓。 </p>
+<h3 id="3-2处理具有复杂关系的数据"><a href="#3-2处理具有复杂关系的数据" class="headerlink" title="3.2处理具有复杂关系的数据"></a>3.2<strong>处理具有复杂关系的数据</strong></h3><p>现实中很多具有复杂关系的数据，无法通过简单的库函数调用实现。如同现在很多芯片高度集成，完全不需要芯片内部如何，直接使用就行了。但是，如果在现实中遇到一个复杂问题，一个芯片只能完成其中一个功能，难道要连接十几块芯片来解决这一个问题？这显然是不合适的，我们需要的是完成该复杂问题的一个芯片，因此需要运用所学的数据结构知识，高效处理具有复杂关系的数据。</p>
+<h2 id="4-学习数据结构的意义"><a href="#4-学习数据结构的意义" class="headerlink" title="4. 学习数据结构的意义"></a>4. 学习数据结构的意义</h2><p>数据结构是计算机科学与技术专业、计算机信息管理与应用专业，电子商务等专业的基础课，是十分重要的核心课程。所有的计算机系统软件和应用软件都要用到各种类型的数据结构。因此，要想更好地运用计算机来解决实际问题，仅掌握几种计算机程序设计语言是难以应付当前众多复杂的课题。要想有效地使用计算机、充分发挥计算机的性能，还必须学习和掌握好数据结构的有关知识。打好“数据结构”这门课程的扎实基础，对于学习计算机专业的其他课程，如操作系统、数据库管理系统、软件工程、编译原理、人工智能、图视学等都是十分有益的。</p>
+<h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><p>学习数据结构和算法，并非为了死记硬背几个知识点。而是为建立时间复杂度、空间复杂度意识，写出高质量代码，能够设计基础架构，提升编程技能，训练逻辑思维，积攒人生经验，以此获得工作回报，实现你的价值，完善你的人生。 </p>
+<p>掌握数据结构与算法，看待问题的深度，解决问题的角度就会完全不同。 </p>
+<h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6. 参考"></a>6. 参考</h2><p><a target="_blank" rel="noopener" href="http://www.5ityx.com/cate105/31676.html">http://www.5ityx.com/cate105/31676.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904149243412494">https://juejin.cn/post/6844904149243412494</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/847926">https://developer.aliyun.com/article/847926</a></p>
 
             </div>
             <hr>
@@ -258,9 +267,9 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/">数据结构和算法</a>
                     
-                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/MySQL/">MySQL</a>
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95%E5%89%8D%E8%A8%80/">数据结构和算法前言</a>
                     
                   </div>
                 
@@ -268,12 +277,29 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/MySQL/">MySQL</a>
+                      <a class="hover-with-bg" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/">数据结构和算法</a>
                     
                   </div>
                 
               </div>
               
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/27/%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90/">
+                        <span class="hidden-mobile">复杂度分析</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
               
             </div>
 
