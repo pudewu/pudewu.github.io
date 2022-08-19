@@ -6,7 +6,7 @@
   <link href="https://pudewu.github.io/atom.xml" rel="self"/>
   
   <link href="https://pudewu.github.io/"/>
-  <updated>2022-08-10T00:40:35.068Z</updated>
+  <updated>2022-08-19T05:55:22.724Z</updated>
   <id>https://pudewu.github.io/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>垃圾回收机制</title>
+    <link href="https://pudewu.github.io/2022/08/18/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/"/>
+    <id>https://pudewu.github.io/2022/08/18/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/</id>
+    <published>2022-08-18T03:49:25.000Z</published>
+    <updated>2022-08-19T05:55:22.724Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
+        
+      
+    
+    
+    
+    <category term="JVM" scheme="https://pudewu.github.io/categories/JVM/"/>
+    
+    
+    <category term="JVM" scheme="https://pudewu.github.io/tags/JVM/"/>
+    
+  </entry>
   
   <entry>
     <title>为什么要学习数据结构和算法</title>
@@ -67,31 +92,6 @@
     
     
     <category term="数据结构和算法" scheme="https://pudewu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>垃圾回收机制</title>
-    <link href="https://pudewu.github.io/2022/07/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/"/>
-    <id>https://pudewu.github.io/2022/07/25/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/</id>
-    <published>2022-07-25T03:49:25.000Z</published>
-    <updated>2022-08-16T09:41:04.398Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;link rel=&quot;stylesheet&quot; class=&quot;aplayer-secondary-style-marker&quot; href=&quot;/assets/css/APlayer.min.css&quot;&gt;&lt;script src=&quot;/assets/js/APlayer.min.js&quot;</summary>
-        
-      
-    
-    
-    
-    <category term="JVM" scheme="https://pudewu.github.io/categories/JVM/"/>
-    
-    
-    <category term="JVM" scheme="https://pudewu.github.io/tags/JVM/"/>
     
   </entry>
   
