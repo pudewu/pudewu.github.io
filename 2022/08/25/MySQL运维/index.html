@@ -1,0 +1,905 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="pudewu的技术分享">
+  <meta name="author" content="pudewu">
+  <meta name="keywords" content="">
+  <meta name="description" content="如果你的公司有 DBA，那么我恭喜你，你可以无视 Mysql 运维。如果你的公司没有 DBA，那你就好好学两手 Mysql 基本运维操作，行走江湖，防身必备。  1. 安装部署1.1 Windows 安装（1）下载 Mysql 5.7 免安装版 下载地址：https:&#x2F;&#x2F;dev.mysql.com&#x2F;downloads&#x2F;mysql&#x2F;5.7.html#downloads （2）解压并创建 my.in">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL运维">
+<meta property="og:url" content="https://pudewu.github.io/2022/08/25/MySQL%E8%BF%90%E7%BB%B4/index.html">
+<meta property="og:site_name" content="远方">
+<meta property="og:description" content="如果你的公司有 DBA，那么我恭喜你，你可以无视 Mysql 运维。如果你的公司没有 DBA，那你就好好学两手 Mysql 基本运维操作，行走江湖，防身必备。  1. 安装部署1.1 Windows 安装（1）下载 Mysql 5.7 免安装版 下载地址：https:&#x2F;&#x2F;dev.mysql.com&#x2F;downloads&#x2F;mysql&#x2F;5.7.html#downloads （2）解压并创建 my.in">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pudewu.github.io/img/work/1661352651339.png">
+<meta property="article:published_time" content="2022-08-25T07:03:33.000Z">
+<meta property="article:modified_time" content="2022-08-29T02:43:51.196Z">
+<meta property="article:author" content="pudewu">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://pudewu.github.io/img/work/1661352651339.png">
+  
+  <title>MySQL运维 - 远方</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"pudewu.github.io","root":"/","version":"1.8.12","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","app_key":"XqW1MD1MQUgHsxH0BNgcfIfd","server_url":null,"path":"window.location.pathname"}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="远方" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>远方</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-user-fill"></i>
+                个人
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/about/">
+                    <i class="iconfont icon-user-fill"></i>
+                    关于
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/article.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MySQL运维">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-08-25 15:03" pubdate>
+        2022年8月25日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      54 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL运维</h1>
+            
+            <div class="markdown-body">
+              <blockquote>
+<p>如果你的公司有 DBA，那么我恭喜你，你可以无视 Mysql 运维。如果你的公司没有 DBA，那你就好好学两手 Mysql 基本运维操作，行走江湖，防身必备。</p>
+</blockquote>
+<h2 id="1-安装部署"><a href="#1-安装部署" class="headerlink" title="1. 安装部署"></a>1. 安装部署</h2><h3 id="1-1-Windows-安装"><a href="#1-1-Windows-安装" class="headerlink" title="1.1 Windows 安装"></a>1.1 Windows 安装</h3><p>（1）下载 Mysql 5.7 免安装版</p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/mysql/5.7.html#downloads">https://dev.mysql.com/downloads/mysql/5.7.html#downloads</a></p>
+<p>（2）解压并创建 my.ini 在根目录</p>
+<p>my.ini 文件示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mysql">[mysqld]<br>#设置3306端口<br>port = 3306<br># 设置mysql的安装目录 这块换成自己解压的路径<br>basedir=D:\\Tools\\DB\\mysql\\mysql-5.7.31<br># 允许最大连接数<br>max_connections=200<br># 服务端使用的字符集默认为8比特编码的latin1字符集<br>character-set-server=utf8<br># 创建新表时将使用的默认存储引擎<br>default-storage-engine=INNODB<br><br>[client]<br># 设置mysql客户端默认字符集<br>default-character-set=utf8<br></code></pre></td></tr></table></figure>
+
+<p>（3）执行安装命令</p>
+<p>在控制台 CMD 中依次执行以下安装命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd D:\\Tools\\DB\\mysql\\mysql-5.7.31<br>mysqld --initialize<br>mysqld -install<br></code></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ul>
+<li><code>mysqld --initialize</code> 会自动初始化创建 data 文件夹并初始化 mysql。</li>
+<li><code>mysqld -install</code> 会安装 mysql 服务。</li>
+</ul>
+<p>（4）启动服务</p>
+<p>在控制台执行 <code>net start mysql</code> 启动服务。</p>
+<h3 id="1-2-CentOS-安装"><a href="#1-2-CentOS-安装" class="headerlink" title="1.2 CentOS 安装"></a>1.2 CentOS 安装</h3><blockquote>
+<p>本文仅介绍 rpm 安装方式</p>
+</blockquote>
+<h4 id="1-2-1-安装-mysql-yum-源"><a href="#1-2-1-安装-mysql-yum-源" class="headerlink" title="1.2.1 安装 mysql yum 源"></a>1.2.1 安装 mysql yum 源</h4><p>官方下载地址：<a target="_blank" rel="noopener" href="https://dev.mysql.com/downloads/repo/yum/">https://dev.mysql.com/downloads/repo/yum/</a></p>
+<p>（1）下载 yum 源</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">wget https://dev.mysql.com/get/mysql80-community-release-el7-1.noarch.rpm<br></code></pre></td></tr></table></figure>
+
+<p>（2）安装 yum repo 文件并更新 yum 缓存</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">rpm -ivh mysql80-community-release-el7-1.noarch.rpm<br></code></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<p>会在 /etc/yum.repos.d/ 目录下生成两个 repo 文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> ls | grep mysql</span><br>mysql-community.repo<br>mysql-community-source.repo<br></code></pre></td></tr></table></figure>
+
+<p>更新 yum：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">yum clean all<br>yum makecache<br></code></pre></td></tr></table></figure>
+
+<p>（3）查看 rpm 安装状态</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@centos7 ~]# yum search mysql | grep server<br>mysql-community-common.i686 : MySQL database common files for server and client<br>mysql-community-common.x86_64 : MySQL database common files for server and<br>mysql-community-server-debug.x86_64 : The debug version of MySQL server<br>mysql-community-test.x86_64 : Test suite for the MySQL database server<br>                       : administering MySQL servers<br>mysql-community-server.x86_64 : A very fast and reliable SQL database server<br></code></pre></td></tr></table></figure>
+
+<p>通过 yum 安装 mysql 有几个重要目录：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 配置文件</span></span><br>/etc/my.cnf<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 数据库目录</span></span><br>/var/lib/mysql/<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 配置文件</span></span><br>/usr/share/mysql（mysql.server命令及配置文件）<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 相关命令</span></span><br>/usr/bin（mysqladmin mysqldump等命令）<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 启动脚本</span></span><br>/usr/lib/systemd/system/mysqld.service （注册为 systemd 服务）<br></code></pre></td></tr></table></figure>
+
+<p>（4）安装 mysql 服务器</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">yum install mysql-community-server<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-2-mysql-服务管理"><a href="#1-2-2-mysql-服务管理" class="headerlink" title="1.2.2 mysql 服务管理"></a>1.2.2 mysql 服务管理</h4><p>通过 yum 方式安装 mysql 后，本地会有一个名为 <code>mysqld</code> 的 systemd 服务。</p>
+<p>其服务管理十分简便：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 查看状态</span></span><br>systemctl status mysqld<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 启用服务</span></span><br>systemctl enable mysqld<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 禁用服务</span></span><br>systemctl disable mysqld<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 启动服务</span></span><br>systemctl start mysqld<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 重启服务</span></span><br>systemctl restart mysqld<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># 停止服务</span></span><br>systemctl stop mysqld<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-4-初始化数据库密码"><a href="#1-4-初始化数据库密码" class="headerlink" title="1.4 初始化数据库密码"></a>1.4 初始化数据库密码</h3><p>查看一下初始密码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">grep &quot;password&quot; /var/log/mysqld.log<br>2018-09-30T03:13:41.727736Z 5 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: %:lt+srWu4k1<br></code></pre></td></tr></table></figure>
+
+<p>执行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -p&lt;临时密码&gt;<br></code></pre></td></tr></table></figure>
+
+<p>输入临时密码，进入 mysql，如果要修改密码，执行以下指令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">ALTER user &#x27;root&#x27;@&#x27;localhost&#x27; IDENTIFIED BY &#x27;你的密码&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>注：密码强度默认为中等，大小写字母、数字、特殊符号，只有修改成功后才能修改配置再设置更简单的密码</p>
+<h3 id="1-5-配置远程访问"><a href="#1-5-配置远程访问" class="headerlink" title="1.5 配置远程访问"></a>1.5 配置远程访问</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;root&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span> IDENTIFIED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;你的密码&#x27;</span>;<br><span class="hljs-keyword">GRANT</span> <span class="hljs-keyword">ALL</span> <span class="hljs-keyword">ON</span> <span class="hljs-operator">*</span>.<span class="hljs-operator">*</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">&#x27;root&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span>;<br><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;root&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span> IDENTIFIED <span class="hljs-keyword">WITH</span> mysql_native_password <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;你的密码&#x27;</span>;<br>FLUSH PRIVILEGES;<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-6-跳过登录认证"><a href="#1-6-跳过登录认证" class="headerlink" title="1.6 跳过登录认证"></a>1.6 跳过登录认证</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">vim /etc/my.cnf<br></code></pre></td></tr></table></figure>
+
+<p>在 [mysqld] 下面加上 skip-grant-tables</p>
+<p>在 [mysqld] 下面加上 skip-grant-tables</p>
+<p>作用是登录时跳过登录认证，换句话说就是 root 什么密码都可以登录进去。</p>
+<p>执行 <code>systemctl restart mysqld</code>，重启 mysql</p>
+<h2 id="2-基本运维"><a href="#2-基本运维" class="headerlink" title="2. 基本运维"></a>2. 基本运维</h2><h3 id="2-1-客户端连接"><a href="#2-1-客户端连接" class="headerlink" title="2.1 客户端连接"></a>2.1 客户端连接</h3><p>语法：<code>mysql -h&lt;主机&gt; -P&lt;端口&gt; -u&lt;用户名&gt; -p&lt;密码&gt;</code></p>
+<p>如果没有显式指定密码，会要求输入密码才能访问。 </p>
+<p> 【示例】连接本地 Mysql </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mysql">[root@centos7 ~]# mysql -uroot -p<br>Enter password: <br>Welcome to the MySQL monitor.  Commands end with ; or \g.<br>Your MySQL connection id is 14<br>Server version: 8.0.30 MySQL Community Server - GPL<br><br>Copyright (c) 2000, 2022, Oracle and/or its affiliates.<br><br>Oracle is a registered trademark of Oracle Corporation and/or its<br>affiliates. Other names may be trademarks of their respective<br>owners.<br><br>Type &#x27;help;&#x27; or &#x27;\h&#x27; for help. Type &#x27;\c&#x27; to clear the current input statement.<br><br>mysql&gt; <br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-查看连接"><a href="#2-2-查看连接" class="headerlink" title="2.2. 查看连接"></a>2.2. 查看连接</h3><p>连接完成后，如果你没有后续的动作，这个连接就处于空闲状态，你可以在 <code>show processlist</code> 命令中看到它。客户端如果太长时间没动静，连接器就会自动将它断开。这个时间是由参数 <code>wait_timeout</code> 控制的，默认值是 8 小时。 </p>
+<p><img src="/img/work/1661352651339.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="2-3-创建用户"><a href="#2-3-创建用户" class="headerlink" title="2.3. 创建用户"></a>2.3. 创建用户</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">CREATE USER &#x27;username&#x27;@&#x27;host&#x27; IDENTIFIED BY &#x27;password&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>说明:</p>
+<ul>
+<li>username：你将创建的用户名</li>
+<li>host：指定该用户在哪个主机上可以登陆，如果是本地用户可用 localhost，如果想让该用户可以<strong>从任意远程主机登陆</strong>，可以使用通配符<code>%</code></li>
+<li>password：该用户的登陆密码，密码可以为空，如果为空则该用户可以不需要密码登陆服务器</li>
+</ul>
+<p>示例： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">CREATE USER &#x27;dog&#x27;@&#x27;localhost&#x27; IDENTIFIED BY &#x27;123456&#x27;;<br>CREATE USER &#x27;pig&#x27;@&#x27;192.168.1.101_&#x27; IDENDIFIED BY &#x27;123456&#x27;;<br>CREATE USER &#x27;pig&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;123456&#x27;;<br>CREATE USER &#x27;pig&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;&#x27;;<br>CREATE USER &#x27;pig&#x27;@&#x27;%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：在 Mysql 8 中，默认密码验证不再是 <code>password</code>。所以在创建用户时，<code>create user &#39;username&#39;@&#39;%&#39; identified by &#39;password&#39;;</code> 客户端是无法连接服务的。  </p>
+<p>所以，需要加上 <code>IDENTIFIED WITH mysql_native_password</code>，例如：<code>CREATE USER &#39;slave&#39;@&#39;%&#39; IDENTIFIED WITH mysql_native_password BY &#39;123456&#39;;</code> </p>
+</blockquote>
+<h3 id="2-4-查看用户"><a href="#2-4-查看用户" class="headerlink" title="2.4. 查看用户"></a>2.4. 查看用户</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">-- 查看所有用户<br>SELECT DISTINCT CONCAT(&#x27;User: &#x27;&#x27;&#x27;, user, &#x27;&#x27;&#x27;@&#x27;&#x27;&#x27;, host, &#x27;&#x27;&#x27;;&#x27;) AS query<br>FROM mysql.user;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-5-授权"><a href="#2-5-授权" class="headerlink" title="2.5. 授权"></a>2.5. 授权</h3><p>命令： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">GRANT privileges ON databasename.tablename TO &#x27;username&#x27;@&#x27;host&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ul>
+<li>privileges：用户的操作权限，如<code>SELECT</code>，<code>INSERT</code>，<code>UPDATE</code>等，如果要授予所的权限则使用<code>ALL</code></li>
+<li>databasename：数据库名</li>
+<li>tablename：表名，如果要授予该用户对所有数据库和表的相应操作权限则可用<code>*</code>表示，如<code>*.*</code></li>
+</ul>
+<p>示例： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">GRANT SELECT, INSERT ON test.user TO &#x27;pig&#x27;@&#x27;%&#x27;;<br>GRANT ALL ON *.* TO &#x27;pig&#x27;@&#x27;%&#x27;;<br>GRANT ALL ON maindataplus.* TO &#x27;pig&#x27;@&#x27;%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<p>用以上命令授权的用户不能给其它用户授权，如果想让该用户可以授权，用以下命令: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mysql">-- 为指定用户配置指定权限<br>GRANT privileges ON databasename.tablename TO &#x27;username&#x27;@&#x27;host&#x27; WITH GRANT OPTION;<br>-- 为 root 用户分配所有权限<br>GRANT ALL ON *.* TO &#x27;root&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;密码&#x27; WITH GRANT OPTION;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-6-撤销授权"><a href="#2-6-撤销授权" class="headerlink" title="2.6. 撤销授权"></a>2.6. 撤销授权</h3><p>命令: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">REVOKE privilege ON databasename.tablename FROM &#x27;username&#x27;@&#x27;host&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>说明:</p>
+<p>privilege, databasename, tablename：同授权部分 </p>
+<p>例子: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">REVOKE SELECT ON *.* FROM &#x27;pig&#x27;@&#x27;%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>注意:</p>
+<p>假如你在给用户<code>&#39;pig&#39;@&#39;%&#39;</code>授权的时候是这样的（或类似的）：<code>GRANT SELECT ON test.user TO &#39;pig&#39;@&#39;%&#39;</code>，则在使用<code>REVOKE SELECT ON *.* FROM &#39;pig&#39;@&#39;%&#39;;</code>命令并不能撤销该用户对 test 数据库中 user 表的<code>SELECT</code> 操作。相反，如果授权使用的是<code>GRANT SELECT ON *.* TO &#39;pig&#39;@&#39;%&#39;;</code>则<code>REVOKE SELECT ON test.user FROM &#39;pig&#39;@&#39;%&#39;;</code>命令也不能撤销该用户对 test 数据库中 user 表的<code>Select</code>权限。</p>
+<p>具体信息可以用命令<code>SHOW GRANTS FOR &#39;pig&#39;@&#39;%&#39;;</code> 查看。</p>
+<h3 id="2-7-查看授权"><a href="#2-7-查看授权" class="headerlink" title="2.7. 查看授权"></a>2.7. 查看授权</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">-- 查看用户权限<br>SHOW GRANTS FOR &#x27;root&#x27;@&#x27;%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-8-更改用户密码"><a href="#2-8-更改用户密码" class="headerlink" title="2.8. 更改用户密码"></a>2.8. 更改用户密码</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET PASSWORD FOR &#x27;username&#x27;@&#x27;host&#x27; = PASSWORD(&#x27;newpassword&#x27;);<br></code></pre></td></tr></table></figure>
+
+<p>如果是当前登陆用户用: </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET PASSWORD = PASSWORD(&quot;newpassword&quot;);<br></code></pre></td></tr></table></figure>
+
+<p>示例： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET PASSWORD FOR &#x27;pig&#x27;@&#x27;%&#x27; = PASSWORD(&quot;123456&quot;);<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-9-备份与恢复"><a href="#2-9-备份与恢复" class="headerlink" title="2.9. 备份与恢复"></a>2.9. 备份与恢复</h3><p>Mysql 备份数据使用 mysqldump 命令。</p>
+<p>mysqldump 将数据库中的数据备份成一个文本文件，表的结构和表中的数据将存储在生成的文本文件中。</p>
+<p>备份：</p>
+<h4 id="备份一个数据库"><a href="#备份一个数据库" class="headerlink" title="备份一个数据库"></a>备份一个数据库</h4><p>语法： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -h &lt;host&gt; -P&lt;port&gt; -u&lt;username&gt; -p&lt;database&gt; [&lt;table1&gt; &lt;table2&gt; ...] &gt; backup.sql<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><strong><code>host</code></strong> - Mysql Server 的 host</li>
+<li><strong><code>port</code></strong> - Mysql Server 的端口</li>
+<li><strong><code>username</code></strong> - 数据库用户</li>
+<li><strong><code>dbname</code></strong> - 数据库名称</li>
+<li>table1 和 table2 参数表示需要备份的表的名称，为空则整个数据库备份；</li>
+<li>BackupName.sql 参数表设计备份文件的名称，文件名前面可以加上一个绝对路径。通常将数据库被分成一个后缀名为 sql 的文件</li>
+</ul>
+<h4 id="备份多个数据库"><a href="#备份多个数据库" class="headerlink" title="备份多个数据库"></a>备份多个数据库</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -u &lt;username&gt; -p --databases &lt;database1&gt; &lt;database2&gt; ... &gt; backup.sql<br></code></pre></td></tr></table></figure>
+
+<h4 id="备份所有数据库"><a href="#备份所有数据库" class="headerlink" title="备份所有数据库"></a>备份所有数据库</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysqldump <span class="hljs-operator">-</span>u <span class="hljs-operator">&lt;</span>username<span class="hljs-operator">&gt;</span> <span class="hljs-operator">-</span>p <span class="hljs-comment">--all-databases &gt; backup.sql</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="恢复一个数据库"><a href="#恢复一个数据库" class="headerlink" title="恢复一个数据库"></a>恢复一个数据库</h4><p>Mysql 恢复数据使用 mysql 命令。 </p>
+<p>语法： </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -h &lt;host&gt; -P&lt;port&gt; -u&lt;username&gt; -p&lt;database&gt; &lt; backup.sql<br></code></pre></td></tr></table></figure>
+
+<h4 id="恢复所有数据库"><a href="#恢复所有数据库" class="headerlink" title="恢复所有数据库"></a>恢复所有数据库</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql <span class="hljs-operator">-</span>u<span class="hljs-operator">&lt;</span>username<span class="hljs-operator">&gt;</span> <span class="hljs-operator">-</span>p <span class="hljs-comment">--all-databases &lt; backup.sql</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-10-卸载"><a href="#2-10-卸载" class="headerlink" title="2.10. 卸载"></a>2.10. 卸载</h3><p>（1）查看已安装的 mysql </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">rpm -qa | grep -i mysql<br>mysql-community-libs-8.0.30-1.el7.x86_64<br>mysql-community-server-8.0.30-1.el7.x86_64<br>mysql-community-client-8.0.30-1.el7.x86_64<br>mysql-community-libs-compat-8.0.30-1.el7.x86_64<br>mysql-community-common-8.0.30-1.el7.x86_64<br>mysql-community-icu-data-files-8.0.30-1.el7.x86_64<br>mysql80-community-release-el7-1.noarch<br>mysql-community-client-plugins-8.0.30-1.el7.x86_64<br></code></pre></td></tr></table></figure>
+
+<p> （2）卸载 mysql </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">yum remove mysql-community-server.x86_64<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-11-主从节点部署"><a href="#2-11-主从节点部署" class="headerlink" title="2.11. 主从节点部署"></a>2.11. 主从节点部署</h3><p>假设需要配置一个主从 Mysql 服务器环境 </p>
+<ul>
+<li>master 节点：192.168.1.10</li>
+<li>slave 节点：192.168.1.11</li>
+</ul>
+<h4 id="主节点上的操作"><a href="#主节点上的操作" class="headerlink" title="主节点上的操作"></a>主节点上的操作</h4><p>（1）修改配置并重启 </p>
+<p> 执行 <code>vi /etc/my.cnf</code> ，添加如下配置： </p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[mysqld]</span><br><span class="hljs-attr">server-id</span>=<span class="hljs-number">1</span><br><span class="hljs-attr">log_bin</span>=/var/lib/mysql/binlog<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>server-id</code> - 服务器 ID 号。在主从架构中，每台机器的 ID 必须唯一。</li>
+<li><code>log_bin</code> - 同步的日志路径及文件名，一定注意这个目录要是 mysql 有权限写入的；</li>
+</ul>
+<p>修改后，重启 mysql 使配置生效：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">systemctl restart mysql<br></code></pre></td></tr></table></figure>
+
+<p>（2）创建用于同步的用户</p>
+<p>进入 mysql 命令控制台：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> mysql -u root -p</span><br>Password:<br></code></pre></td></tr></table></figure>
+
+<p>执行以下 SQL：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mysql">-- a. 创建 slave 用户<br>CREATE USER &#x27;slave&#x27;@&#x27;%&#x27; IDENTIFIED WITH mysql_native_password BY &#x27;密码&#x27;;<br>-- 为 slave 赋予 REPLICATION SLAVE 权限<br>GRANT REPLICATION SLAVE ON *.* TO &#x27;slave&#x27;@&#x27;%&#x27;;<br><br>-- b. 或者，创建 slave 用户，并指定该用户能在任意主机上登录<br>-- 如果有多个从节点，又想让所有从节点都使用统一的用户名、密码认证，可以考虑这种方式<br>CREATE USER &#x27;slave&#x27;@&#x27;%&#x27; IDENTIFIED WITH mysql_native_password BY &#x27;密码&#x27;;<br>GRANT REPLICATION SLAVE ON *.* TO &#x27;slave&#x27;@&#x27;%&#x27;;<br>-- 刷新授权表信息<br>FLUSH PRIVILEGES;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：在 Mysql 8 中，默认密码验证不再是 <code>password</code>。所以在创建用户时，<code>create user &#39;username&#39;@&#39;%&#39; identified by &#39;password&#39;;</code> 客户端是无法连接服务的。所以，需要加上 <code>IDENTIFIED WITH mysql_native_password BY &#39;password&#39;</code></p>
+</blockquote>
+<p>补充用户管理 SQL:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 查看所有用户</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">DISTINCT</span> CONCAT(<span class="hljs-string">&#x27;User: &#x27;&#x27;&#x27;</span>, <span class="hljs-keyword">user</span>, <span class="hljs-string">&#x27;&#x27;&#x27;@&#x27;&#x27;&#x27;</span>, host, <span class="hljs-string">&#x27;&#x27;&#x27;;&#x27;</span>) <span class="hljs-keyword">AS</span> query<br><span class="hljs-keyword">FROM</span> mysql.user;<br><span class="hljs-comment">-- 查看用户权限</span><br><span class="hljs-keyword">SHOW</span> GRANTS <span class="hljs-keyword">FOR</span> <span class="hljs-string">&#x27;root&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span>;<br><br><span class="hljs-comment">-- 创建用户</span><br><span class="hljs-comment">-- a. 创建 slave 用户，并指定该用户只能在主机 192.168.8.11 上登录</span><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;slave&#x27;</span>@<span class="hljs-string">&#x27;192.168.8.11&#x27;</span> IDENTIFIED <span class="hljs-keyword">WITH</span> mysql_native_password <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;密码&#x27;</span>;<br><span class="hljs-comment">-- 为 slave 赋予 REPLICATION SLAVE 权限</span><br><span class="hljs-keyword">GRANT</span> REPLICATION SLAVE <span class="hljs-keyword">ON</span> <span class="hljs-operator">*</span>.<span class="hljs-operator">*</span> <span class="hljs-keyword">TO</span> <span class="hljs-string">&#x27;slave&#x27;</span>@<span class="hljs-string">&#x27;192.168.8.11&#x27;</span>;<br><br><br><span class="hljs-comment">-- 删除用户</span><br><span class="hljs-keyword">DROP</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;slave&#x27;</span>@<span class="hljs-string">&#x27;192.168.8.11&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>（3）加读锁</p>
+<p>为了主库与从库的数据保持一致，我们先为 mysql 加入读锁，使其变为只读。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> FLUSH TABLES <span class="hljs-keyword">WITH</span> READ LOCK;<br></code></pre></td></tr></table></figure>
+
+<p>（4）查看主节点状态</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">show</span> master status;<br><span class="hljs-operator">+</span><span class="hljs-comment">------------------+----------+--------------+---------------------------------------------+-------------------+</span><br><span class="hljs-operator">|</span> File             <span class="hljs-operator">|</span> Position <span class="hljs-operator">|</span> Binlog_Do_DB <span class="hljs-operator">|</span> Binlog_Ignore_DB                            <span class="hljs-operator">|</span> Executed_Gtid_Set <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">------------------+----------+--------------+---------------------------------------------+-------------------+</span><br><span class="hljs-operator">|</span> mysql<span class="hljs-operator">-</span>bin<span class="hljs-number">.000001</span> <span class="hljs-operator">|</span>     <span class="hljs-number">4202</span> <span class="hljs-operator">|</span>              <span class="hljs-operator">|</span> mysql,information_schema,performance_schema <span class="hljs-operator">|</span>                   <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">------------------+----------+--------------+---------------------------------------------+-------------------+</span><br><span class="hljs-number">1</span> <span class="hljs-type">row</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">set</span> (<span class="hljs-number">0.00</span> sec)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：需要记录下 <code>File</code> 和 <code>Position</code>，后面会用到。</p>
+</blockquote>
+<p>（5）导出 sql（将已有的数据进行备份导出）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -u root -p --all-databases --master-data &gt; dbdump.sql<br></code></pre></td></tr></table></figure>
+
+<p>（6）解除读锁</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> UNLOCK TABLES;<br></code></pre></td></tr></table></figure>
+
+<p>（7）将 sql 远程传送到从节点上</p>
+<h4 id="从节点上的操作"><a href="#从节点上的操作" class="headerlink" title="从节点上的操作"></a>从节点上的操作</h4><p>（1）修改配置并重启</p>
+<p>执行 <code>vi /etc/my.cnf</code> ，添加如下配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[mysqld]</span><br><span class="hljs-attr">server-id</span>=<span class="hljs-number">2</span><br><span class="hljs-attr">log_bin</span>=/var/lib/mysql/binlog<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>server-id</code> - 服务器 ID 号。在主从架构中，每台机器的 ID 必须唯一。</li>
+<li><code>log_bin</code> - 同步的日志路径及文件名，一定注意这个目录要是 mysql 有权限写入的；</li>
+</ul>
+<p>修改后，重启 mysql 使配置生效：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">systemctl restart mysql<br></code></pre></td></tr></table></figure>
+
+<p>（2）导入 sql</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -u root -p &lt; /home/dbdump.sql<br></code></pre></td></tr></table></figure>
+
+<p>（3）在从节点上建立与主节点的连接</p>
+<p>进入 mysql 命令控制台：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">$</span><span class="bash"> mysql -u root -p</span><br>Password:<br></code></pre></td></tr></table></figure>
+
+<p>执行以下 SQL：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-comment">-- 停止从节点服务</span><br>STOP SLAVE;<br><br><span class="hljs-comment">-- 注意：MASTER_USER 和</span><br>CHANGE MASTER <span class="hljs-keyword">TO</span><br>MASTER_HOST<span class="hljs-operator">=</span><span class="hljs-string">&#x27;192.168.8.10&#x27;</span>,<br>MASTER_USER<span class="hljs-operator">=</span><span class="hljs-string">&#x27;slave&#x27;</span>,<br>MASTER_PASSWORD<span class="hljs-operator">=</span><span class="hljs-string">&#x27;密码&#x27;</span>,<br>MASTER_LOG_FILE<span class="hljs-operator">=</span><span class="hljs-string">&#x27;binlog.000001&#x27;</span>,<br>MASTER_LOG_POS<span class="hljs-operator">=</span><span class="hljs-number">4202</span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>MASTER_LOG_FILE</code> 和 <code>MASTER_LOG_POS</code> 参数要分别与 <code>show master status</code> 指令获得的 <code>File</code> 和 <code>Position</code> 属性值对应。</li>
+<li><code>MASTER_HOST</code> 是主节点的 HOST。</li>
+<li><code>MASTER_USER</code> 和 <code>MASTER_PASSWORD</code> 是在主节点上注册的用户及密码。</li>
+</ul>
+<p>（4）启动 slave 进程</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">start</span> slave;<br></code></pre></td></tr></table></figure>
+
+<p>（5）查看主从同步状态</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">show</span> slave status\G;<br></code></pre></td></tr></table></figure>
+
+<p>说明：如果以下两项参数均为 YES，说明配置正确。</p>
+<ul>
+<li><code>Slave_IO_Running</code></li>
+<li><code>Slave_SQL_Running</code></li>
+</ul>
+<p>（6）将从节点设为只读</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">set</span> <span class="hljs-keyword">global</span> read_only<span class="hljs-operator">=</span><span class="hljs-number">1</span>;<br>mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">set</span> <span class="hljs-keyword">global</span> super_read_only<span class="hljs-operator">=</span><span class="hljs-number">1</span>;<br>mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">show</span> <span class="hljs-keyword">global</span> variables <span class="hljs-keyword">like</span> &quot;%read_only%&quot;;<br><span class="hljs-operator">+</span><span class="hljs-comment">-----------------------+-------+</span><br><span class="hljs-operator">|</span> Variable_name         <span class="hljs-operator">|</span> <span class="hljs-keyword">Value</span> <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">-----------------------+-------+</span><br><span class="hljs-operator">|</span> innodb_read_only      <span class="hljs-operator">|</span> OFF   <span class="hljs-operator">|</span><br><span class="hljs-operator">|</span> read_only             <span class="hljs-operator">|</span> <span class="hljs-keyword">ON</span>    <span class="hljs-operator">|</span><br><span class="hljs-operator">|</span> super_read_only       <span class="hljs-operator">|</span> <span class="hljs-keyword">ON</span>    <span class="hljs-operator">|</span><br><span class="hljs-operator">|</span> transaction_read_only <span class="hljs-operator">|</span> OFF   <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">-----------------------+-------+</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：设置 slave 服务器为只读，并不影响主从同步。</p>
+</blockquote>
+<h2 id="3-服务器配置"><a href="#3-服务器配置" class="headerlink" title="3. 服务器配置"></a>3. 服务器配置</h2><blockquote>
+<p><em><strong>大部分情况下，默认的基本配置已经足够应付大多数场景，不要轻易修改 Mysql 服务器配置，除非你明确知道修改项是有益的。</strong></em></p>
+<p>尽量不要使用 Mysql 的缓存功能，因为其要求每次请求参数完全相同，才能命中缓存。这种方式实际上并不高效，还会增加额外开销，实际业务场景中一般使用 Redis 等 key-value 存储来解决缓存问题，性能远高于 Mysql 的查询缓存。</p>
+</blockquote>
+<h3 id="3-1-配置文件路径"><a href="#3-1-配置文件路径" class="headerlink" title="3.1. 配置文件路径"></a>3.1. 配置文件路径</h3><p>配置 Mysql 首先要确定配置文件在哪儿</p>
+<p>不同 Linux 操作系统上，Mysql 配置文件路径可能不同。通常的路径为 /etc/my.cnf 或 /etc/mysql/my.cnf 。</p>
+<p>如果不知道配置文件路径，可以尝试以下操作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">which</span> mysqld</span><br>/usr/sbin/mysqld<br><span class="hljs-meta">#</span><span class="bash"> /usr/sbin/mysqld --verbose --<span class="hljs-built_in">help</span> | grep -A 1 <span class="hljs-string">&#x27;Default options&#x27;</span></span><br>Default options are read from the following files in the given order:<br>/etc/my.cnf /etc/mysql/my.cnf /usr/etc/my.cnf ~/.my.cnf<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-配置项语法"><a href="#3-2-配置项语法" class="headerlink" title="3.2. 配置项语法"></a>3.2. 配置项语法</h3><p><strong>Mysql 配置项设置都使用小写，单词之间用下划线或横线隔开（二者是等价的）。</strong></p>
+<p>建议使用固定的风格，这样检索配置项时较为方便。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 这两种格式等价</span><br>/usr/sbin/mysqld --auto-increment-offset=5<br>/usr/sbin/mysqld --auto_increment_offset=5<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-常用配置项说明"><a href="#3-3-常用配置项说明" class="headerlink" title="3.3. 常用配置项说明"></a>3.3. 常用配置项说明</h3><p>先给出一份常用配置模板，内容如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[mysqld]</span><br><span class="hljs-comment"># GENERAL</span><br><span class="hljs-comment"># -------------------------------------------------------------------------------</span><br><span class="hljs-attr">datadir</span> = /var/lib/mysql<br><span class="hljs-attr">socket</span>  = /var/lib/mysql/mysql.sock<br><span class="hljs-attr">pid_file</span> = /var/lib/mysql/mysql.pid<br><span class="hljs-attr">user</span> = mysql<br><span class="hljs-attr">port</span> = <span class="hljs-number">3306</span><br><span class="hljs-attr">default_storage_engine</span> = InnoDB<br><span class="hljs-attr">default_time_zone</span> = <span class="hljs-string">&#x27;+8:00&#x27;</span><br><span class="hljs-attr">character_set_server</span> = utf8mb4<br><span class="hljs-attr">collation_server</span> = utf8mb<span class="hljs-number">4_0900_</span>ai_ci<br><br><span class="hljs-comment"># LOG</span><br><span class="hljs-comment"># -------------------------------------------------------------------------------</span><br><span class="hljs-attr">log_error</span> = /var/log/mysql/mysql-error.log<br><span class="hljs-attr">slow_query_log</span> = <span class="hljs-number">1</span><br><span class="hljs-attr">slow_query_log_file</span> = /var/log/mysql/mysql-slow.log<br><br><span class="hljs-comment"># InnoDB</span><br><span class="hljs-comment"># -------------------------------------------------------------------------------</span><br><span class="hljs-attr">innodb_buffer_pool_size</span> = &lt;value&gt;<br><span class="hljs-attr">innodb_log_file_size</span> = &lt;value&gt;<br><span class="hljs-attr">innodb_file_per_table</span> = <span class="hljs-number">1</span><br><span class="hljs-attr">innodb_flush_method</span> = O_DIRECT<br><br><span class="hljs-comment"># MyIsam</span><br><span class="hljs-comment"># -------------------------------------------------------------------------------</span><br><span class="hljs-attr">key_buffer_size</span> = &lt;value&gt;<br><br><span class="hljs-comment"># OTHER</span><br><span class="hljs-comment"># -------------------------------------------------------------------------------</span><br><span class="hljs-attr">tmp_table_size</span> = <span class="hljs-number">32</span>M<br><span class="hljs-attr">max_heap_table_size</span> = <span class="hljs-number">32</span>M<br><span class="hljs-attr">query_cache_type</span> = <span class="hljs-number">0</span><br><span class="hljs-attr">query_cache_size</span> = <span class="hljs-number">0</span><br><span class="hljs-attr">max_connections</span> = &lt;value&gt;<br><span class="hljs-attr">thread_cache</span> = &lt;value&gt;<br><span class="hljs-attr">open_files_limit</span> = <span class="hljs-number">65535</span><br><br><span class="hljs-section">[client]</span><br><span class="hljs-attr">socket</span>  = /var/lib/mysql/mysql.sock<br><span class="hljs-attr">port</span> = <span class="hljs-number">3306</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>GENERAL<ul>
+<li><code>datadir</code> - mysql 数据文件所在目录</li>
+<li><code>socket</code> - scoket 文件</li>
+<li><code>pid_file</code> - PID 文件</li>
+<li><code>user</code> - 启动 mysql 服务进程的用户</li>
+<li><code>port</code> - 服务端口号，默认 <code>3306</code></li>
+<li><code>default_storage_engine</code> - mysql 5.1 之后，默认引擎是 InnoDB</li>
+<li><code>default_time_zone</code> - 默认时区。中国大部分地区在东八区，即 <code>+8:00</code></li>
+<li><code>character_set_server</code> - 数据库默认字符集</li>
+<li><code>collation_server</code> - 数据库字符集对应一些排序等规则，注意要和 <code>character_set_server</code> 对应</li>
+</ul>
+</li>
+<li>LOG<ul>
+<li><code>log_error</code> - 错误日志文件地址</li>
+<li><code>slow_query_log</code> - 错误日志文件地址</li>
+</ul>
+</li>
+<li>InnoDB<ul>
+<li><code>innodb_buffer_pool_size</code> - InnoDB 使用一个缓冲池来保存索引和原始数据，不像 MyISAM。这里你设置越大，你在存取表里面数据时所需要的磁盘 I/O 越少。<ul>
+<li>在一个独立使用的数据库服务器上,你可以设置这个变量到服务器物理内存大小的 60%-80%</li>
+<li>注意别设置的过大，会导致 system 的 swap 空间被占用，导致操作系统变慢，从而减低 sql 查询的效率</li>
+<li>默认值：128M，建议值：物理内存的 60%-80%</li>
+</ul>
+</li>
+<li><code>innodb_log_file_size</code> - 日志文件的大小。默认值：48M，建议值：根据你系统的磁盘空间和日志增长情况调整大小</li>
+<li><code>nnodb_file_per_table</code> - 说明：mysql5.7 之后默认开启，意思是，每张表一个独立表空间。默认值 1，开启。</li>
+<li><code>innodb_flush_method</code> - 说明：控制着 innodb 数据文件及 redo log 的打开、刷写模式，三种模式：fdatasync(默认)，O_DSYNC，O_DIRECT。默认值为空，建议值：使用 SAN 或者 raid，建议用 O_DIRECT，不懂测试的话，默认生产上使用 O_DIRECT<ul>
+<li><code>fdatasync</code>：数据文件，buffer pool-&gt;os buffer-&gt;磁盘；日志文件，buffer pool-&gt;os buffer-&gt;磁盘；</li>
+<li><code>O_DSYNC</code>： 数据文件，buffer pool-&gt;os buffer-&gt;磁盘；日志文件，buffer pool-&gt;磁盘；</li>
+<li><code>O_DIRECT</code>： 数据文件，buffer pool-&gt;磁盘； 日志文件，buffer pool-&gt;os buffer-&gt;磁盘；</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>MyIsam<ul>
+<li><code>key_buffer_size</code> - 指定索引缓冲区的大小，为 MYISAM 数据表开启供线程共享的索引缓存，对 INNODB 引擎无效。相当影响 MyISAM 的性能。<ul>
+<li>不要将其设置大于你可用内存的 30%，因为一部分内存同样被 OS 用来缓冲行数据</li>
+<li>甚至在你并不使用 MyISAM 表的情况下，你也需要仍旧设置起 8-64M 内存由于它同样会被内部临时磁盘表使用。</li>
+<li>默认值 8M，建议值：对于内存在 4GB 左右的服务器该参数可设置为 256M 或 384M。</li>
+<li>注意：该参数值设置的过大反而会是服务器整体效率降低！</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>OTHER<ul>
+<li><code>tmp_table_size</code> - 内存临时表的最大值，默认 16M，此处设置成 128M</li>
+<li><code>max_heap_table_size</code> - 用户创建的内存表的大小，默认 16M，往往和 <code>tmp_table_size</code> 一起设置，限制用户临时表大小。超限的话，MySQL 就会自动地把它转化为基于磁盘的 MyISAM 表，存储在指定的 tmpdir 目录下，增大 IO 压力，建议内存大，增大该数值。</li>
+<li><code>query_cache_type</code> - 这个系统变量控制着查询缓存功能的开启和关闭，0 表示关闭，1 表示打开，2 表示只要 <code>select</code> 中明确指定 <code>SQL_CACHE</code> 才缓存。</li>
+<li><code>query_cache_size</code> - 默认值 1M，优点是查询缓存可以极大的提高服务器速度，如果你有大量的相同的查询并且很少修改表。缺点：在你表经常变化的情况下或者如果你的查询原文每次都不同，查询缓存也许引起性能下降而不是性能提升。</li>
+<li><code>max_connections</code> - 最大连接数，可设最大值 16384，一般考虑根据同时在线人数设置一个比较综合的数字，鉴于该数值增大并不太消耗系统资源，建议直接设 10000。如果在访问时经常出现 Too Many Connections 的错误提示，则需要增大该参数值</li>
+<li><code>thread_cache</code> - 当客户端断开之后，服务器处理此客户的线程将会缓存起来以响应下一个客户而不是销毁。可重用，减小了系统开销。默认值为 9，建议值：两种取值方式，<ul>
+<li>方式一，根据物理内存，1G —&gt; 8；2G —&gt; 16； 3G —&gt; 32； &gt;3G —&gt; 64；</li>
+<li>方式二，根据 show status like ‘threads%’，查看 Threads_connected 值。</li>
+</ul>
+</li>
+<li><code>open_files_limit</code> - MySQL 打开的文件描述符限制，默认最小 1024;<ul>
+<li>当 open_files_limit 没有被配置的时候，比较 max_connections*5 和 ulimit -n 的值，哪个大用哪个</li>
+<li>当 open_file_limit 被配置的时候，比较 open_files_limit 和 max_connections*5 的值，哪个大用哪个</li>
+<li>注意：仍然可能出现报错信息 Can’t create a new thread；此时观察系统 <code>cat /proc/mysql</code> 进程号/limits，观察进程 ulimit 限制情况</li>
+<li>过小的话，考虑修改系统配置表，<code>/etc/security/limits.conf</code> 和 <code>/etc/security/limits.d/90-nproc.conf</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-常见问题"><a href="#4-常见问题" class="headerlink" title="4. 常见问题"></a>4. 常见问题</h2><h3 id="4-1-Too-many-connections"><a href="#4-1-Too-many-connections" class="headerlink" title="4.1. Too many connections"></a>4.1. Too many connections</h3><p><strong>现象</strong></p>
+<p>尝试连接 Mysql 时，遇到 <code>Too many connections</code> 错误。</p>
+<p><strong>原因</strong></p>
+<p>数据库连接线程数超过最大值，访问被拒绝。</p>
+<p><strong>解决方案</strong></p>
+<p>如果实际连接线程数过大，可以考虑增加服务器节点来分流；如果实际线程数并不算过大，那么可以配置 <code>max_connections</code> 来增加允许的最大连接数。需要注意的是，连接数不宜过大，一般来说，单库每秒有 2000 个并发连接时，就可以考虑扩容了，健康的状态应该维持在每秒 1000 个并发连接左右。</p>
+<p>（1）查看最大连接数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">show</span> variables <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;%max_connections%&#x27;</span>;<br><span class="hljs-operator">+</span><span class="hljs-comment">------------------------+-------+</span><br><span class="hljs-operator">|</span> Variable_name          <span class="hljs-operator">|</span> <span class="hljs-keyword">Value</span> <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">------------------------+-------+</span><br><span class="hljs-operator">|</span> max_connections        <span class="hljs-operator">|</span> <span class="hljs-number">151</span>   <span class="hljs-operator">|</span><br><span class="hljs-operator">|</span> mysqlx_max_connections <span class="hljs-operator">|</span> <span class="hljs-number">100</span>   <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">------------------------+-------+</span><br></code></pre></td></tr></table></figure>
+
+<p>（2）查看服务器响应的最大连接数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">show</span> <span class="hljs-keyword">global</span> status <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;Max_used_connections&#x27;</span>;<br><span class="hljs-operator">+</span><span class="hljs-comment">----------------------+-------+</span><br><span class="hljs-operator">|</span> Variable_name        <span class="hljs-operator">|</span> <span class="hljs-keyword">Value</span> <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">----------------------+-------+</span><br><span class="hljs-operator">|</span> Max_used_connections <span class="hljs-operator">|</span> <span class="hljs-number">142</span>   <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">----------------------+-------+</span><br><span class="hljs-number">1</span> <span class="hljs-type">row</span> <span class="hljs-keyword">in</span> <span class="hljs-keyword">set</span> (<span class="hljs-number">0.00</span> sec)<br></code></pre></td></tr></table></figure>
+
+<p>（3）临时设置最大连接数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">set</span> <span class="hljs-keyword">GLOBAL</span> max_connections<span class="hljs-operator">=</span><span class="hljs-number">256</span>;<br></code></pre></td></tr></table></figure>
+
+<p>注意：当服务器重启时，最大连接数会被重置。</p>
+<p>（4）永久设置最大连接数</p>
+<p>修改 <code>/etc/my.cnf</code> 配置文件，在 <code>[mysqld]</code> 添加以下配置：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">max_connections<span class="hljs-operator">=</span><span class="hljs-number">256</span><br></code></pre></td></tr></table></figure>
+
+<p>重启 mysql 以生效</p>
+<p>（5）修改 Linux 最大文件数限制</p>
+<p>设置了最大连接数，如果还是没有生效，考虑检查一下 Linux 最大文件数</p>
+<p>Mysql 最大连接数会受到最大文件数限制，<code>vim /etc/security/limits.conf</code>，添加 mysql 用户配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs text">mysql hard nofile 65535<br>mysql soft nofile 65535<br></code></pre></td></tr></table></figure>
+
+<p>（6）检查 LimitNOFILE</p>
+<p>如果是使用 rpm 方式安装 mysql，检查 <strong>mysqld.service</strong> 文件中的 <code>LimitNOFILE</code> 是否配置的太小。</p>
+<h3 id="4-2-时区（time-zone）偏差"><a href="#4-2-时区（time-zone）偏差" class="headerlink" title="4.2. 时区（time_zone）偏差"></a>4.2. 时区（time_zone）偏差</h3><p><strong>现象</strong></p>
+<p>数据库中存储的 Timestamp 字段值比真实值少了 13 个小时。</p>
+<p><strong>原因</strong></p>
+<ul>
+<li>当 JDBC 与 MySQL 开始建立连接时，会获取服务器参数。</li>
+<li>当 MySQL 的 <code>time_zone</code> 值为 <code>SYSTEM</code> 时，会取 <code>system_time_zone</code> 值作为协调时区，若得到的是 <code>CST</code> 那么 Java 会误以为这是 <code>CST -0500</code> ，因此会给出错误的时区信息（国内一般是<code>CST +0800</code>，即东八区）。</li>
+</ul>
+<p>查看时区方法： </p>
+<p>通过 <code>show variables like &#39;%time_zone%&#39;;</code> 命令查看 Mysql 时区配置： </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">show</span> variables <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;%time_zone%&#x27;</span>;<br><span class="hljs-operator">+</span><span class="hljs-comment">------------------+--------+</span><br><span class="hljs-operator">|</span> Variable_name    <span class="hljs-operator">|</span> <span class="hljs-keyword">Value</span>  <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">------------------+--------+</span><br><span class="hljs-operator">|</span> system_time_zone <span class="hljs-operator">|</span> CST    <span class="hljs-operator">|</span><br><span class="hljs-operator">|</span> time_zone        <span class="hljs-operator">|</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-operator">|</span><br><span class="hljs-operator">+</span><span class="hljs-comment">------------------+--------+</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>解决方案</strong> </p>
+<p>方案一 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">set</span> <span class="hljs-keyword">global</span> time_zone <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;+08:00&#x27;</span>;<br>Query OK, <span class="hljs-number">0</span> <span class="hljs-keyword">rows</span> affected (<span class="hljs-number">0.00</span> sec)<br><br>mysql<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">set</span> time_zone <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;+08:00&#x27;</span>;<br>Query OK, <span class="hljs-number">0</span> <span class="hljs-keyword">rows</span> affected (<span class="hljs-number">0.00</span> sec)<br></code></pre></td></tr></table></figure>
+
+<p>方案二 </p>
+<p>修改 <code>my.cnf</code> 文件，在 <code>[mysqld]</code> 节下增加 <code>default-time-zone=&#39;+08:00&#39;</code> ，然后重启。 </p>
+<h3 id="4-3-数据表损坏如何修复"><a href="#4-3-数据表损坏如何修复" class="headerlink" title="4.3. 数据表损坏如何修复"></a>4.3. 数据表损坏如何修复</h3><p>使用 myisamchk 来修复，具体步骤：</p>
+<ol>
+<li>修复前将 mysql 服务停止。</li>
+<li>打开命令行方式，然后进入到 mysql 的 <code>bin</code> 目录。</li>
+<li>执行 myisamchk –recover 数据库所在路 /*.MYI</li>
+</ol>
+<p>使用 repair table 或者 OPTIMIZE table 命令来修复，REPAIR TABLE table_name 修复表 OPTIMIZE TABLE table_name 优化表 REPAIR TABLE 用于修复被破坏的表。 OPTIMIZE TABLE 用于回收闲置的数据库空间，当表上的数据行被删除时，所占据的磁盘空间并没有立即被回收，使用了 OPTIMIZE TABLE 命令后这些空间将被回收，并且对磁盘上的数据行进行重排（注意：是磁盘上，而非数据库） </p>
+<h3 id="4-4-数据结构"><a href="#4-4-数据结构" class="headerlink" title="4.4. 数据结构"></a>4.4. 数据结构</h3><blockquote>
+<p> 问题现象：ERROR 1071: Specified key was too long; max key length is 767 bytes </p>
+</blockquote>
+<p>问题原因：Mysql 默认情况下单个列的索引不能超过 767 位（不同版本可能存在差异） 。</p>
+<p>解决方法：优化索引结构，索引字段不宜过长。</p>
+<h2 id="5-参考资料"><a href="#5-参考资料" class="headerlink" title="5. 参考资料"></a>5. 参考资料</h2><p><a target="_blank" rel="noopener" href="https://dunwu.github.io/db-tutorial/pages/e33b92/#_4-3-%E6%95%B0%E6%8D%AE%E8%A1%A8%E6%8D%9F%E5%9D%8F%E5%A6%82%E4%BD%95%E4%BF%AE%E5%A4%8D">本文引自顿悟的MySQL运维</a></p>
+<p>其中参考文章如下:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaopotian/p/8196464.html">https://www.cnblogs.com/xiaopotian/p/8196464.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/bigbrotherer/p/7241845.html">https://www.cnblogs.com/bigbrotherer/p/7241845.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/managementandjava/article/details/80039650">https://blog.csdn.net/managementandjava/article/details/80039650</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.manongjc.com/article/6996.html">http://www.manongjc.com/article/6996.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xyabk/p/8967990.html">https://www.cnblogs.com/xyabk/p/8967990.html</a></li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL/">SQL</a>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+              </div>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/28/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A6%82%E8%BF%B0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">设计模式概述</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/18/%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E6%9C%BA%E5%88%B6/">
+                        <span class="hidden-mobile">垃圾回收机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"BhicXbKDdNvP9NPx7rovXEdy-gzGzoHsz","appKey":"XqW1MD1MQUgHsxH0BNgcfIfd","path":"window.location.pathname","placeholder":"评论下吧","avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          Fluid.plugins.initFancyBox('#valine .vcontent img:not(.vemoji)');
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
